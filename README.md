@@ -12,29 +12,7 @@ It uses [regular expressions](https://en.wikipedia.org/wiki/Regular_expression) 
 
 ## Start contributing
 
-Use Node.js 22.18 or newer, Git, and network access. Setup checks the archive
-commands needed on your platform. From the checkout root, bootstrap the tools and
-dependencies pinned for this checkout:
-
-<!-- onboarding:bootstrap:start -->
-```sh
-node scripts/setup.mjs
-```
-<!-- onboarding:bootstrap:end -->
-
-Setup selects pinned Node.js and npm under `.cache/`, installs the lockfile,
-and prepares the package. It does not change global tools or PATH. Start the
-guided workflow with:
-
-```sh
-node scripts/develop/run.mts
-```
-
-Use `.cache/bin/npm` for package scripts on macOS and Linux or
-`.cache\bin\npm.cmd` on Windows.
-
-With Node.js 26.11.0 and npm 12.2.0 or newer, direct installation also runs
-core preparation:
+From the checkout root, install and prepare the checkout:
 
 <!-- onboarding:install:start -->
 ```sh
@@ -42,7 +20,28 @@ npm i
 ```
 <!-- onboarding:install:end -->
 
-For agent discovery and a readiness check, run:
+This installs the pinned tools and dependencies, then prepares the package.
+[Make your first change](docs/repo/development/first-change.md) · [V2 toolchain notes](docs/repo/development/toolchain.md)
+
+<details>
+<summary>If npm is unavailable or too old</summary>
+
+Use Node.js 22.18 or newer from the checkout root:
+
+<!-- onboarding:bootstrap:start -->
+```sh
+node scripts/setup.mjs
+```
+<!-- onboarding:bootstrap:end -->
+
+This installs pinned npm and prepares the checkout without changing global tools or PATH. If npm still cannot run, open the menu with `node scripts/develop/run.mts`.
+
+</details>
+
+<details>
+<summary>For agents</summary>
+
+Discover tasks:
 
 <!-- onboarding:discovery:start -->
 ```sh
@@ -56,8 +55,7 @@ node scripts/develop/run.mts --task setup:check --json
 ```
 <!-- onboarding:readiness:end -->
 
-See [Make your first change](docs/repo/development/first-change.md) and the
-[v2 toolchain notes](docs/repo/development/toolchain.md) for the full workflow.
+</details>
 
 <!-- </onboarding> -->
 

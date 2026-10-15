@@ -28,36 +28,33 @@ its own worktree.
 
 ## 2. Prepare the checkout
 
-You need Node.js 22.18 or newer, Git, archive extraction tools, and network
-access. The direct Node entry point can install pinned npm before npm is
-available:
+With Node.js 26.11.0 and npm 12.2.0 or newer, install dependencies from the
+checkout root:
+
+```sh
+npm i
+```
+
+Install prepares pinned tools, dependencies, and the package build. Tools stay
+under `.cache/`; global tools and shell settings are unchanged. Rerun `npm i`
+after an interrupted install.
+
+If npm is unavailable or too old, bootstrap with Node.js 22.18 or newer:
 
 ```sh
 node scripts/setup.mjs
 ```
 
-Setup verifies pinned tools and installs locked dependencies. Use
-`node scripts/setup.mjs --full` when you need PHP, Web Platform Tests, and Chromium. The first run needs network access.
-Tools and isolated `mise` state stay under the checkout's ignored `.cache/`
-directory. Setup does not change global tools or shell configuration.
-
-If setup is interrupted, rerun `node scripts/setup.mjs`. Verified tool downloads are reused. Setup reinstalls the locked dependencies
-and prepares this checkout. If setup reports a failure, follow its recovery
-command. `node scripts/develop/doctor.mts` reports readiness without installing
-or changing files. Add `--details` to inspect selected tool paths.
-
-After setup, use `node scripts/develop/run.mts` for guided tasks. When a package
-script is needed, use the pinned wrapper `.cache/bin/npm` on macOS and Linux or
-`.cache\bin\npm.cmd` on Windows. These direct paths need no global npm or PATH
-edit.
-Examples below use the macOS and Linux spelling. Use the Windows wrapper path
-for those package commands on Windows.
+This installs pinned npm and locked dependencies. Use
+`node scripts/setup.mjs --full` only when you need PHP, Web Platform Tests, and
+Chromium. Downloads are reused on retry. If npm still cannot run, open the menu
+with `node scripts/develop/run.mts`.
 
 ## 3. Choose a task
 
-Run `node scripts/develop/run.mts` for the guided menu. It offers setup,
+Run `npm run dev` for the guided menu. It offers setup,
 documentation, review, and setup diagnostics. Use 1–4 or the arrow keys to
-preview a task, then press Enter to run it. Use `node scripts/develop/run.mts --plain` for
+preview a task, then press Enter to run it. Use `npm run dev -- --plain` for
 numbered prompts. You can leave the menu and return between tasks.
 
 | Task                   | Start here                                                   | While editing                             |
