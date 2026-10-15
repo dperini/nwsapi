@@ -1,5 +1,5 @@
+import { isMainModule } from '../lib/paths.mts'
 import { constants } from 'node:os'
-import { fileURLToPath } from 'node:url'
 import { REPO_ROOT } from '../lib/external-tools.mjs'
 import { managedEnvironment } from '../lib/tools/setup.mjs'
 import { npmInvocation } from '../lib/npm.mjs'
@@ -42,7 +42,7 @@ export async function runReview(
   return result
 }
 
-if (fileURLToPath(import.meta.url) === process.argv[1]) {
+if (isMainModule(import.meta.url)) {
   const result = await runReview()
   if (result.signal) {
     process.exitCode = 128 + (constants.signals[result.signal] ?? 1)

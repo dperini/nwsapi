@@ -1,5 +1,5 @@
 import { parseArgs } from 'node:util'
-import { TASKS } from './actions.mts'
+import { taskCommandArgs, TASKS } from './actions.mts'
 import type { TaskResult } from './execute.mts'
 
 export function parseOptions(args: string[]) {
@@ -47,7 +47,7 @@ export function printJsonTasks() {
       description: task.description,
       detail: task.detail,
       next: task.next,
-      command: ['npm', 'run', task.script],
+      command: taskCommandArgs(task),
       persistent: false,
       manual: task.manual ?? false,
       optional: task.optional ?? false,

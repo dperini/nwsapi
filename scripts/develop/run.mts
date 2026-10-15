@@ -1,3 +1,4 @@
+import { isMainModule } from '../lib/paths.mts'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { existsSync, realpathSync } from 'node:fs'
@@ -16,7 +17,7 @@ import {
   runTask,
 } from './protocol.mts'
 
-const HELP = `Usage: npm run dev [-- --plain | --list | --task <id>] [--json]
+const HELP = `Usage: node scripts/develop/run.mts [--plain | --list | --task <id>] [--json]
 
 Guides you through setup, documentation, review, and optional setup help.
 Arrow keys or 1–4 preview a task. Enter runs it. q or Esc quits.
@@ -26,13 +27,13 @@ Arrow keys or 1–4 preview a task. Enter runs it. q or Esc quits.
 --json   Print JSON discovery or results. Task logs go to stderr.
 -h, --help  Show this help.
 
-Machine output: npm --silent run dev -- --list --json
+Machine output: node scripts/develop/run.mts --list --json
 Direct entry point: node scripts/develop/run.mts --task setup:check --json
 JSON without --task lists tasks. Discovery needs no installed dependencies.
 
 The visual menu uses @opentui/core with Node.js 26.4+ and experimental FFI.
 Older runtimes and small terminals use text prompts. Noninteractive input lists tasks.
-Direct commands remain available: npm run setup, docs, review, setup:check.`
+Direct commands remain available: node scripts/setup.mjs, node scripts/develop/doctor.mts.`
 
 function supportsNative() {
   const [major, minor] = process.versions.node.split('.').map(Number)
@@ -228,6 +229,6 @@ export async function main(args = process.argv.slice(2)) {
   await menuLoop(plain || !node)
 }
 
-if (fileURLToPath(import.meta.url) === process.argv[1]) {
+if (isMainModule(import.meta.url)) {
   await main()
 }

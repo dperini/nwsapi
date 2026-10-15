@@ -36,7 +36,7 @@ test('menu flags parse and conflicting modes fail with actionable errors', () =>
   assert.throws(() => parseOptions(['--task', 'missing']), /Unknown task/)
 })
 
-test('JSON discovery is one parseable object with npm execution commands', () => {
+test('JSON discovery uses direct Node for built-in commands and managed npm for scripts', () => {
   const result = spawnSync(
     process.execPath,
     ['scripts/develop/run.mts', '--list', '--json'],
@@ -52,7 +52,13 @@ test('JSON discovery is one parseable object with npm execution commands', () =>
     output.tasks.map(task => task.id),
     ['setup', 'docs', 'review', 'setup:check'],
   )
-  assert.ok(output.tasks.every(task => task.command[0] === 'npm'))
+  assert.deepEqual(output.tasks[0].command, ['node', 'scripts/setup.mjs'])
+  assert.deepEqual(output.tasks[1].command, ['node', 'scripts/develop/docs.mts'])
+  assert.deepEqual(output.tasks[2].command, ['.cache/bin/npm', 'run', 'review'])
+  assert.deepEqual(output.tasks[3].command, [
+    'node',
+    'scripts/develop/doctor.mts',
+  ])
 })
 
 test('JSON task execution keeps progress off stdout and returns a result object', () => {

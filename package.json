@@ -58,11 +58,13 @@
     "setup": "node scripts/setup.mjs",
     "setup:check": "node scripts/develop/doctor.mts",
     "review": "node scripts/develop/review.mts",
-    "test": "node --test test/repo/integration/*.test.mjs test/repo/integration/fastpaths/*.test.mjs test/repo/release/*.test.mjs",
+    "test": "node scripts/test/run.mts",
     "wpt:serve": "node test/wpt/wpt-launcher.mjs serve",
     "wpt:setup": "node test/wpt/wpt-launcher.mjs setup",
     "wpt:verify": "node test/wpt/wpt-launcher.mjs verify",
-    "wpt:test": "node test/wpt/wpt-test.mjs"
+    "wpt:test": "node test/wpt/wpt-test.mjs",
+    "setup:full": "node scripts/setup.mjs --full",
+    "test:onboarding": "node scripts/test/onboarding/run.mts journey"
   },
   "engines": {
     "npm": ">=12.2.0"

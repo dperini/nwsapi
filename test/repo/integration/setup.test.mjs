@@ -151,7 +151,7 @@ test('toolchain state identifies this branch and its complete pinned assets', ()
   assert.equal(state.node, toolVersion('node'))
   assert.deepEqual(
     state.tools.map(tool => tool.name),
-    ['nub', 'npm', 'pnpm', 'mise'],
+    ['nub', 'npm', 'mise'],
   )
   assert.ok(state.tools.every(tool => tool.integrity && tool.version))
 })
