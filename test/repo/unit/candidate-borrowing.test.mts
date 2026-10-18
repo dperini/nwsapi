@@ -115,6 +115,7 @@ test('filtered candidates borrow the snapshot path while identity candidates fet
   const candidates = [] as Element[]
   const engine = {
     Config: { LEGACY: false },
+    hasExtensions: false,
     Selectors: {},
     Combinators: {},
     hasCandidates(token: string) {
@@ -136,6 +137,7 @@ test('filtered candidates borrow the snapshot path while identity candidates fet
     Expression: /^:custom(.*)/,
     Callback: (match, source) => ({ match, source, status: true }),
   }
+  engine.hasExtensions = true
   selectCandidates(engine, '*', context, true)
   assert.equal(calls.at(-1), 'fetch:')
 })

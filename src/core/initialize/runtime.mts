@@ -179,6 +179,7 @@ export function initializeRuntime(engine: EngineState) {
   }
   engine.Combinators = {}
   engine.Selectors = {}
+  engine.hasExtensions = false
   engine.Operators = {
     '=': { p1: '^', p2: '$', p3: 'true' },
     '^=': { p1: '^', p2: '', p3: 'true' },

@@ -298,6 +298,7 @@ export function initializeApi(engine: EngineState) {
           symbol + '])',
         )
         engine.Combinators[combinator] = resolver
+        engine.hasExtensions = true
         engine.setIdentifierSyntax()
         engine.selectorGeneration++
         engine.configure({}, true)
@@ -346,6 +347,7 @@ export function initializeApi(engine: EngineState) {
           Expression: rexp,
           Callback: func,
         }
+        engine.hasExtensions = true
         engine.selectorGeneration++
         engine.configure({}, true)
       }

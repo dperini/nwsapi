@@ -35,7 +35,7 @@ export function nthFiltered(
 
   function collectFilteredSiblings() {
     if (!siblings) {
-      siblings = { nodes: [], positions: engine.createWeakMap() }
+      siblings = { nodes: [], positions: undefined }
       if (!typeNames) {
         resolvers = engine.matchResolvers.get('false:' + selector)
         if (!resolvers) {
@@ -46,18 +46,24 @@ export function nthFiltered(
           engine.matchResolvers.set('false:' + selector, resolvers)
         }
       }
-      child = element.parentNode ? engine.firstOf(parent) : element
-      while (child) {
-        if (
-          typeNames
-            ? matchesSimpleType(engine, child, typeNames)
-            : engine.match_assert(resolvers!, child, undefined)
-        ) {
-          siblings.nodes[siblings.nodes.length] = child
-          siblings.positions &&
-            siblings.positions.set(child, siblings.nodes.length)
+      if (typeNames) {
+        child = element.parentNode
+          ? (parent as ParentNode).firstElementChild
+          : element
+        while (child) {
+          if (matchesSimpleType(engine, child, typeNames)) {
+            keepFilteredSibling(engine, siblings, child)
+          }
+          child = child.nextElementSibling
         }
-        child = engine.nextOf(child)
+      } else {
+        child = element.parentNode ? engine.firstOf(parent) : element
+        while (child) {
+          if (engine.match_assert(resolvers!, child, undefined)) {
+            keepFilteredSibling(engine, siblings, child)
+          }
+          child = engine.nextOf(child)
+        }
       }
       if (state) {
         state.parents || (state.parents = engine.createWeakMap())
@@ -65,6 +71,30 @@ export function nthFiltered(
       }
     }
     return siblings
+  }
+}
+
+function keepFilteredSibling(
+  engine: EngineState,
+  siblings: {
+    nodes: Element[]
+    positions: WeakMap<Element, number> | undefined
+  },
+  child: Element,
+) {
+  const nodes = siblings.nodes
+  nodes[nodes.length] = child
+  if (siblings.positions) {
+    siblings.positions.set(child, nodes.length)
+  } else if (nodes.length > 8 && engine.primordials.WeakMapCtor) {
+    const positions = engine.createWeakMap<Element, number>()
+    if (positions) {
+      siblings.positions = positions
+      for (let index = 0, length = nodes.length - 1; index < length; ++index) {
+        positions.set(nodes[index]!, index + 1)
+      }
+      positions.set(child, nodes.length)
+    }
   }
 }
 
@@ -98,5 +128,11 @@ function matchesSimpleType(
   element: Element,
   names: string[],
 ) {
-  return names.includes(engine.asciiLower(engine.tagOf(element)))
+  const local = engine.tagOf(element)
+  const name =
+    element.namespaceURI == engine.NAMESPACE ? local : engine.asciiLower(local)
+  if (names.length == 2) {
+    return name == names[0] || name == names[1]
+  }
+  return names.includes(name)
 }

@@ -28,15 +28,7 @@ export function compilePseudoInput(
     case '-moz-read-only':
     case 'read-write':
     case '-moz-read-write':
-      state.source =
-        'n=e.localName;if(' +
-        (state.match![1]!.indexOf('read-only') >= 0 ? '!' : '') +
-        '(("input"==n||/^input$/i.test(n))?' +
-        '((e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||s.includes("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|","|"+e.type+"|"))&&!e.readOnly&&!s.isDisabled(e)):' +
-        '("textarea"==n||/^textarea$/i.test(n))?!e.readOnly&&!s.isDisabled(e):s.isContentEditable(e))' +
-        '){' +
-        state.source +
-        '}'
+      compileReadonlyInput(state)
       break
     case 'autofill':
     case '-webkit-autofill':
@@ -92,4 +84,19 @@ export function compilePseudoInput(
       break
   }
   return undefined
+}
+
+function compileReadonlyInput(state: CompileState) {
+  if (state.engine.S_VARS.indexOf('_t') < 0) {
+    state.engine.S_VARS.push('_t')
+  }
+  state.source =
+    'n=e.localName;if(' +
+    (state.match![1]!.indexOf('read-only') >= 0 ? '!' : '') +
+    '(("input"==n||/^input$/i.test(n))?' +
+    '((e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||(_t=e.type,_t=="date"||_t=="datetime-local"||_t=="email"||_t=="month"||_t=="number"||_t=="password"||_t=="search"||_t=="tel"||_t=="text"||_t=="time"||_t=="url"||_t=="week"))&&!e.readOnly&&!s.isDisabled(e)):' +
+    '("textarea"==n||/^textarea$/i.test(n))?!e.readOnly&&!s.isDisabled(e):s.isContentEditable(e))' +
+    '){' +
+    state.source +
+    '}'
 }

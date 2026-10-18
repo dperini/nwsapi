@@ -445,7 +445,7 @@ function runCachedResolvers(
   return undefined
 }
 
-function runSingle(
+export function runSingle(
   engine: EngineState,
   plan: QueryPlan,
   context: EngineContext,

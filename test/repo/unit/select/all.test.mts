@@ -55,3 +55,41 @@ test('class descendant type unions reject callbacks and sparse roots', () => {
     1,
   )
 })
+import { runSingle } from '../../../../src/core/select/all.mts'
+import type {
+  CompiledResolver,
+  EngineContext,
+  EngineState,
+  QueryPlan,
+} from '../../../../src/core/state/types.mts'
+
+test('single cached plans return unfiltered candidates or resolved results', () => {
+  const candidates = [{}, {}, {}] as Element[]
+  const context = {} as EngineContext
+  const engine = {
+    Config: { LEGACY: false, NODE_LIST: false },
+    hasExtensions: false,
+    hasCandidates: () => candidates,
+    fetch: { '*': () => candidates },
+  } as unknown as EngineState
+  const identityPlan: QueryPlan = {
+    factory: [null],
+    nodeset: ['*'],
+  }
+
+  assert.equal(runSingle(engine, identityPlan, context, undefined), candidates)
+
+  const resolved = ((selected, _callback, _context, result?: Element[]) => {
+    const output = result || []
+    output.push((selected as ArrayLike<Element>)[1]!)
+    return output
+  }) as CompiledResolver
+  const resolvedPlan: QueryPlan = {
+    factory: [resolved],
+    nodeset: ['*'],
+  }
+
+  assert.deepEqual(runSingle(engine, resolvedPlan, context, undefined), [
+    candidates[1],
+  ])
+})

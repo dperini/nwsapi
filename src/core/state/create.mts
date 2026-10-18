@@ -51,6 +51,7 @@ export const initializeState = function (
   this.HTML_TABLE = undefined
   this.Combinators = undefined
   this.Selectors = undefined
+  this.hasExtensions = false
   this.Operators = undefined
   this.concatCall = undefined
   this.concatList = undefined

@@ -44,15 +44,5 @@ export function compilePositionMatch(state: CompileState) {
 }
 
 function canSharePosition(state: CompileState) {
-  for (var name in state.engine.Selectors) {
-    if (state.engine.Selectors[name]) {
-      return false
-    }
-  }
-  for (name in state.engine.Combinators) {
-    if (state.engine.Combinators[name]) {
-      return false
-    }
-  }
-  return true
+  return !state.engine.hasExtensions
 }

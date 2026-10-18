@@ -12,15 +12,8 @@ export function canReuseAncestor(
   if (!/[\t\n\f\r ]/.test(selector)) {
     return false
   }
-  for (var extension in engine.Selectors) {
-    if (engine.Selectors[extension]) {
-      return false
-    }
-  }
-  for (extension in engine.Combinators) {
-    if (engine.Combinators[extension]) {
-      return false
-    }
+  if (engine.hasExtensions) {
+    return false
   }
   var walks = 0,
     token,

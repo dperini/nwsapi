@@ -64,6 +64,7 @@ export interface RuntimeState {
   HTML_TABLE: Record<string, number>
   Combinators: Record<string, (match: RegExpMatchArray) => string>
   Selectors: Record<string, SelectorExtension>
+  hasExtensions: boolean
   Operators: Record<string, AttributeOperator>
   concatCall: (
     nodes: ArrayLike<Element>,
