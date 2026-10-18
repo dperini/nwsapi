@@ -2055,3 +2055,18 @@ the prefix work. Keep the learned model offline; see the [corrected neural
 measurements](neural-planner-outcome.md) and [complete-route
 measurements](neural-dispatch-outcome.md) for the training and promotion
 evidence.
+
+## 2026-10-18: Defer `nth-of-type` rank indexes
+
+Ordered sibling visits already advance a cursor. Parent snapshots now defer
+their per-type `WeakMap` rank index until a lookup leaves that order. Two
+correctness-checked A/B runs on an Apple M1 Max showed a median gain across
+256–5,000 same-type siblings of 34.5–38.7% in Chromium and 17.4–22.4% in
+`jsdom`. Small buckets were near measurement noise. Many-parent and sparse
+selection cases showed no consistent gain. Legacy lookup behavior is unchanged.
+
+The [first](../../../assets/repo/bench/selector-algorithms-2026-10-18/lazy-type-index-r1/metadata.json)
+and [reversed-order](../../../assets/repo/bench/selector-algorithms-2026-10-18/lazy-type-index-r2/metadata.json)
+records include rounds, fixtures, bundle hashes and compressed builds. The
+benchmark driver is
+[`nth-of-type.mts`](../../../scripts/repo/bench/position/nth-of-type.mts).

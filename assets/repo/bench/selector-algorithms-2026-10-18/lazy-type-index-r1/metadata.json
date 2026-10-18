@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-10-18T14:46:44.474Z",
+  "node": "v26.10.0",
+  "platform": "darwin/arm64",
+  "cpu": "Apple M1 Max",
+  "jsdom": "30.0.1",
+  "playwright": "1.63.0",
+  "chromium": "153.0.8010.12",
+  "baselineSha256": "cfb8745625d874f9c139b2da197c1eee508436ec5292eccb41b43b9c35732e33",
+  "candidateSha256": "039bc935f6741ba3a65b7becb48280aa358091df33721c1fc6e03a5292e49e81",
+  "fixtureSha256": "aa02e0f6f061858d0b79cd553a9779524076abab7e5db369eab82c63e112a163",
+  "lockfileSha256": "aa153772d417a9410dcce7f90227f5746087b922a0f4f31f30a183f9e668bbbc",
+  "power": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=38207587)\t70%; charging; 1:03 remaining present: true",
+  "powerAfter": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=38207587)\t70%; charging; 1:03 remaining present: true",
+  "repeat": false
+}

@@ -1,6 +1,6 @@
 import type { EngineState } from '../../state/types.mts'
 
-interface TypePositions {
+export interface TypePositions {
   nodes: Element[]
   positions?: WeakMap<Element, number>
 }
@@ -85,14 +85,12 @@ export function createNthOfType(engine: EngineState) {
 
     current = type.nodes
     currentLength = type.nodes.length
-    currentIndex = type.positions
-      ? type.positions.get(target) || 1
-      : findPosition(type.nodes, target)
+    currentIndex = positionOf(engine, type, target)
     return dir ? currentLength - currentIndex + 1 : currentIndex
   }
 }
 
-function advanceStableCursor(
+export function advanceStableCursor(
   current: Element[] | undefined,
   index: number,
   element: Element | null,
@@ -100,7 +98,7 @@ function advanceStableCursor(
   return current?.[index] === element ? index + 1 : index
 }
 
-function createSnapshotStore(
+export function createSnapshotStore(
   engine: EngineState,
 ): WeakMap<ParentNode, ParentPositions> | ParentPositions[] {
   return engine.primordials.WeakMapCtor
@@ -129,7 +127,7 @@ export function stablePosition(
   return undefined
 }
 
-function getParentSnapshot(
+export function getParentSnapshot(
   snapshots: WeakMap<ParentNode, ParentPositions> | ParentPositions[],
   parent: ParentNode | null,
   engine: EngineState,
@@ -166,7 +164,7 @@ function getParentSnapshot(
   return snapshot
 }
 
-function getTypePositions(
+export function getTypePositions(
   engine: EngineState,
   snapshot: ParentPositions,
   target: Element,
@@ -208,22 +206,39 @@ export function buildSnapshot(
       snapshot.types[name] = type
     }
     type.nodes[type.nodes.length] = sibling
-    type.positions?.set(sibling, type.nodes.length)
     node = sibling.nextElementSibling
-  }
-  for (const name in snapshot.types) {
-    addPositions(engine, snapshot.types[name]!)
   }
 }
 
-function addPositions(engine: EngineState, type: TypePositions) {
+export function addPositions(engine: EngineState, type: TypePositions) {
   const WeakMapCtor = engine.primordials.WeakMapCtor
-  if (WeakMapCtor && type.nodes.length > 8) {
-    type.positions = new WeakMapCtor<Element, number>()
-    for (let i = 0, length = type.nodes.length; i < length; ++i) {
-      type.positions.set(type.nodes[i]!, i + 1)
-    }
+  if (!WeakMapCtor || type.nodes.length <= 8) {
+    return undefined
   }
+
+  const positions = new WeakMapCtor<Element, number>()
+  for (let i = 0, length = type.nodes.length; i < length; ++i) {
+    positions.set(type.nodes[i]!, i + 1)
+  }
+  type.positions = positions
+  return positions
+}
+
+export function positionOf(
+  engine: EngineState,
+  type: TypePositions,
+  target: Element,
+) {
+  if (type.nodes[0] === target) {
+    return 1
+  }
+  if (type.positions) {
+    return type.positions.get(target) || 1
+  }
+  if (type.nodes.length > 8 && engine.primordials.WeakMapCtor) {
+    return addPositions(engine, type)?.get(target) || 1
+  }
+  return findPosition(type.nodes, target)
 }
 
 export function scanTypePosition(
@@ -243,7 +258,7 @@ export function scanTypePosition(
   return position
 }
 
-function typeName(
+export function typeName(
   engine: EngineState,
   namespace: string | null,
   local: string,
