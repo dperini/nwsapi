@@ -10,15 +10,24 @@ type Run = (
   args: string[],
   stdio?: 'inherit' | 'ignore',
 ) => number | null
+type Spawn = (
+  command: string,
+  args: string[],
+  options: { stdio: 'inherit' | 'ignore' },
+) => { status: number | null; error?: Error }
 type AppExists = (name: 'OrbStack' | 'Docker') => boolean
 
-const run: Run = (command, args, stdio = 'inherit') => {
-  const result = spawnSync(command, args, {
-    stdio,
-    shell: process.platform === 'win32',
-  })
+export function runLocalCiCommand(
+  command: string,
+  args: string[],
+  stdio: 'inherit' | 'ignore' = 'inherit',
+  spawn: Spawn = spawnSync,
+) {
+  const result = spawn(command, args, { stdio })
   return result.error ? null : result.status
 }
+
+const run: Run = runLocalCiCommand
 
 function appExists(name: 'OrbStack' | 'Docker') {
   const app = `${name}.app`

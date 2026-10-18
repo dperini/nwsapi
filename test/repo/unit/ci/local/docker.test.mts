@@ -1,5 +1,8 @@
 import { afterEach, expect, test, vi } from 'vitest'
-import { ensureLocalCiDockerAvailable } from '../../../../../scripts/repo/ci/local/docker.mts'
+import {
+  ensureLocalCiDockerAvailable,
+  runLocalCiCommand,
+} from '../../../../../scripts/repo/ci/local/docker.mts'
 import { localCiInvocation } from '../../../../../scripts/repo/ci/local/run.mts'
 
 afterEach(() => vi.restoreAllMocks())
@@ -17,6 +20,20 @@ test('selects the repository CI workflow for local runs', () => {
       '--pause-on-failure',
       '--github-token',
     ],
+  })
+})
+
+test('keeps Windows executable arguments out of a shell', () => {
+  const spawn = vi.fn(() => ({ status: 0 }))
+  const args = [
+    '-NoProfile',
+    '-Command',
+    'Start-Process "$Env:ProgramFiles\\Docker\\Docker\\Docker Desktop.exe"',
+  ]
+
+  expect(runLocalCiCommand('powershell', args, 'ignore', spawn)).toBe(0)
+  expect(spawn).toHaveBeenCalledExactlyOnceWith('powershell', args, {
+    stdio: 'ignore',
   })
 })
 
