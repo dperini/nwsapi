@@ -1,6 +1,7 @@
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
 import {
+  buildSnapshot,
   findPosition,
   scanPosition,
   scanTypePosition,
@@ -37,4 +38,20 @@ test('position scans count matching siblings in forward and reverse order', t =>
   expect(scanTypePosition(target, 'i', target.namespaceURI, 1)).toBe(2)
   expect(findPosition([target.previousElementSibling!, target], target)).toBe(2)
   expect(findPosition([], target)).toBe(1)
+})
+
+test('wide type snapshots index siblings after collecting them', t => {
+  const { window } = new JSDOM('<main>' + '<i></i>'.repeat(12) + '</main>')
+  t.onTestFinished(() => window.close())
+  const parent = window.document.querySelector('main')!
+  const snapshot = { parent, types: Object.create(null) }
+  const engine = {
+    NAMESPACE: 'http://www.w3.org/1999/xhtml',
+    firstOf: (node: ParentNode) => node.firstElementChild,
+    primordials: { ObjectCreate: Object.create, WeakMapCtor: WeakMap },
+  } as unknown as EngineState
+  buildSnapshot(snapshot, engine, parent.firstElementChild!)
+  const type = snapshot.types.i!
+  expect(type.nodes).toHaveLength(12)
+  expect(type.positions?.get(type.nodes[11]!)).toBe(12)
 })

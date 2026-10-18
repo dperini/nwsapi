@@ -199,6 +199,40 @@ describe('a descendant chain of tags answered by descending', () => {
     )
   })
 
+  test('terminal tag unions skip empty branches and preserve NodeList output', () => {
+    const { window } = new JSDOM(
+      '<!doctype html><dl><dd><code id="first"></code><code id="second"></code></dd></dl>',
+    )
+    windows.push(window)
+    const nw = registerLegacy(factory(window))
+    const doc = window.document
+    const selector = 'dl dd :is(a, code)'
+    const expected = [...doc.querySelectorAll(selector)]
+    assert.equal(expected.length, 2)
+    assert.deepEqual(Array.from(nw.select(selector, doc)), expected)
+    nw.configure({ NODE_LIST: true })
+    const result = nw.select(selector, doc)
+    assert.ok(result instanceof window.NodeList)
+    assert.deepEqual(Array.from(result), expected)
+  })
+
+  test('closest class routes refresh candidates after DOM mutations', () => {
+    const { document, NW } = build(
+      '<!doctype html><section class="card"><a class="primary" id="first"></a></section>',
+    )
+    const selector = 'section.card .primary'
+    const matches = () =>
+      Array.from(NW.select(selector, document), element => element.id)
+    assert.deepEqual(matches(), ['first'])
+    const second = document.createElement('a')
+    second.className = 'primary'
+    second.id = 'second'
+    document.querySelector('section')!.append(second)
+    assert.deepEqual(matches(), ['first', 'second'])
+    document.getElementById('first')!.remove()
+    assert.deepEqual(matches(), ['second'])
+  })
+
   test('simple selectors skip foreign-type scans after unrelated mutations', () => {
     const { window, document, NW } = build(
       '<!doctype html><main><p class="card" data-kind="x"></p></main>',

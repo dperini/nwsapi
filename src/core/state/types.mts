@@ -131,6 +131,8 @@ export interface FilteredNthState {
   parents?: WeakMap<Node, FilteredSiblings> | undefined
   parent?: Node
   siblings?: FilteredSiblings
+  typeSelector?: string
+  typeNames?: string[] | null
 }
 
 export interface FirstPositionState {

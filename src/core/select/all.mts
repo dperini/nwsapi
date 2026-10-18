@@ -123,6 +123,96 @@ export function selectByDescent(
   return undefined
 }
 
+export function selectClassDescendantTypeUnion(
+  engine: EngineState,
+  selectors: string,
+  context: EngineContext,
+  callback: ElementCallback,
+) {
+  if (!hasClassDescendantTypeUnionShape(selectors)) {
+    return undefined
+  }
+  if (!supportsClassDescendantTypeUnion(engine, context, callback)) {
+    return undefined
+  }
+  const match = parseClassDescendantTypeUnion(selectors)
+  if (!match || engine.hasForeignTypes(context)) {
+    return undefined
+  }
+  const roots = context.getElementsByClassName!(match[1]!)
+  const rootsLength = roots.length
+  if (!denseClassRoots(context, rootsLength)) {
+    return undefined
+  }
+  const tags = new Set(match[2]!.split(/[\t\n\f\r ]*,[\t\n\f\r ]*/))
+  const results = collectClassUnion(tags, roots, rootsLength)
+  return engine.Config.NODE_LIST ? engine.toNodeList(results) : results
+}
+
+function hasClassDescendantTypeUnionShape(selectors: string) {
+  return (
+    typeof selectors == 'string' &&
+    selectors.charCodeAt(0) == 46 &&
+    (selectors.indexOf(':is(') >= 0 || selectors.indexOf(':where(') >= 0)
+  )
+}
+
+function supportsClassDescendantTypeUnion(
+  engine: EngineState,
+  context: EngineContext,
+  callback: ElementCallback,
+) {
+  return (
+    callback === undefined &&
+    !engine.Config.LEGACY &&
+    !engine.QUIRKS_MODE &&
+    engine.HTML_DOCUMENT &&
+    context.nodeType == 9 &&
+    !!context.getElementsByClassName
+  )
+}
+
+function parseClassDescendantTypeUnion(selectors: string) {
+  return /^\.([_a-zA-Z][\w-]*)[\t\n\f\r ]+:(?:is|where)\(([a-z][a-z0-9-]*(?:[\t\n\f\r ]*,[\t\n\f\r ]*[a-z][a-z0-9-]*)+)\)$/.exec(
+    selectors,
+  )
+}
+
+function denseClassRoots(context: EngineContext, rootsLength: number) {
+  return (
+    rootsLength >= 16 &&
+    context.getElementsByTagName!('*').length <= rootsLength * 32
+  )
+}
+
+function collectClassUnion(
+  tags: Set<string>,
+  roots: HTMLCollectionOf<Element>,
+  rootsLength: number,
+) {
+  const results: Element[] = []
+  let previous: Element | undefined
+  for (let index = 0; index < rootsLength; ++index) {
+    const root = roots[index]!
+    if (previous && previous.contains(root)) {
+      continue
+    }
+    previous = root
+    const descendants = root.getElementsByTagName('*')
+    for (
+      let offset = 0, descendantsLength = descendants.length;
+      offset < descendantsLength;
+      ++offset
+    ) {
+      const descendant = descendants[offset]!
+      if (tags.has(descendant.localName)) {
+        results[results.length] = descendant
+      }
+    }
+  }
+  return results
+}
+
 function selectDirectRoute(
   engine: EngineState,
   selectors: string,
@@ -130,7 +220,11 @@ function selectDirectRoute(
   callback: ElementCallback,
 ) {
   const closest = selectByClosest(engine, selectors, context, callback)
-  return closest || selectDirectChildren(engine, selectors, context, callback)
+  return (
+    closest ||
+    selectDirectChildren(engine, selectors, context, callback) ||
+    selectClassDescendantTypeUnion(engine, selectors, context, callback)
+  )
 }
 
 export function selectByClosest(
@@ -149,14 +243,15 @@ export function selectByClosest(
     !match ||
     callback !== undefined ||
     engine.Config.LEGACY ||
-    engine.Config['QUIRKS_MODE'] ||
+    engine.QUIRKS_MODE ||
     !engine.HTML_DOCUMENT ||
     !context.getElementsByClassName ||
     engine.hasForeignTypes(context)
   ) {
     return undefined
   }
-  const candidates = context.getElementsByClassName(match[3]!)
+  const liveCandidates = context.getElementsByClassName(match[3]!)
+  const candidates = engine.collectionSnapshot(liveCandidates, context)
   const results: Element[] = []
   const tag = match[1]!
   const cls = match[2]!
@@ -223,13 +318,16 @@ export function selectTypeUnion(
     ) {
       results[results.length] = selected[offset]!
     }
-    ends[ends.length] = results.length
+    if (results.length > ends[ends.length - 1]!) {
+      ends[ends.length] = results.length
+    }
   }
   if (results.length > 1) {
     engine.hasDupes = false
-    return engine.mergeResults(results, ends)
+    const merged = engine.mergeResults(results, ends)
+    return engine.Config.NODE_LIST ? engine.toNodeList(merged) : merged
   }
-  return results
+  return engine.Config.NODE_LIST ? engine.toNodeList(results) : results
 }
 
 function chainByParts(
@@ -277,6 +375,7 @@ export function selectDirectChildren(
     engine.includes(selectors, '>') &&
     callback === undefined &&
     !engine.Config.LEGACY &&
+    !engine.QUIRKS_MODE &&
     engine.HTML_DOCUMENT &&
     context.nodeType == 9 &&
     engine.reChildRoute.test(selectors) &&

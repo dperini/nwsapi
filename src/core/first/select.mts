@@ -191,7 +191,11 @@ export function selectChildren(
     return null
   }
   if (length >= 16) {
-    if (countTerminalCandidates(context, plan.terminals) <= length) {
+    // Avoid scoped lookups when most terminal candidates belong to an anchor.
+    if (
+      countTerminalCandidates(context, plan.terminals) <=
+      length + Math.ceil(length / 2)
+    ) {
       return null
     }
     roots = engine.collectionSnapshot(roots, context!, length)

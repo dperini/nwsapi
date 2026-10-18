@@ -32,17 +32,21 @@ test('bulk direct-child has marks only parents of matching witnesses', t => {
     { length: 64 },
     (_, index) =>
       `<section class="card" id="card-${index}">` +
-      `<input${index % 3 === 0 ? ' checked' : ''}>` +
-      '<input><input><input></section>',
+      `<input type="checkbox"${index % 3 === 0 ? ' checked' : ''}>` +
+      '<input type="checkbox"><input type="checkbox"><input type="checkbox"></section>',
   ).join('')
   const { window } = new JSDOM(
     `<!doctype html><body>${cards}` +
-      '<section class="card" id="nested-only"><span><input checked></span></section>' +
+      '<section class="card" id="nested-only"><span><input type="checkbox" checked></span></section>' +
       '</body>',
   )
   t.onTestFinished(() => window.close())
   const engine = createEngine(window)
   const selector = '.card:has(> input:checked)'
+  const expected = Array.from(window.document.querySelectorAll(selector))
+  assert.equal(expected.length, 22)
+  assert.equal(expected[0]!.id, 'card-0')
+  assert.equal(expected.at(-1)!.id, 'card-63')
   const plan = prepareBulkHas(engine, selector, window.document)
   assert.equal(plan?.directChild, true)
   const anchors = engine.hasCandidates(
@@ -50,10 +54,7 @@ test('bulk direct-child has marks only parents of matching witnesses', t => {
     window.document,
   )
   const selected = selectBulkHas(engine, plan!, window.document, anchors)
-  assert.deepEqual(
-    selected,
-    Array.from(window.document.querySelectorAll(selector)),
-  )
+  assert.deepEqual(selected, expected)
   assert.equal(
     selected!.some(element => element.id === 'nested-only'),
     false,
@@ -61,16 +62,15 @@ test('bulk direct-child has marks only parents of matching witnesses', t => {
 
   const input = window.document.querySelector('input')!
   input.checked = !input.checked
+  const changedExpected = Array.from(window.document.querySelectorAll(selector))
+  assert.equal(changedExpected.length, 21)
   const fresh = selectBulkHas(
     engine,
     plan!,
     window.document,
     engine.hasCandidates(plan!.anchor.nodeset[0]!, window.document),
   )
-  assert.deepEqual(
-    fresh,
-    Array.from(window.document.querySelectorAll(selector)),
-  )
+  assert.deepEqual(fresh, changedExpected)
 })
 
 test('bulk has keeps unsupported direct child compounds on the regular path', t => {

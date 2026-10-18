@@ -48,7 +48,7 @@ if (values.help) {
     minRoundMs,
     coldCount,
     timingEngine:
-      'performance.now in a cross-origin-isolated browser; timed batches, rotating engine order; setup excluded',
+      'performance.now in a cross-origin-isolated browser; starts with a 4-call calibration and targets batches near one-eighth of each minimum round, capped by iterations; rotating engine order; setup excluded',
     engines: [
       { name: `nwsapi ${sourceMetadata.candidateVersion}` },
       { name: `@asamuzakjp/dom-selector ${sourceMetadata.competitorVersion}` },

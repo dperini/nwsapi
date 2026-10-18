@@ -13,6 +13,7 @@ afterEach(() => vi.unstubAllGlobals())
 async function measure(
   first: boolean,
   failure: 'none' | 'cold' | 'initial' | 'warm' | 'throw',
+  queryCost = 0,
 ) {
   const dom = new JSDOM('<body></body>')
   const documents: JSDOM[] = []
@@ -20,7 +21,7 @@ async function measure(
   let removed = 0
   vi.stubGlobal('performance', {
     now: () => {
-      ticks += 10
+      ticks += queryCost > 0 ? 1 : 10
       return ticks
     },
   })
@@ -35,6 +36,7 @@ async function measure(
       let calls = 0
       const all = (selector: string) => {
         calls += 1
+        ticks += queryCost
         if (engine === 1 && initialize) {
           if (failure === 'throw') {
             throw new Error('unsupported')
@@ -96,8 +98,8 @@ test('native timing measures both exact-result engines with alternating rounds',
   const warm = await measure(false, 'none')
   assert.deepEqual(warm.rows[0]!.errors, [null, null])
   assert.deepEqual(warm.rows[0]!.sampleIterations, [
-    [4, 4],
-    [4, 4],
+    [2, 2],
+    [2, 2],
   ])
   assert.equal(warm.rows[0]!.samples[0]!.length, 2)
   assert.ok(warm.consumed > 0)
@@ -105,6 +107,15 @@ test('native timing measures both exact-result engines with alternating rounds',
   const cold = await measure(true, 'none')
   assert.deepEqual(cold.rows[0]!.cold, [5, 5])
   assert.deepEqual(cold.rows[1]!.errors, [null, null])
+})
+
+test('native timing shrinks its batch for slow queries', async () => {
+  const result = await measure(false, 'none', 100)
+  assert.deepEqual(result.rows[0]!.errors, [null, null])
+  assert.deepEqual(result.rows[0]!.sampleIterations, [
+    [1, 1],
+    [1, 1],
+  ])
 })
 
 test('native timing invalidates timings after correctness failures and skips failed engines', async () => {

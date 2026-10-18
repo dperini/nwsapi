@@ -11,7 +11,7 @@ This comparison measures `document.querySelectorAll()` in two real installations
 
 <!-- jsdom-summary:start -->
 
-The `nwsapi` override is **4.90× faster** across 80 selectors, using the geometric mean of their speed ratios. Each selector has equal weight. These timings measure repeated queries and exclude application startup.
+The `nwsapi` override is **4.91× faster** across 80 selectors, using the geometric mean of their speed ratios. Each selector has equal weight. These timings measure repeated queries and exclude application startup.
 
 <!-- jsdom-summary:end -->
 
@@ -28,7 +28,7 @@ The [recorded data](../../../assets/repo/bench/jsdom-override.json) contains all
 
 </details>
 
-![Public jsdom selector query comparison](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/jsdom-override.svg?v=c8797cccca62)
+![Public jsdom selector query comparison](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/jsdom-override.svg?v=a2f46f8a364f)
 
 These four examples cover class lookup, attribute presence, form state, and a relational component query. They use the public `jsdom` DOM API, including adapter overhead and the host-supplied readers. The full report also includes the cases where the libraries are closer. Shorter bars mean less query time.
 

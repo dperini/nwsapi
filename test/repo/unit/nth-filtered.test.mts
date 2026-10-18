@@ -2,6 +2,7 @@ import { registerLegacy } from '../common/legacy.mts'
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
 import factory from '../../../dist/nwsapi.js'
+import type { EngineState } from '../../../src/core/state/types.mts'
 
 for (const legacy of [false, true]) {
   test(`filtered child positions handle lists, nesting and mutations (legacy=${legacy})`, t => {
@@ -135,6 +136,40 @@ test('filtered selection and first-result search read each sibling once', t => {
     nodes.filter((_, index) => index % 2 === 1).toReversed(),
   )
   expect(reads).toBe(200)
+})
+
+test('simple HTML type unions avoid per-sibling selector evaluation', t => {
+  const { window } = new JSDOM(
+    '<main><button id="first"></button><input id="second"><span></span><input id="third"></main>',
+  )
+  t.onTestFinished(() => window.close())
+  const engine = registerLegacy(factory(window))
+  const internal = engine as unknown as EngineState
+  const main = window.document.querySelector('main')!
+  const matchAssert = internal.match_assert
+  internal.match_assert = (() => {
+    throw new Error('simple type unions should use direct name checks')
+  }) as typeof matchAssert
+  expect(
+    Array.from(
+      engine.select(':nth-child(2 of BUTTON, input)', main),
+      node => node.id,
+    ),
+  ).toEqual(['second'])
+  expect(
+    Array.from(
+      engine.select(':nth-last-child(1 of button, INPUT)', main),
+      node => node.id,
+    ),
+  ).toEqual(['third'])
+  internal.match_assert = matchAssert
+  window.document.getElementById('first')!.remove()
+  expect(
+    Array.from(
+      engine.select(':nth-child(2 of button, input)', main),
+      node => node.id,
+    ),
+  ).toEqual(['third'])
 })
 
 test('direct filtered resolvers observe callback mutations and release state on exceptions', t => {

@@ -111,6 +111,18 @@ test('child chains handle wide anchors, tag case, SVG, quirks, and invalid synta
   }
 })
 
+test('class shortcuts defer quirks documents to case-insensitive matching', t => {
+  const { window } = dom(
+    '<main><section class="Card"><div class="Row"><a class="primary"></a></div></section></main>',
+  )
+  t.onTestFinished(() => window.close())
+  const nw = registerLegacy(factory(window))
+  const doc = window.document
+  const target = doc.querySelector('a')
+  expect(nw.select('section.card .primary', doc)).toEqual([target])
+  expect(nw.select('.card > .row > a', doc)).toEqual([target])
+})
+
 test('simple logical compounds preserve matching, forgiving lists, and mutations', t => {
   const { window } = dom(
     '<!doctype html><div class="card"><button class="primary" id="ok"></button><input></div>',
@@ -234,4 +246,27 @@ test('wide child anchors use one terminal lookup when it is equally selective', 
   expect(engine.select('.row > span', doc).length).toBe(99)
   doc.querySelector('main')!.append(doc.createElement('span'))
   expect(engine.select('.row > span', doc).length).toBe(99)
+})
+
+test('dense child terminals use a document scan and preserve ordered results', t => {
+  const { window } = dom(
+    '<!doctype html><main>' +
+      '<section class="example"><pre></pre></section>'.repeat(20) +
+      '<pre></pre>'.repeat(10) +
+      '</main>',
+  )
+  t.onTestFinished(() => window.close())
+  const engine = factory(window)
+  const doc = window.document
+  let scopedLookups = 0
+  // oxlint-disable-next-line typescript/unbound-method -- Call the saved method with the original element receiver.
+  const original = window.Element.prototype.getElementsByTagName
+  window.Element.prototype.getElementsByTagName = function (name: string) {
+    scopedLookups++
+    return original.call(this, name)
+  }
+  const selector = '.example > pre'
+  const expected = [...doc.querySelectorAll(selector)]
+  expect(engine.select(selector, doc)).toEqual(expected)
+  expect(scopedLookups).toBe(0)
 })

@@ -5,7 +5,7 @@ interface TypePositions {
   positions?: WeakMap<Element, number>
 }
 
-interface ParentPositions {
+export interface ParentPositions {
   parent: ParentNode | null
   types: Record<string, TypePositions>
 }
@@ -181,7 +181,7 @@ function getTypePositions(
   return type
 }
 
-function buildSnapshot(
+export function buildSnapshot(
   snapshot: ParentPositions,
   engine: EngineState,
   target: Element,
@@ -193,12 +193,14 @@ function buildSnapshot(
     let type = snapshot.types[name]
     if (!type) {
       type = { nodes: [] }
-      addPositions(engine, type)
       snapshot.types[name] = type
     }
     type.nodes[type.nodes.length] = sibling
     type.positions?.set(sibling, type.nodes.length)
     node = sibling.nextElementSibling
+  }
+  for (const name in snapshot.types) {
+    addPositions(engine, snapshot.types[name]!)
   }
 }
 

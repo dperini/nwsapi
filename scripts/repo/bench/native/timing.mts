@@ -21,6 +21,30 @@ export async function nativeTiming(page: Page, options: TimingOptions) {
       const rows = []
       const median = (values: number[]) =>
         values.toSorted((a, b) => a - b)[Math.floor(values.length / 2)] ?? null
+      const calibrateBatch = (
+        query: () => void,
+        maximum: number,
+        minimumRoundMs: number,
+      ) => {
+        let batchSize = Math.min(maximum, 4)
+        const start = performance.now()
+        for (let i = 0; i < batchSize; ++i) {
+          query()
+        }
+        const duration = performance.now() - start
+        if (duration > 0) {
+          batchSize = Math.max(
+            1,
+            Math.min(
+              maximum,
+              Math.floor(
+                (batchSize * Math.max(1, minimumRoundMs / 8)) / duration,
+              ),
+            ),
+          )
+        }
+        return batchSize
+      }
       try {
         for (const { category, selector, root: rootSelector } of selectors) {
           const oracleRoot = rootSelector
@@ -96,19 +120,20 @@ export async function nativeTiming(page: Page, options: TimingOptions) {
                 : () => {
                     consumed += context.all(selector, roots[0]!).length
                   }
+              const batchSize = calibrateBatch(query, iterations, minRoundMs)
               const warmupStart = performance.now()
               do {
-                for (let i = 0; i < iterations; i++) {
+                for (let i = 0; i < batchSize; i++) {
                   query()
                 }
               } while (performance.now() - warmupStart < 20)
               let calls = 0
               const start = performance.now()
               do {
-                for (let i = 0; i < iterations; i++) {
+                for (let i = 0; i < batchSize; i++) {
                   query()
                 }
-                calls += iterations
+                calls += batchSize
               } while (performance.now() - start < minRoundMs)
               samples[index]!.push((performance.now() - start) / calls)
               sampleIterations[index]!.push(calls)
