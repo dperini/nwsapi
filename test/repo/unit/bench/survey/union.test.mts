@@ -26,6 +26,7 @@ vi.mock('../../../../../scripts/repo/bench/documents.mts', () => ({
     components: { html: () => '<main/>' },
     documentation: { html: () => '<article/>' },
     atomic: { html: () => '<aside/>' },
+    mixed: { html: () => '<section/>' },
   },
 }))
 vi.mock('../../../../../scripts/repo/bench/planner/has/power.mts', () => ({
@@ -70,6 +71,9 @@ test.each([false, true])(
     const fixtures = module.unionFixtures()
     expect(fixtures.filter(entry => entry.split === 'holdout')).toHaveLength(18)
     expect(fixtures.some(entry => entry.family === 'form coverage')).toBe(true)
+    expect(
+      fixtures.some(entry => entry.id === 'mixed/.card:has(> input:checked)'),
+    ).toBe(true)
     await module.measureUnion('/baseline.gz', '/out', repeat)
     expect(state.mkdir).toHaveBeenCalledWith('/out', { recursive: true })
     const archived = state.write.mock.calls.find(

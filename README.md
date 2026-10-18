@@ -10,12 +10,12 @@ See the [measured selector compatibility](docs/repo/selector/compatibility.md) a
 
 ## Performance
 
-[![nwsapi vs @asamuzakjp/dom-selector: query time, retained heap, and Brotli size on native Chromium DOMs](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/perf-hero.svg?v=9645cd2b6092)](docs/repo/perf/benchmarks.md)
+[![nwsapi vs @asamuzakjp/dom-selector: query time, retained heap, and Brotli size on native Chromium DOMs](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/perf-hero.svg?v=20ad6fb14226)](docs/repo/perf/benchmarks.md)
 
 <details>
 <summary>How the benchmarks work</summary>
 
-- **Speed:** 36 selectors, all matches, equal weight. Setup and loading excluded.
+- **Speed:** 80 selectors, all matches, equal weight. Setup and loading excluded.
 - **Memory:** retained heap after 100 distinct queries and garbage collection.
 - **Size:** Brotli-compressed browser libraries. No `jsdom`.
 

@@ -9,6 +9,7 @@ import {
   resolverWeight,
 } from '../cache/weight.mts'
 import { firstPosition } from '../compile/position/first.mts'
+import type { ChildPlan } from '../state/query.mts'
 import { match, matchForgiving, matchPublic } from '../match/selector.mts'
 import { parse } from '../parser/selector.mts'
 import { argsWith, install, uninstall } from '../dom/install.mts'
@@ -62,11 +63,7 @@ export function initializeApi(engine: EngineState) {
     engine,
   ) as EngineState['firstCompiled']
   engine.DESCENT_PROBE = 128
-  engine.childPlans = engine.createCache<{
-    tag: string | undefined
-    cls: string
-    tags: string[]
-  } | null>()
+  engine.childPlans = engine.createCache<ChildPlan | null>()
   engine.chainPlans = engine.createCache(256)
   engine.selectChildren = selectChildren.bind(
     null,
@@ -78,7 +75,7 @@ export function initializeApi(engine: EngineState) {
   engine.reSiblingChain =
     /^[.A-Za-z][-\w.]*(?:[\t\n\f\r ]*~[\t\n\f\r ]*[.A-Za-z][-\w.]*)+$/
   engine.reChildRoute =
-    /^([a-z][a-z0-9-]*)?\.([_a-zA-Z][-\w]*)([\t\n\f\r ]*>[\t\n\f\r ]*[a-z][a-z0-9-]*(?:[\t\n\f\r ]*>[\t\n\f\r ]*[a-z][a-z0-9-]*)*)$/
+    /^([a-z][a-z0-9-]*)?\.([_a-zA-Z][\-\w]*)(?:[\t\n\f\r ]*>[\t\n\f\r ]*(?:[a-z][a-z0-9-]*(?:\.[_a-zA-Z][\-\w]*)?|\.[_a-zA-Z][\-\w]*|:(?:is|where)\([a-z][a-z0-9-]*(?:[\t\n\f\r ]*,[\t\n\f\r ]*[a-z][a-z0-9-]*)+\)))+$/
   engine.reChainPart = /^([A-Za-z][-\w]*)?(?:\.([-\w]+))?$/
   engine.fetchLevel = fetchLevel.bind(null, engine) as EngineState['fetchLevel']
   engine.countPart = countPart.bind(null, engine) as EngineState['countPart']

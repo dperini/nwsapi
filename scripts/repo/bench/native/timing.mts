@@ -3,7 +3,7 @@ import type { NativeGlobals } from './host.mts'
 
 export interface TimingOptions {
   html: string
-  selectors: Array<{ category: string; selector: string }>
+  selectors: Array<{ category: string; selector: string; root?: string }>
   rounds: number
   iterations: number
   minRoundMs: number
@@ -22,9 +22,15 @@ export async function nativeTiming(page: Page, options: TimingOptions) {
       const median = (values: number[]) =>
         values.toSorted((a, b) => a - b)[Math.floor(values.length / 2)] ?? null
       try {
-        for (const { category, selector } of selectors) {
+        for (const { category, selector, root: rootSelector } of selectors) {
+          const oracleRoot = rootSelector
+            ? oracle.document.querySelector(rootSelector)
+            : oracle.document
+          if (!oracleRoot) {
+            throw new Error(`Missing query root: ${rootSelector}`)
+          }
           const expected = Array.from(
-            oracle.document.querySelectorAll(selector),
+            oracleRoot.querySelectorAll(selector),
             node => oracleNodes.indexOf(node),
           )
           const samples: number[][] = [[], []]
@@ -34,6 +40,11 @@ export async function nativeTiming(page: Page, options: TimingOptions) {
           const runEngine = (index: number) => {
             const contexts = Array.from({ length: first ? coldCount : 1 }, () =>
               host.__createContext(html, index),
+            )
+            const roots = contexts.map(context =>
+              rootSelector
+                ? context.document.querySelector(rootSelector)
+                : context.document,
             )
             const expectedNodes = contexts.map(context => {
               const nodes = Array.from(
@@ -67,9 +78,9 @@ export async function nativeTiming(page: Page, options: TimingOptions) {
               const expectedFirst = expectedNodes[0]![0] ?? null
               const verify = () => {
                 if (first) {
-                  return context.first(selector) === expectedFirst
+                  return context.first(selector, roots[0]!) === expectedFirst
                 }
-                const actual = Array.from(context.all(selector))
+                const actual = Array.from(context.all(selector, roots[0]!))
                 return (
                   actual.length === expectedNodes[0]!.length &&
                   actual.every((node, i) => node === expectedNodes[0]![i])
@@ -80,10 +91,10 @@ export async function nativeTiming(page: Page, options: TimingOptions) {
               }
               const query = first
                 ? () => {
-                    consumed += context.first(selector) ? 1 : 0
+                    consumed += context.first(selector, roots[0]!) ? 1 : 0
                   }
                 : () => {
-                    consumed += context.all(selector).length
+                    consumed += context.all(selector, roots[0]!).length
                   }
               const warmupStart = performance.now()
               do {
@@ -126,6 +137,7 @@ export async function nativeTiming(page: Page, options: TimingOptions) {
           rows.push({
             category,
             selector,
+            ...(rootSelector ? { root: rootSelector } : {}),
             errors,
             samples,
             sampleIterations,

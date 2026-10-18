@@ -90,6 +90,24 @@ test('disabled fieldsets honor only their own first legend', t => {
   ).toBe(false)
 })
 
+test('disabled input matching falls back when native matching is unavailable', t => {
+  const { window } = new JSDOM(
+    '<fieldset disabled><legend><input id="exempt"></legend>' +
+      '<input id="disabled"></fieldset>',
+  )
+  t.onTestFinished(() => window.close())
+  const engine = factory(window)
+  const matchesNative = Reflect.get(engine, 'matchesNative')
+  Reflect.set(engine, 'matchesNative', () => undefined)
+  expect(
+    engine.match(':disabled', window.document.getElementById('exempt')!),
+  ).toBe(false)
+  expect(
+    engine.match(':disabled', window.document.getElementById('disabled')!),
+  ).toBe(true)
+  Reflect.set(engine, 'matchesNative', matchesNative)
+})
+
 test('options inherit an optgroup attribute without inheriting a select attribute', t => {
   const { window } = new JSDOM(
     '<fieldset><select disabled><optgroup id="group" disabled><option id="a"></option></optgroup><option id="b"></option><option disabled id="c"></option></select></fieldset>',

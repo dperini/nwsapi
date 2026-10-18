@@ -14,7 +14,7 @@ export function createNthOfType(engine: EngineState) {
   var current: Element[] | undefined,
     currentIndex = 0,
     currentLength = 0,
-    snapshots = Array<ParentPositions>()
+    snapshots = createSnapshotStore(engine)
 
   return function (
     element: Element | null,
@@ -22,7 +22,7 @@ export function createNthOfType(engine: EngineState) {
     stable?: boolean,
   ): number {
     if (dir == 2) {
-      snapshots.length = 0
+      snapshots = createSnapshotStore(engine)
       current = undefined
       currentIndex = 0
       currentLength = 0
@@ -46,6 +46,18 @@ export function createNthOfType(engine: EngineState) {
     const namespace = target.namespaceURI
     const name = typeName(engine, namespace, local)
     const parent = target.parentNode
+
+    if (
+      stable !== false &&
+      !engine.Config.LEGACY &&
+      parent &&
+      parent.childElementCount <= 8
+    ) {
+      current = undefined
+      currentIndex = 0
+      currentLength = 0
+      return scanTypePosition(target, local, namespace, dir)
+    }
 
     // Callback queries can mutate siblings while candidates are visited.
     // Recompute those positions instead of retaining a parent snapshot.
@@ -76,7 +88,15 @@ export function createNthOfType(engine: EngineState) {
   }
 }
 
-function stablePosition(
+function createSnapshotStore(
+  engine: EngineState,
+): WeakMap<ParentNode, ParentPositions> | ParentPositions[] {
+  return engine.primordials.WeakMapCtor
+    ? engine.createWeakMap<ParentNode, ParentPositions>() || []
+    : []
+}
+
+export function stablePosition(
   current: Element[] | undefined,
   index: number,
   length: number,
@@ -98,14 +118,22 @@ function stablePosition(
 }
 
 function getParentSnapshot(
-  snapshots: ParentPositions[],
+  snapshots: WeakMap<ParentNode, ParentPositions> | ParentPositions[],
   parent: ParentNode | null,
   engine: EngineState,
   target: Element,
 ) {
-  for (let i = 0, length = snapshots.length; i < length; ++i) {
-    if (snapshots[i]!.parent === parent) {
-      return snapshots[i]!
+  const key = parent || target
+  if (Array.isArray(snapshots)) {
+    for (let i = 0, length = snapshots.length; i < length; ++i) {
+      if (snapshots[i]!.parent === parent) {
+        return snapshots[i]!
+      }
+    }
+  } else {
+    const cached = snapshots.get(key)
+    if (cached) {
+      return cached
     }
   }
   const snapshot: ParentPositions = {
@@ -115,7 +143,11 @@ function getParentSnapshot(
       TypePositions
     >,
   }
-  snapshots[snapshots.length] = snapshot
+  if (Array.isArray(snapshots)) {
+    snapshots[snapshots.length] = snapshot
+  } else {
+    snapshots.set(key, snapshot)
+  }
   if (!engine.Config.LEGACY) {
     buildSnapshot(snapshot, engine, target)
   }
@@ -172,7 +204,7 @@ function buildSnapshot(
 
 function addPositions(engine: EngineState, type: TypePositions) {
   const WeakMapCtor = engine.primordials.WeakMapCtor
-  if (WeakMapCtor) {
+  if (WeakMapCtor && type.nodes.length > 8) {
     type.positions = new WeakMapCtor<Element, number>()
     for (let i = 0, length = type.nodes.length; i < length; ++i) {
       type.positions.set(type.nodes[i]!, i + 1)
@@ -180,7 +212,7 @@ function addPositions(engine: EngineState, type: TypePositions) {
   }
 }
 
-function scanPosition(
+export function scanPosition(
   engine: EngineState,
   parent: ParentNode | null,
   target: Element,
@@ -205,6 +237,23 @@ function scanPosition(
   return dir ? total - position + 1 : position
 }
 
+export function scanTypePosition(
+  target: Element,
+  local: string,
+  namespace: string | null,
+  dir: number,
+) {
+  let position = 1
+  let sibling = dir ? target.nextElementSibling : target.previousElementSibling
+  while (sibling) {
+    if (sibling.localName === local && sibling.namespaceURI === namespace) {
+      ++position
+    }
+    sibling = dir ? sibling.nextElementSibling : sibling.previousElementSibling
+  }
+  return position
+}
+
 function typeName(
   engine: EngineState,
   namespace: string | null,
@@ -215,7 +264,7 @@ function typeName(
     : (namespace || '') + '\x00' + local
 }
 
-function findPosition(nodes: Element[], target: Element) {
+export function findPosition(nodes: Element[], target: Element) {
   for (let i = 0, length = nodes.length; i < length; ++i) {
     if (nodes[i] === target) {
       return i + 1

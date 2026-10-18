@@ -11,14 +11,13 @@ import { nativeTiming } from '../native/timing.mts'
 import { positiveInteger, provenance, sha256 } from '../footprint/shared.mts'
 import { REPO_ROOT } from '../../lib/paths.mts'
 import { checkedPower } from '../planner/has/power.mts'
-import { expandedCases } from './coverage.mts'
+import { expandedCases, expandedScopedCases } from './coverage.mts'
 
 const { values } = parseArgs({
   options: {
     dependencies: { type: 'string' },
     output: {
       type: 'string',
-      default: 'assets/repo/bench/survey/results.json',
     },
     rounds: { type: 'string', default: '9' },
     power: { type: 'string', default: 'not recorded' },
@@ -28,14 +27,19 @@ const { values } = parseArgs({
 })
 if (values.help) {
   console.log(
-    'Usage: survey/run.mts [--dependencies installation-directory] [--output results.json] [--rounds 9] [--power battery|AC] [--expanded]',
+    'Usage: survey/run.mts [--dependencies installation-directory] [--output results.json] [--rounds 9] [--power battery|AC] [--expanded]\nWithout --output, records a timestamped report under .cache/bench.',
   )
 } else {
   await run()
 }
 
 async function run() {
-  if (existsSync(path.resolve(values.output))) {
+  const timestamp = new Date().toISOString().replaceAll(/[:.]/g, '-')
+  const output = path.resolve(
+    REPO_ROOT,
+    values.output ?? `.cache/bench/selector-survey-${timestamp}.json`,
+  )
+  if (existsSync(output)) {
     throw new Error('Use a new survey output path to preserve measurements.')
   }
   const powerBefore = checkedPower()
@@ -61,12 +65,27 @@ async function run() {
       const html = DOCUMENTS[fixture as keyof typeof DOCUMENTS].html()
       const page = await nativePage(browser, sources)
       try {
+        const selectors: Array<{
+          category: string
+          selector: string
+          root?: string
+        }> = Object.entries(categories).flatMap(([category, names]) =>
+          names.map(selector => ({ category, selector })),
+        )
+        if (values.expanded) {
+          const scoped =
+            expandedScopedCases[fixture as keyof typeof expandedScopedCases]
+          if (scoped) {
+            for (const [category, entries] of Object.entries(scoped)) {
+              selectors.push(
+                ...entries.map(scopedCase => ({ category, ...scopedCase })),
+              )
+            }
+          }
+        }
         const result = await nativeTiming(page, {
           html,
-          selectors: Object.entries(categories).flatMap(
-            ([category, selectors]) =>
-              selectors.map(selector => ({ category, selector })),
-          ),
+          selectors,
           rounds,
           iterations: 16,
           minRoundMs: 30,
@@ -84,7 +103,6 @@ async function run() {
         await page.close()
       }
     }
-    const output = path.resolve(values.output)
     mkdirSync(path.dirname(output), { recursive: true })
     writeFileSync(
       output,

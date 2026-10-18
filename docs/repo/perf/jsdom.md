@@ -3,7 +3,7 @@
 ## In brief
 
 This report compares complete public queries in two `jsdom` installations.
-The reported ratio combines 36 selectors, with one selector counted as one
+The reported ratio combines 80 selectors, with one selector counted as one
 case. It does not measure browser performance or application startup. See the
 [performance work guide](guide.md) for help reading the ratio.
 
@@ -11,24 +11,24 @@ This comparison measures `document.querySelectorAll()` in two real installations
 
 <!-- jsdom-summary:start -->
 
-The `nwsapi` override is **5.11× faster** across 36 selectors, using the geometric mean of their speed ratios. Each selector has equal weight. These timings measure repeated queries and exclude application startup.
+The `nwsapi` override is **4.90× faster** across 80 selectors, using the geometric mean of their speed ratios. Each selector has equal weight. These timings measure repeated queries and exclude application startup.
 
 <!-- jsdom-summary:end -->
 
 <details>
 <summary>How the comparison works</summary>
 
-Run `pnpm run bench:jsdom` to build and pack this checkout, install both consumers under `os.tmpdir()`, and measure the same 36 selectors used by the [browser comparison](benchmarks.md#all-results-comparison). Installation needs registry access. Temporary consumers are removed when the run finishes.
+Run `pnpm run bench:jsdom` to build and pack this checkout, install both consumers under `os.tmpdir()`, and measure the same 80 selectors used by the [browser comparison](benchmarks.md#all-results-comparison). Installation needs registry access. Temporary consumers are removed when the run finishes.
 
 Each installation receives identical component, documentation, and utility-class documents. Ordered result positions must agree before and after timing. Both installations use the same exact `jsdom` and `css-tree` versions. The report identifies the resolved selector packages, entry hashes, packed artifact hash, lockfile hashes, and fixture hashes.
 
 `mitata` measures nine rounds, rotating engine order, with a 50ms minimum measurement period and batches of 16 calls. Each query receives 100 warmup calls. Reported times are the median of the nine round medians. The raw report retains each round's samples and call counts. Package installation, document construction, engine initialization, warmup, and correctness checks are outside the measured calls. Garbage collection during queries remains part of their cost.
 
-The [recorded data](../../../assets/repo/bench/jsdom-override.json) contains all 36 cases. Run `node scripts/repo/gen/jsdom-benchmark.mts` to regenerate the chart and summary from that report without repeating installation or measurement. These results do not measure document loading, stylesheet calculation, retained memory, or every downstream application's workload.
+The [recorded data](../../../assets/repo/bench/jsdom-override.json) contains all 80 cases. Run `node scripts/repo/gen/jsdom-benchmark.mts` to regenerate the chart and summary from that report without repeating installation or measurement. These results do not measure document loading, stylesheet calculation, retained memory, or every downstream application's workload.
 
 </details>
 
-![Public jsdom selector query comparison](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/jsdom-override.svg?v=c2f96f2c2de8)
+![Public jsdom selector query comparison](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/jsdom-override.svg?v=c8797cccca62)
 
 These four examples cover class lookup, attribute presence, form state, and a relational component query. They use the public `jsdom` DOM API, including adapter overhead and the host-supplied readers. The full report also includes the cases where the libraries are closer. Shorter bars mean less query time.
 

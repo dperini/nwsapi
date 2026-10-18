@@ -150,7 +150,6 @@ export function selectChildren(
   context: EngineContext,
 ) {
   var plan = engine.childPlans.get(selectors),
-    found: RegExpMatchArray | null,
     roots: ArrayLike<Element>,
     root: Element,
     candidates: ArrayLike<Element>,
@@ -158,42 +157,41 @@ export function selectChildren(
     parent: Element | null,
     previous: Element | undefined,
     results: Element[] = [],
-    unordered = false,
+    unordered: boolean,
+    overlapping = false,
+    directWalk = false,
+    terminalsLength = 0,
     i: number,
     j: number,
     k: number,
     length: number
 
   if (plan === undefined) {
-    // Selective class anchors followed by direct-child type selectors.
+    // Class anchors and plain child compounds avoid parsing general CSS.
     // The general compiler owns escapes, namespaces, and other syntax.
-    found = engine.reChildRoute.exec(selectors)
-    plan = found
-      ? {
-          tag: found[1]!,
-          cls: found[2]!,
-          tags: found[3]!.split(/\s*>\s*/).slice(1),
-        }
-      : null
+    plan = parseChildPlan(engine, selectors)
     engine.childPlans.set(selectors, plan)
   }
   if (!plan) {
     return null
   }
+  terminalsLength = plan.terminals.length
   roots = context.getElementsByClassName!(plan.cls)
   length = roots.length
-  // Decide from live counts before copying or walking a wide anchor set.
-  // A changed tree can choose a different route on the next call.
-  if (length > engine.DESCENT_PROBE) {
+  directWalk =
+    length > engine.DESCENT_PROBE &&
+    plan.parts.length >= 2 &&
+    plan.parts.length <= 4 &&
+    terminalsLength > 1
+  // A direct child walk visits terminal alternatives in document order.
+  // Sorting is needed only for routes that gather each type separately.
+  unordered = terminalsLength > 1 && !directWalk
+  // Wide simple routes are cheaper through the ordinary candidate route.
+  if (length > engine.DESCENT_PROBE && !directWalk) {
     return null
   }
   if (length >= 16) {
-    // One terminal lookup is cheaper than a scoped lookup per anchor when
-    // it produces no more candidates than there are anchors to inspect.
-    if (
-      context.getElementsByTagName!(plan.tags[plan.tags.length - 1]!).length <=
-      length
-    ) {
+    if (countTerminalCandidates(context, plan.terminals) <= length) {
       return null
     }
     roots = engine.collectionSnapshot(roots, context!, length)
@@ -203,6 +201,9 @@ export function selectChildren(
   }
   if (unordered && results.length > 1) {
     results.sort(engine.documentOrder)
+    if (overlapping) {
+      results = engine.unique(results)
+    }
   }
   return results
 
@@ -214,32 +215,138 @@ export function selectChildren(
       }
       if (previous && previous.contains(root)) {
         unordered = true
+        overlapping = true
       }
       previous = root
+      if (directWalk) {
+        collectDirectChildren(engine, root, plan!, 0, results)
+        continue
+      }
       // A scoped type lookup skips unrelated children and their subtrees.
       // Validate the fixed parent chain against this exact anchor: nested
       // anchors must neither duplicate nor borrow one another's matches.
-      candidates = engine.collectionSnapshot(
-        root.getElementsByTagName!(plan!.tags[plan!.tags.length - 1]!),
-        root,
-        undefined,
-        true,
-      )
-      for (j = 0, k = candidates.length; j < k; ++j) {
-        element = candidates[j]!
-        parent = element.parentElement
-        for (var depth = plan!.tags.length - 2; depth >= 0; --depth) {
-          if (!parent || parent.localName != plan!.tags[depth]) {
-            break
+      for (
+        var terminalIndex = 0;
+        terminalIndex < terminalsLength;
+        ++terminalIndex
+      ) {
+        candidates = engine.collectionSnapshot(
+          root.getElementsByTagName!(plan!.terminals[terminalIndex]!),
+          root,
+          undefined,
+          true,
+        )
+        for (j = 0, k = candidates.length; j < k; ++j) {
+          element = candidates[j]!
+          parent = element.parentElement
+          for (var depth = plan!.parts.length - 1; depth >= 0; --depth) {
+            if (!parent || !matchesPart(engine, parent, plan!.parts[depth]!)) {
+              break
+            }
+            parent = parent.parentElement
           }
-          parent = parent.parentElement
-        }
-        if (depth < 0 && parent === root) {
-          results[results.length] = element
+          if (depth < 0 && parent === root) {
+            results[results.length] = element
+          }
         }
       }
     }
   }
+}
+
+function collectDirectChildren(
+  engine: EngineState,
+  parent: Element,
+  plan: NonNullable<ReturnType<typeof parseChildPlan>>,
+  depth: number,
+  results: Element[],
+) {
+  if (depth === plan.parts.length) {
+    for (
+      let child = parent.firstElementChild;
+      child;
+      child = child.nextElementSibling
+    ) {
+      if (plan.terminals.includes(child.localName)) {
+        results[results.length] = child
+      }
+    }
+    return
+  }
+  const part = plan.parts[depth]!
+  for (
+    let child = parent.firstElementChild;
+    child;
+    child = child.nextElementSibling
+  ) {
+    if (matchesPart(engine, child, part)) {
+      collectDirectChildren(engine, child, plan, depth + 1, results)
+    }
+  }
+}
+
+function parseChildPlan(engine: EngineState, selectors: string) {
+  const found = engine.reChildRoute.exec(selectors)
+  if (!found) {
+    return null
+  }
+  const parts = selectors.split('>')
+  const root = /^\s*([a-z][a-z0-9-]*)?\.([_a-zA-Z][\w-]*)\s*$/.exec(parts[0]!)
+  if (!root) {
+    return null
+  }
+  const last = parts[parts.length - 1]!.trim()
+  const union =
+    /^:(?:is|where)\(([a-z][a-z0-9-]*(?:\s*,\s*[a-z][a-z0-9-]*)+)\)$/.exec(last)
+  const terminal = union
+    ? union[1]!.split(',').map(tag => tag.trim())
+    : /^[a-z][a-z0-9-]*$/.test(last)
+      ? [last]
+      : null
+  if (!terminal) {
+    return null
+  }
+  const intermediate: Array<{
+    tag: string | undefined
+    cls: string | undefined
+  }> = []
+  const partsLength = parts.length - 1
+  for (let index = 1; index < partsLength; ++index) {
+    const part = /^\s*([a-z][a-z0-9-]*)?(?:\.([_a-zA-Z][\w-]*))?\s*$/.exec(
+      parts[index]!,
+    )
+    if (!part || (part[1] === undefined && part[2] === undefined)) {
+      return null
+    }
+    intermediate[intermediate.length] = { tag: part[1], cls: part[2] }
+  }
+  const terminals = [...new Set(terminal)]
+  return {
+    tag: root[1],
+    cls: root[2]!,
+    parts: intermediate,
+    terminals,
+  }
+}
+
+function countTerminalCandidates(context: EngineContext, tags: string[]) {
+  let count = 0
+  for (let index = 0, tagsLength = tags.length; index < tagsLength; ++index) {
+    count += context.getElementsByTagName!(tags[index]!).length
+  }
+  return count
+}
+
+function matchesPart(
+  engine: EngineState,
+  element: Element,
+  part: { tag: string | undefined; cls: string | undefined },
+) {
+  return (
+    (part.tag === undefined || element.localName == part.tag) &&
+    (part.cls === undefined ||
+      engine.hasClass(engine.classOf(element), part.cls))
+  )
 }
 
 function precedes(result: Element, element: Element | null) {

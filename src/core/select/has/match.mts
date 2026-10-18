@@ -15,20 +15,27 @@ export function prepareBulkHas(
     return undefined
   }
   const parts = /^(.+):has\((.+)\)$/.exec(selector)
-  if (!parts || !pureCompound(parts[1]!) || !pureCompound(parts[2]!)) {
+  if (!parts || !pureCompound(parts[1]!)) {
+    return undefined
+  }
+  const relative = parts[2]!.trim()
+  const child = /^>[\t\n\f\r ]*(.+)$/.exec(relative)
+  const witness = child ? child[1]!.trim() : relative
+  if (!(pureCompound(witness) || (child && pureStateWitness(witness)))) {
     return undefined
   }
   const anchor = plan(engine, parts[1]!, context)
-  const witness = plan(engine, parts[2]!, context)
+  const witnessPlan = plan(engine, witness, context)
   return {
     anchor,
-    witness,
+    witness: witnessPlan,
+    directChild: !!child,
     plannerMask: plannerMask(engine, parts[1]!, parts[2]!),
     denseInverse:
       parts[1]![0] === '.' &&
-      parts[2]![0] === '.' &&
+      witness[0] === '.' &&
       parts[1] === anchor.nodeset[0] &&
-      parts[2] === witness.nodeset[0],
+      witness === witnessPlan.nodeset[0],
   }
 }
 
@@ -54,12 +61,7 @@ export function selectBulkHas(
   if (!witnesses.length) {
     return []
   }
-  if (
-    witnesses.length > anchors.length * 2 &&
-    (!plan.denseInverse ||
-      anchors.length > 192 ||
-      witnesses.length > anchors.length * 4)
-  ) {
+  if (shouldDeclineBulkHas(plan, anchors.length, witnesses.length)) {
     if (
       !engine.Config.ROUTE_PLANNER ||
       !engine.bulkHasPlanner ||
@@ -85,6 +87,20 @@ export function selectBulkHas(
     }
   }
   return results
+}
+
+function shouldDeclineBulkHas(
+  plan: BulkHasPlan,
+  anchors: number,
+  witnesses: number,
+) {
+  if (plan.directChild) {
+    return witnesses > anchors * 4
+  }
+  return (
+    witnesses > anchors * 2 &&
+    (!plan.denseInverse || anchors > 192 || witnesses > anchors * 4)
+  )
 }
 
 function markAncestors(
@@ -114,6 +130,10 @@ function plannerMask(
     return undefined
   }
   return (anchor.indexOf('[') < 0 ? 0 : 2) + (witness.indexOf('[') < 0 ? 0 : 1)
+}
+
+function pureStateWitness(selector: string) {
+  return selector === 'input:checked' || selector === 'option:checked'
 }
 
 function plannerOverride(
@@ -167,7 +187,13 @@ function markWitnesses(
   for (let i = 0, length = witnesses.length; i < length; ++i) {
     const element = witnesses[i]!
     if (!witness || witness(element, null, context, false)) {
-      markAncestors(engine, element, context, marks)
+      if (plan.directChild) {
+        if (element.parentElement) {
+          marks.set(element.parentElement, true)
+        }
+      } else {
+        markAncestors(engine, element, context, marks)
+      }
     }
   }
 }

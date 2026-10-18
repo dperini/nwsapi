@@ -23,6 +23,6 @@ test('benchmark selector catalog resolves against each owning workload without s
       dom.window.close()
     }
   }
-  assert.equal(selectors, 36)
+  assert.equal(selectors, 80)
   assert.ok(nonempty > 20)
 })

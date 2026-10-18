@@ -34,6 +34,7 @@ vi.mock('../../../../../scripts/repo/bench/documents.mts', () => ({
     components: { html: () => '<main/>' },
     documentation: { html: () => '<article/>' },
     atomic: { html: () => '<aside/>' },
+    mixed: { html: () => '<main id="query-root"><button/></main>' },
   },
 }))
 vi.mock('../../../../../scripts/repo/bench/native/host.mts', () => ({
@@ -95,22 +96,26 @@ test.each([false, true])(
         : [],
     )
     const report = JSON.parse(state.write.mock.calls[0]![1] as string)
-    expect(report.rows).toHaveLength(3)
+    expect(report.rows).toHaveLength(expanded ? 4 : 3)
     expect(report.metadata.expanded).toBe(expanded)
     expect(report.metadata.rounds).toBe(expanded ? 3 : 9)
-    expect(report.metadata.fixtures).toHaveLength(3)
+    expect(report.metadata.fixtures).toHaveLength(expanded ? 4 : 3)
     expect(report.metadata.dependencyLockSha256).toBe(
       expanded ? report.metadata.competitorEntrySha256 : 'lock',
     )
-    expect(state.pageClose).toHaveBeenCalledTimes(3)
+    expect(state.pageClose).toHaveBeenCalledTimes(expanded ? 4 : 3)
     expect(state.close).toHaveBeenCalledOnce()
-    const settings = state.timing.mock.calls[0]![1] as {
-      selectors: Array<{ category: string }>
-    }
-    expect(settings.selectors.length).toBeGreaterThan(0)
-    expect(
-      settings.selectors.some(entry => entry.category === 'form coverage'),
-    ).toBe(expanded)
+    const selectors = state.timing.mock.calls.flatMap(call => {
+      const settings = call[1] as {
+        selectors: Array<{ category: string; root?: string }>
+      }
+      return settings.selectors
+    })
+    expect(selectors.length).toBeGreaterThan(0)
+    expect(selectors.some(entry => entry.category === 'form coverage')).toBe(
+      expanded,
+    )
+    expect(selectors.some(entry => entry.root === '#query-root')).toBe(expanded)
   },
 )
 test('failed selector comparisons are recorded before reporting failure', async () => {

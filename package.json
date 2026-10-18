@@ -199,6 +199,7 @@
     "bench:planner:neural:collect": "pnpm run build && node scripts/repo/run.mts scripts/repo/bench/planner/adaptive/collect.mts",
     "bench:planner:neural:confirm": "node scripts/repo/run.mts scripts/repo/bench/planner/adaptive/confirm.mts",
     "bench:selectors": "node scripts/repo/run.mts scripts/repo/bench/run.mts selectors",
+    "bench:selectors:expanded": "pnpm run build && node scripts/repo/run.mts scripts/repo/bench/survey/run.mts --expanded --rounds 5",
     "check:svg": "pnpm run svg:check",
     "check:unicode-es5": "pnpm run unicode-es5:check",
     "check:script-entrypoints": "pnpm run script-entrypoints:check",

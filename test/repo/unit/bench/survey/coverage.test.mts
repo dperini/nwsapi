@@ -1,15 +1,20 @@
 import assert from 'node:assert/strict'
 import { parse } from 'css-tree'
+import { JSDOM } from 'jsdom'
 import { test } from 'vitest'
 import { cases } from '../../../../../scripts/repo/bench/cases.mts'
-import { expandedCases } from '../../../../../scripts/repo/bench/survey/coverage.mts'
+import { DOCUMENTS } from '../../../../../scripts/repo/bench/documents.mts'
+import {
+  expandedCases,
+  expandedScopedCases,
+} from '../../../../../scripts/repo/bench/survey/coverage.mts'
 
 test('expanded survey retains established workload cases and adds valid neighboring selector forms', () => {
   const groups = Object.entries(expandedCases)
   let count = 0
   for (let index = 0, length = groups.length; index < length; index += 1) {
     const [name, categories] = groups[index]!
-    const existing = Object.entries(cases[name]!)
+    const existing = Object.entries(cases[name as keyof typeof cases] ?? {})
     for (let base = 0, size = existing.length; base < size; base += 1) {
       const [category, selectors] = existing[base]!
       assert.deepEqual(
@@ -26,5 +31,35 @@ test('expanded survey retains established workload cases and adds valid neighbor
       count += 1
     }
   }
-  assert.equal(count, 68)
+  assert.equal(count, 147)
+  const scoped = Object.values(expandedScopedCases)
+    .flatMap(Object.values)
+    .flat()
+  for (const entry of scoped) {
+    assert.equal(
+      parse(entry.selector, { context: 'selectorList' }).type,
+      'SelectorList',
+    )
+  }
+  assert.equal(count + scoped.length, 152)
+})
+
+test('mixed diagnostic roots resolve scoped selectors including outside ancestors', () => {
+  const dom = new JSDOM(DOCUMENTS.mixed.html())
+  try {
+    const document = dom.window.document
+    const root = document.querySelector('#query-root')!
+    const rows = document.querySelectorAll('#query-root .rows')
+    assert.equal(root.querySelectorAll(':scope > button').length, 1)
+    assert.equal(root.querySelectorAll(':scope .badge').length, 240)
+    assert.equal(root.querySelectorAll('.outside .badge').length, 240)
+    let adjacentRows = 0
+    for (const rowsRoot of rows) {
+      adjacentRows += rowsRoot.querySelectorAll(':scope > .row + .row').length
+    }
+    assert.equal(adjacentRows, 240)
+    assert.equal(root.querySelectorAll(':scope > :is(button, input)').length, 2)
+  } finally {
+    dom.window.close()
+  }
 })

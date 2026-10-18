@@ -67,16 +67,20 @@ export function select(
       : engine.toNodeList(nodes)
 }
 
-function selectByDescent(
+export function selectByDescent(
   engine: EngineState,
   selectors: string,
   context: EngineContext,
   callback: ElementCallback,
 ) {
   let descended
-  const children = selectDirectChildren(engine, selectors, context, callback)
-  if (children) {
-    return children
+  const direct = selectDirectRoute(engine, selectors, context, callback)
+  if (direct) {
+    return direct
+  }
+  const typeUnion = selectTypeUnion(engine, selectors, context, callback)
+  if (typeUnion) {
+    return typeUnion
   }
   // A plain descendant chain of tags is answered by descending, when the
   // shape of the document makes that the cheaper direction, and a chain
@@ -119,6 +123,115 @@ function selectByDescent(
   return undefined
 }
 
+function selectDirectRoute(
+  engine: EngineState,
+  selectors: string,
+  context: EngineContext,
+  callback: ElementCallback,
+) {
+  const closest = selectByClosest(engine, selectors, context, callback)
+  return closest || selectDirectChildren(engine, selectors, context, callback)
+}
+
+export function selectByClosest(
+  engine: EngineState,
+  selectors: string,
+  context: EngineContext,
+  callback: ElementCallback,
+) {
+  const match =
+    typeof selectors == 'string'
+      ? /^([a-z][a-z0-9-]*)\.([_a-zA-Z][\w-]*)[\t\n\f\r ]+\.([_a-zA-Z][\w-]*)$/.exec(
+          selectors,
+        )
+      : null
+  if (
+    !match ||
+    callback !== undefined ||
+    engine.Config.LEGACY ||
+    engine.Config['QUIRKS_MODE'] ||
+    !engine.HTML_DOCUMENT ||
+    !context.getElementsByClassName ||
+    engine.hasForeignTypes(context)
+  ) {
+    return undefined
+  }
+  const candidates = context.getElementsByClassName(match[3]!)
+  const results: Element[] = []
+  const tag = match[1]!
+  const cls = match[2]!
+  for (let index = 0, length = candidates.length; index < length; ++index) {
+    const candidate = candidates[index]!
+    let ancestor = candidate.parentElement
+    while (
+      ancestor &&
+      !(
+        ancestor.localName == tag &&
+        engine.hasClass(engine.classOf(ancestor), cls)
+      )
+    ) {
+      ancestor = ancestor.parentElement
+    }
+    if (ancestor) {
+      results[results.length] = candidate
+    }
+  }
+  return engine.Config.NODE_LIST ? engine.toNodeList(results) : results
+}
+
+export function selectTypeUnion(
+  engine: EngineState,
+  selectors: string,
+  context: EngineContext,
+  callback: ElementCallback,
+) {
+  if (
+    callback !== undefined ||
+    engine.Config.LEGACY ||
+    !engine.HTML_DOCUMENT ||
+    context.nodeType != 9
+  ) {
+    return undefined
+  }
+  const match =
+    /^(.*[\t\n\f\r ]+):(?:is|where)\(([a-z][a-z0-9-]*(?:[\t\n\f\r ]*,[\t\n\f\r ]*[a-z][a-z0-9-]*)+)\)$/.exec(
+      selectors,
+    )
+  if (!match) {
+    return undefined
+  }
+  const prefix = match[1]!.replace(/[\t\n\f\r ]+$/, '')
+  const tags = match[2]!.split(',')
+  if (
+    prefix.charAt(0) == '.' ||
+    !engine.reTagChain.test(prefix + ' ' + tags[0]!.trim()) ||
+    engine.hasForeignTypes(context)
+  ) {
+    return undefined
+  }
+  // Split only simple HTML tag unions so each branch can use the chain route.
+  const results: Element[] = [],
+    ends = [0],
+    tagsLength = tags.length
+  for (let index = 0; index < tagsLength; ++index) {
+    const selector = prefix + ' ' + tags[index]!.trim()
+    const selected = select(engine, selector, context)
+    for (
+      let offset = 0, selectedLength = selected.length;
+      offset < selectedLength;
+      ++offset
+    ) {
+      results[results.length] = selected[offset]!
+    }
+    ends[ends.length] = results.length
+  }
+  if (results.length > 1) {
+    engine.hasDupes = false
+    return engine.mergeResults(results, ends)
+  }
+  return results
+}
+
 function chainByParts(
   selectors: string,
   context: EngineContext,
@@ -151,7 +264,7 @@ function chainByParts(
   return undefined
 }
 
-function selectDirectChildren(
+export function selectDirectChildren(
   engine: EngineState,
   selectors: string,
   context: EngineContext,

@@ -13,7 +13,11 @@ import { expandedCases } from './coverage.mts'
 export function unionFixtures(): Fixture[] {
   const entries: Fixture[] = []
   for (const [name, categories] of Object.entries(expandedCases)) {
-    const html = DOCUMENTS[name as keyof typeof DOCUMENTS].html()
+    const document = DOCUMENTS[name as keyof typeof DOCUMENTS]
+    if (!document) {
+      throw new Error(`Survey cases have no benchmark document: ${name}`)
+    }
+    const html = document.html()
     for (const [family, selectors] of Object.entries(categories)) {
       for (const selector of selectors) {
         entries.push({

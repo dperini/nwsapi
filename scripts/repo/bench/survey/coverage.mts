@@ -55,4 +55,67 @@ export const expandedCases = {
       '.card > .list > .row > :is(a, span)',
     ],
   },
+  mixed: {
+    selectivity: [
+      '#missing',
+      '.missing',
+      '.card > .missing',
+      '.missing button',
+      '.card[data-state="selected"] > button',
+    ],
+    lists: [
+      'button, input',
+      'input, button',
+      'button, .primary',
+      '.card, .card > button',
+      'button, button',
+    ],
+    relational: [
+      '.card:has(> input:checked)',
+      '.card:has(.badge.active)',
+      '.row:has(+ .row.active)',
+      '.row:has(~ .row.active)',
+      '.card:not(:has(.error))',
+    ],
+    positions: [
+      '.row:first-of-type',
+      '.row:last-of-type',
+      '.row:nth-of-type(2n)',
+      '.deep > :nth-child(2n of button, input)',
+      '.deep > :nth-last-child(1 of button, input)',
+    ],
+    attributes: [
+      '[data-label="save" i]',
+      '[lang|="en"]',
+      '[data-testid*="-15"]',
+      '[data-testid^="btn-"][data-testid$="0"]',
+      '.sm\\:block',
+    ],
+    controls: [
+      'input:disabled',
+      'input:enabled',
+      'input:required',
+      'input:checked',
+      'input:read-only',
+    ],
+    traversal: [
+      '.deep .target',
+      '.absent .target',
+      '.row.active ~ .row',
+      '.row.active + .row',
+      '.card > .wrapper > .inner > .deep .target',
+    ],
+  },
+}
+
+export const expandedScopedCases = {
+  mixed: {
+    'element root': [
+      { selector: ':scope > button', root: '#query-root' },
+      { selector: ':scope .badge', root: '#query-root' },
+      { selector: '.outside .badge', root: '#query-root' },
+      { selector: ':scope > .row + .row', root: '#query-root .rows' },
+      { selector: ':scope > :is(button, input)', root: '#query-root' },
+    ],
+  },
 }

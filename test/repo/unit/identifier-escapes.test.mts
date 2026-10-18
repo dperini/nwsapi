@@ -14,6 +14,7 @@ for (const [value, identifier] of [
   ['a\\b', 'a\\5c b'],
   ['a\ufffdb', 'a\\0 b'],
   ['a\u{1f4a9}b', 'a\\1f4a9 b'],
+  ['sm:block', 'sm\\:block'],
 ] as const) {
   for (const attribute of ['id', 'class'] as const) {
     test(`${attribute} escape ${identifier} survives compilation and mutation`, t => {

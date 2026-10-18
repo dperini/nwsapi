@@ -17,6 +17,19 @@ import type {
   CompilerAncestry,
   CompilerContext,
 } from './types.mts'
+
+export interface ChildPlanPart {
+  tag: string | undefined
+  cls: string | undefined
+}
+
+export interface ChildPlan {
+  tag: string | undefined
+  cls: string
+  parts: ChildPlanPart[]
+  terminals: string[]
+}
+
 export interface QueryState {
   bulkHasPlanner?: BulkHasPlanner | undefined
   codeFactories: CodeFactoryCache | null | undefined
@@ -213,11 +226,7 @@ export interface QueryState {
     callback: ElementCallback,
   ) => Element | null
   DESCENT_PROBE: number
-  childPlans: PlanCache<{
-    tag: string | undefined
-    cls: string
-    tags: string[]
-  } | null>
+  childPlans: PlanCache<ChildPlan | null>
   chainPlans: PlanCache<
     Array<{ tag: string | undefined; cls: string | undefined }>
   >

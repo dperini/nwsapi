@@ -69,6 +69,11 @@ export function isDisabled(engine: EngineState, element: EngineElement) {
     return true
   }
 
+  const native = nativeInputDisabled(engine, element, name)
+  if (native !== undefined) {
+    return native
+  }
+
   // Options inherit disabled optgroups through ordinary wrappers, but
   // nested options, optgroups, selects, datalists, and rules bound the search.
   if (name == 'option') {
@@ -108,6 +113,23 @@ export function isDisabled(engine: EngineState, element: EngineElement) {
   }
 
   return false
+}
+
+function nativeInputDisabled(
+  engine: EngineState,
+  element: EngineElement,
+  name: string,
+) {
+  if (
+    name == 'input' &&
+    !engine.Config.LEGACY &&
+    engine.HTML_DOCUMENT &&
+    element.namespaceURI == engine.NAMESPACE
+  ) {
+    // Native state handles disabled fieldsets without a script-side ancestor walk.
+    return engine.matchesNative(element, ':disabled', undefined)
+  }
+  return undefined
 }
 
 export function isFocusable(engine: EngineState, node: EngineElement) {

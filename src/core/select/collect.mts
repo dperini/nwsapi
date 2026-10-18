@@ -88,6 +88,15 @@ export function collect(
     ) {
       token[1]! || (token[1] = '*')
       optimized[i] = engine.optimize(optimized[i]!, token as RegExpMatchArray)
+    } else if (
+      (type = selectors[i]!.match(engine.Patterns['className']!)) &&
+      type[0] == selectors[i]! &&
+      type[2] == '' &&
+      type[1]!.includes('\\')
+    ) {
+      // A standalone escaped class is safe to use as a candidate seed.
+      // Keep the original selector for compilation and unescape only its token.
+      token = ['', '.', type[1]!]
     } else {
       token = ['', '*', '*']
       // A terminal union of types can fetch its alternatives instead

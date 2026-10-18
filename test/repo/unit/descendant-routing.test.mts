@@ -2,7 +2,21 @@ import { registerLegacy } from '../common/legacy.mts'
 import assert from 'node:assert/strict'
 import { test, describe, afterEach } from 'vitest'
 import { JSDOM, type BinaryData, type DOMWindow } from 'jsdom'
+import {
+  selectByDescent,
+  selectByClosest,
+  selectDirectChildren,
+  selectTypeUnion,
+} from '../../../src/core/select/all.mts'
+import { initializeApi } from '../../../src/core/initialize/api.mts'
+import { initializeMatching } from '../../../src/core/initialize/matching.mts'
+import { initializeRuntime } from '../../../src/core/initialize/runtime.mts'
+import { createState } from '../../../src/core/state/create.mts'
 import factory from '../../../dist/nwsapi.js'
+import type {
+  EngineState,
+  EngineGlobal,
+} from '../../../src/core/state/types.mts'
 const windows: DOMWindow[] = []
 afterEach(() => {
   for (const window of windows.splice(0)) {
@@ -15,6 +29,80 @@ function build(html: string | Buffer | BinaryData | undefined) {
   const NW = registerLegacy(factory(window))
   return { window, document: window.document, NW }
 }
+
+test('exported descent routes expose their selected paths for focused tests', () => {
+  const { window } = new JSDOM(
+    '<!doctype html><dl><dd><a id=a></a><code id=c></code></dd></dl>' +
+      '<ul class=list><li id=item></li></ul>' +
+      '<section class=card><div><a class=primary id=inside></a></div></section>',
+  )
+  windows.push(window)
+  const engine = createState(
+    window as unknown as EngineGlobal,
+    factory as unknown as EngineState['Factory'],
+  )
+  initializeRuntime(engine)
+  initializeMatching(engine)
+  initializeApi(engine)
+  engine.initialize(engine.doc)
+  const { document } = window
+  engine.hasDupes = true
+  const union = selectTypeUnion(
+    engine,
+    'dl dd :where(a, code)',
+    document,
+    undefined!,
+  )
+  assert.deepEqual(
+    Array.from(union as Element[]).map(element => element.id),
+    ['a', 'c'],
+  )
+  assert.equal(engine.hasDupes, false)
+  assert.equal(
+    selectTypeUnion(engine, 'dl dd :where(a, code)', document, () => {}),
+    undefined,
+  )
+  const closest = selectByClosest(
+    engine,
+    'section.card .primary',
+    document,
+    undefined!,
+  )
+  assert.deepEqual(
+    Array.from(closest as Element[]).map(element => element.id),
+    ['inside'],
+  )
+  assert.equal(
+    selectByClosest(engine, 'section.card .primary', document, () => {}),
+    undefined,
+  )
+  assert.deepEqual(
+    Array.from(
+      selectDirectChildren(
+        engine,
+        '.list > li',
+        document,
+        undefined!,
+      ) as Element[],
+    ).map(element => element.id),
+    ['item'],
+  )
+  assert.equal(
+    selectDirectChildren(engine, '.list > li', document, () => {}),
+    undefined,
+  )
+  assert.deepEqual(
+    Array.from(
+      selectByDescent(
+        engine,
+        'dl dd :where(a, code)',
+        document,
+        undefined!,
+      ) as Element[],
+    ).map(element => element.id),
+    ['a', 'c'],
+  )
+})
 
 describe('a descendant chain of tags answered by descending', () => {
   test('string-like selector arguments retain normal conversion', () => {
@@ -75,6 +163,39 @@ describe('a descendant chain of tags answered by descending', () => {
     assert.ok(
       reads.includes('a'),
       'callbacks use the ordinary rightmost candidate route',
+    )
+  })
+
+  test('terminal tag unions use descendant routes and preserve selector results', () => {
+    const { document, NW } = build(
+      '<!doctype html><dl><dd><a id=a></a><code id=c></code>' +
+        '<dl><dd><a id=nested></a></dd></dl></dd></dl>' +
+        '<dd><a id=outside></a></dd>',
+    )
+    for (const selector of [
+      'dl dd :where(a, code)',
+      'dl dd :is(a, code)',
+      'dl dd :is(a, a)',
+    ] as const) {
+      assert.deepEqual(
+        Array.from(NW.select(selector, document)).map(element => element.id),
+        Array.from(document.querySelectorAll(selector), element => element.id),
+        selector,
+      )
+    }
+    const reads: string[] = []
+    const original = document.getElementsByTagName.bind(document)
+    document.getElementsByTagName = function (tag: string) {
+      reads.push(tag)
+      return original(tag)
+    }
+    NW.select('dl dd :where(a, code)', document)
+    assert.deepEqual(reads, ['dl', 'dl'])
+    reads.length = 0
+    NW.select('dl dd :where(a, code)', document, () => {})
+    assert.ok(
+      reads.includes('a'),
+      'callbacks keep the ordinary candidate route',
     )
   })
 

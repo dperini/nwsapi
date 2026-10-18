@@ -6,6 +6,7 @@ import {
   atomic,
   components,
   documentation,
+  mixed,
 } from '../../../../scripts/repo/bench/documents.mts'
 
 test('benchmark document families contain representative selectors and component relationships', () => {
@@ -13,10 +14,12 @@ test('benchmark document families contain representative selectors and component
     'documentation',
     'atomic',
     'components',
+    'mixed',
   ])
   const atomicDom = new JSDOM(atomic())
   const componentDom = new JSDOM(components())
   const documentationDom = new JSDOM(documentation())
+  const mixedDom = new JSDOM(mixed())
   try {
     assert.equal(
       atomicDom.window.document.querySelectorAll('.card').length,
@@ -42,12 +45,18 @@ test('benchmark document families contain representative selectors and component
     assert.ok(
       documentationDom.window.document.querySelectorAll('*').length > 100,
     )
+    assert.equal(
+      mixedDom.window.document.querySelectorAll('#query-root > .card').length,
+      240,
+    )
     assert.equal(DOCUMENTS.atomic.html, atomic)
     assert.equal(DOCUMENTS.components.html, components)
     assert.equal(DOCUMENTS.documentation.html, documentation)
+    assert.equal(DOCUMENTS.mixed.html, mixed)
   } finally {
     atomicDom.window.close()
     componentDom.window.close()
     documentationDom.window.close()
+    mixedDom.window.close()
   }
 })

@@ -7,21 +7,21 @@ import { ENGINE_BUILD_PATH } from '../../lib/paths.mts'
 export interface NativeContext {
   frame: HTMLIFrameElement
   document: Document
-  all(selector: string): ArrayLike<Element>
-  first(selector: string): Element | null
+  all(selector: string, root?: Document | Element): ArrayLike<Element>
+  first(selector: string, root?: Document | Element): Element | null
 }
 export interface NativeGlobals {
   __nwsapiFactory: (window: Window) => {
-    select(selector: string, document: Document): ArrayLike<Element>
-    first(selector: string, document: Document): Element | null
+    select(selector: string, root: Document | Element): ArrayLike<Element>
+    first(selector: string, root: Document | Element): Element | null
   }
   __competitor: {
     DOMSelector: new (
       window: Window,
       document: Document,
     ) => {
-      querySelectorAll(selector: string, document: Document): Element[]
-      querySelector(selector: string, document: Document): Element | null
+      querySelectorAll(selector: string, root: Document | Element): Element[]
+      querySelector(selector: string, root: Document | Element): Element | null
     }
   }
   __createContext(
@@ -108,12 +108,16 @@ export async function nativePage(
       if (initialize) {
         if (engine === 0) {
           const instance = host.__nwsapiFactory(inner)
-          context.all = selector => instance.select(selector, doc)
-          context.first = selector => instance.first(selector, doc)
+          context.all = (selector, root = doc) =>
+            instance.select(selector, root)
+          context.first = (selector, root = doc) =>
+            instance.first(selector, root)
         } else {
           const instance = new host.__competitor.DOMSelector(inner, doc)
-          context.all = selector => instance.querySelectorAll(selector, doc)
-          context.first = selector => instance.querySelector(selector, doc)
+          context.all = (selector, root = doc) =>
+            instance.querySelectorAll(selector, root)
+          context.first = (selector, root = doc) =>
+            instance.querySelector(selector, root)
         }
       }
       return context
