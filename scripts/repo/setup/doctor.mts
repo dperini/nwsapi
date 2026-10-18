@@ -73,6 +73,24 @@ function toolDetails(report: ReturnType<typeof toolReports>[number]) {
   ]
 }
 
+function toolStatus(
+  report: ReturnType<typeof toolReports>[number],
+  ready: boolean,
+) {
+  const version = report.version ?? 'not found'
+  const pin = report.managedVersion ?? report.pin
+  if (report.executable === managedEntry(report.name)) {
+    return `checkout pin ${pin} active`
+  }
+  if (ready) {
+    return `PATH ${version} (${report.owner}); checkout pin ${pin} ready`
+  }
+  if (report.executable && !report.meetsMinimum) {
+    return `PATH ${version} (${report.owner}) below >=${report.minimum}; setup will install ${pin}`
+  }
+  return `PATH ${version} (${report.owner}); setup will install ${pin}`
+}
+
 export function formatToolReports(
   reports = toolReports(),
   details = false,
@@ -85,12 +103,7 @@ export function formatToolReports(
       : 'Toolchain setup needed. Run node scripts/repo/setup/bootstrap.mts to prepare this checkout.',
   ]
   for (const report of reports) {
-    const status = report.meetsMinimum
-      ? 'meets version minimum'
-      : ready
-        ? 'checkout tools cover repository commands'
-        : 'setup will provide the project version'
-    lines.push(`${report.name}: ${report.version ?? 'unavailable'} — ${status}`)
+    lines.push(`${report.name}: ${toolStatus(report, ready)}`)
     if (details) {
       lines.push(...toolDetails(report))
     }

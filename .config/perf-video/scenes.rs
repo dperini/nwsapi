@@ -152,7 +152,7 @@ fn setup<'a>(t: f32) -> Svgr<'a> {
     fframes::svgr!(<g>
         {panel()}
         {label(215, 422, 30, "#a9b9c7", "TYPE IN YOUR TERMINAL · REPOSITORY ROOT")}
-        {label(215, 530, 68, "#8ad5bb", "pnpm run setup")}
+        {label(215, 530, 68, "#8ad5bb", "pnpm go")}
         {label(215, 610, 38, "#eff3fa", "Press Enter to install tools, dependencies, and build outputs.")}
         <g opacity={reveal}>
             <path d="M215 656 H1700" stroke="#354651"/>

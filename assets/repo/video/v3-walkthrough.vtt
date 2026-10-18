@@ -6,7 +6,7 @@ NWSAPI v3: a clearer path to your next change.
 
 00:06.000 --> 00:10.000
 In a terminal, open the repository folder.
-Type pnpm run setup, then press Enter.
+Type pnpm go, then press Enter.
 
 00:10.000 --> 00:14.000
 Setup installs tools, dependencies, and build outputs.

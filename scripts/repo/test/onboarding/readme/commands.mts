@@ -19,9 +19,7 @@ export function resolveReadmeHarnessCommand(
       ? ['pnpm', '--silent', 'run', 'dev', '--list', '--json']
       : step.id === 'readiness'
         ? ['pnpm', '--silent', 'run', 'dev', '--task', 'setup:check', '--json']
-        : step.id === 'pnpm-install-2'
-          ? ['pnpm', 'run', 'setup']
-          : undefined
+        : undefined
   if (!expected || JSON.stringify(step.command) !== JSON.stringify(expected)) {
     throw new Error(`README ${step.id} must use its pinned pnpm task command.`)
   }
@@ -41,11 +39,9 @@ export function resolveReadmeBootstrapRepairCommand(
 ): ResolvedReadmeHarnessCommand {
   if (
     step.id !== 'bootstrap' ||
-    JSON.stringify(step.command) !== JSON.stringify(['pnpm', 'run', 'setup'])
+    JSON.stringify(step.command) !== JSON.stringify(['pnpm', 'go'])
   ) {
-    throw new Error(
-      'README setup repair must use the pinned pnpm setup script.',
-    )
+    throw new Error('README setup repair must use pnpm go.')
   }
   return resolveManagedPnpmCommand(
     checkout,
@@ -65,7 +61,7 @@ function resolveManagedPnpmCommand(
   const executable = managedPnpmLauncherPath(checkout, platform)
   if (!existsSync(executable)) {
     throw new Error(
-      'The managed pnpm launcher is missing. Install dependencies or run pnpm run setup to repair it.',
+      'The managed pnpm launcher is missing. Install dependencies or run pnpm go to repair it.',
     )
   }
   const paths = [bin, env['PATH'] ?? ''].filter(Boolean)

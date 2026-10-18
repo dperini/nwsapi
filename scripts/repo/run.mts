@@ -8,6 +8,10 @@ import {
   REPO_ROOT,
 } from './lib/paths.mts'
 import { parseRunArgs, RUN_HELP } from './run/options.mts'
+import {
+  clearExternalGitContext,
+  isExternalWptRunner,
+} from './lib/external-git-environment.mts'
 
 const request = parseRunArgs(process.argv.slice(2))
 if (request.help) {
@@ -17,6 +21,9 @@ if (request.help) {
 const { args, entry } = request
 // Node reads these at startup; descendants inherit the same cache and opt-out.
 const filename = path.resolve(REPO_ROOT, entry)
+if (isExternalWptRunner(filename, REPO_ROOT)) {
+  clearExternalGitContext(process.env)
+}
 process.env['NODE_COMPILE_CACHE'] ||= COMPILE_CACHE_DIR
 const coverage =
   filename === COVERAGE_SCRIPT_PATH ||

@@ -1,3 +1,5 @@
+import path from 'node:path'
+
 const repositoryContextVariables = [
   'GIT_DIR',
   'GIT_COMMON_DIR',
@@ -13,12 +15,53 @@ export function externalGitEnvironment(
   environment: NodeJS.ProcessEnv = process.env,
 ): NodeJS.ProcessEnv {
   const childEnvironment = { ...environment }
-  for (const variable of repositoryContextVariables) {
-    delete childEnvironment[variable]
-  }
+  clearExternalGitContext(childEnvironment)
   return childEnvironment
 }
-import path from 'node:path'
+
+export function clearExternalGitContext(environment: NodeJS.ProcessEnv): void {
+  for (const variable of repositoryContextVariables) {
+    delete environment[variable]
+  }
+}
+
+export async function withoutExternalGitContext<T>(
+  operation: () => Promise<T>,
+): Promise<T> {
+  const inherited = new Map(
+    repositoryContextVariables.map(variable => [
+      variable,
+      process.env[variable],
+    ]),
+  )
+  clearExternalGitContext(process.env)
+  try {
+    return await operation()
+  } finally {
+    for (const [variable, value] of inherited) {
+      if (value === undefined) {
+        delete process.env[variable]
+      } else {
+        process.env[variable] = value
+      }
+    }
+  }
+}
+
+const externalWptRunnerEntries = new Set([
+  'scripts/repo/check/wpt/native/run.mts',
+  'scripts/repo/check/wpt/native/pool.mts',
+  'scripts/repo/check/wpt/native/scope.mts',
+  'scripts/repo/wpt/native/update.mts',
+])
+
+export function isExternalWptRunner(entry: string, repositoryRoot: string) {
+  const relative = path
+    .relative(path.resolve(repositoryRoot), path.resolve(entry))
+    .split(path.sep)
+    .join('/')
+  return externalWptRunnerEntries.has(relative)
+}
 
 export function targetsWptRepository(
   cwd: string,

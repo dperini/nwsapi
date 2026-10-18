@@ -140,6 +140,43 @@ test('runs main repository checks before the CI test plan for docs-only changes'
   })
 })
 
+test('isolates the CI plan from Git hook context and restores it afterward', async () => {
+  const harness = pushHarness({
+    'rev-parse': { status: 0, stdout: 'head\n' },
+    status: { status: 0, stdout: '' },
+    'merge-base': { status: 0, stdout: 'merge\n' },
+    diff: { status: 0, stdout: 'M\0docs/repo/topic.md\0' },
+  })
+  const previousDirectory = process.env['GIT_DIR']
+  const previousWorkTree = process.env['GIT_WORK_TREE']
+  process.env['GIT_DIR'] = '/hook/repository.git'
+  process.env['GIT_WORK_TREE'] = '/hook/worktree'
+  let observedDirectory: string | undefined
+  let observedWorkTree: string | undefined
+  harness.runNodePlan.mockImplementation(async () => {
+    observedDirectory = process.env['GIT_DIR']
+    observedWorkTree = process.env['GIT_WORK_TREE']
+  })
+  try {
+    expect(await runPrePush(update(), harness.dependencies)).toBe(0)
+    expect(observedDirectory).toBeUndefined()
+    expect(observedWorkTree).toBeUndefined()
+    expect(process.env['GIT_DIR']).toBe('/hook/repository.git')
+    expect(process.env['GIT_WORK_TREE']).toBe('/hook/worktree')
+  } finally {
+    if (previousDirectory === undefined) {
+      delete process.env['GIT_DIR']
+    } else {
+      process.env['GIT_DIR'] = previousDirectory
+    }
+    if (previousWorkTree === undefined) {
+      delete process.env['GIT_WORK_TREE']
+    } else {
+      process.env['GIT_WORK_TREE'] = previousWorkTree
+    }
+  }
+})
+
 test('a failed main check stops the push and reports a concise error', async () => {
   const harness = pushHarness({
     'rev-parse': { status: 0, stdout: 'head\n' },

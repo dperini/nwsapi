@@ -54,6 +54,7 @@ test('failed configuration preflight preserves existing manager launchers', () =
       'scripts/repo/external-tools.mts',
       'scripts/repo/lib/paths.mts',
       'scripts/repo/lib/run-node.mts',
+      'scripts/repo/lib/external-git-environment.mts',
       'scripts/repo/lib/platform.mts',
       'scripts/repo/lib/tool-process.mts',
       'scripts/repo/lib/tool-worker.mts',

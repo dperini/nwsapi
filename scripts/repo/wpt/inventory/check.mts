@@ -9,6 +9,7 @@ if (isMainModule(import.meta.url)) {
     runNode(
       fileURLToPath(new URL('../../check/wpt/inventory.mts', import.meta.url)),
       process.argv.slice(2),
+      { externalGit: true },
     )
   }
 }

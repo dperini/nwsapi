@@ -70,7 +70,7 @@ test('failed literal README readiness records doctor details before assertion', 
   }
 })
 
-test('the quick-start setup command runs without requiring JSON output', async () => {
+test('the onboarding harness does not repeat setup already performed by install', async () => {
   const checkout = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-menu-'))
   try {
     mkdirSync(path.join(checkout, '.cache', 'bin'), { recursive: true })
@@ -78,7 +78,7 @@ test('the quick-start setup command runs without requiring JSON output', async (
     writeFileSync(launcher, '')
     writeFileSync(
       path.join(checkout, 'README.md'),
-      '<!-- <onboarding> -->\n<!-- onboarding:pnpm-install:start -->\n```sh\npnpm i\npnpm run setup\n```\n<!-- onboarding:pnpm-install:end -->\n<!-- </onboarding> -->',
+      '<!-- <onboarding> -->\n<!-- onboarding:pnpm-install:start -->\n```sh\npnpm i\n```\n<!-- onboarding:pnpm-install:end -->\n<!-- </onboarding> -->',
     )
     const run = vi.fn(async () => ({
       code: 0,
@@ -86,17 +86,7 @@ test('the quick-start setup command runs without requiring JSON output', async (
       stderr: '',
     }))
     await runReadmeHarnessSteps('log', checkout, process.execPath, {}, run)
-    expect(run).toHaveBeenCalledOnce()
-    expect(run.mock.calls[0]).toEqual([
-      'log',
-      'literal README pnpm-install-2',
-      launcher,
-      ['run', 'setup'],
-      checkout,
-      { PATH: path.join(checkout, '.cache', 'bin') },
-      undefined,
-      0,
-    ])
+    expect(run).not.toHaveBeenCalled()
   } finally {
     rmSync(checkout, { recursive: true, force: true })
   }

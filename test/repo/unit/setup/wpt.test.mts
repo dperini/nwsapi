@@ -14,6 +14,10 @@ test('CLI clones then verifies through the default runner', async () => {
       ['clone', 'upstream/wpt'],
       ['verify', 'upstream/wpt'],
     ])
+    expect(run.mock.calls.map(([, , options]) => options)).toEqual([
+      { externalGit: true },
+      { externalGit: true },
+    ])
   } finally {
     vi.doUnmock('../../../../scripts/repo/lib/run-node.mts')
   }
@@ -22,4 +26,7 @@ test('an explicit runner observes exactly the two checkout operations', () => {
   const run = vi.fn()
   setupWpt(run)
   expect(run).toHaveBeenCalledTimes(2)
+  expect(run.mock.calls.every(([, , options]) => options.externalGit)).toBe(
+    true,
+  )
 })

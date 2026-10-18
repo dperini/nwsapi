@@ -6,17 +6,17 @@ Watch the [48s workflow walkthrough](video.md) for an overview.
 
 ## 1. Prepare the checkout
 
-Use Node.js 26.11.0, pnpm 12.12.0, Git, and network access. Install dependencies and let the install lifecycle prepare checkout tools and build the package:
+From the checkout root, install dependencies and prepare the checkout:
 
 ```sh
 pnpm i
 ```
 
-**Expected result:** dependencies are in `node_modules/`, generated JavaScript is in `dist/`, and checkout tools stay under `.cache/`. Setup does not change global tools or shell settings. You do not need to run setup again after a successful install.
+The install prepares pinned tools and builds the package. Tools stay in `.cache/`; global tools and shell settings are unchanged. You do not need to run setup again after a successful install.
 
-If installation is interrupted, rerun `pnpm i`. Verified tool downloads are reused, and the package manager checks dependency state. If setup needs repair after installation, run `pnpm run setup`.
+If installation is interrupted, rerun `pnpm i`. Verified tool downloads are reused, and the package manager checks dependency state. If setup needs repair after installation, run `pnpm go`.
 
-Next, run `pnpm run dev` and choose Open documentation, Review my changes, or the optional Troubleshoot setup task. Setup diagnostics report readiness, the documentation task opens live updates, and Review runs repository checks.
+Next, run `pnpm run dev`. Choose **Open documentation**, **Review my changes**, or setup diagnostics.
 
 If setup fails, resolve the reported error. If it mentions a missing tool or wrong version, check readiness from the contributor menu or run:
 
@@ -38,7 +38,7 @@ npm i
 npm run dev
 ```
 
-If setup needs repair, use `npm run setup` with this entry path.
+If setup needs repair, use `npm run go` with this entry path.
 
 </details>
 
@@ -126,24 +126,10 @@ When the listed paths match your intent, apply it:
 pnpm run reset:dependencies --apply
 ```
 
-Then run `pnpm run setup`. `pnpm run reset:tools` provides the same preview-and-apply flow for checkout tools. Neither reset removes other worktrees, shared browser caches, or the shared package store. A reset is optional and is not the first step for every error.
+Then run `pnpm go`. `pnpm run reset:tools` provides the same preview-and-apply flow for checkout tools. Neither reset removes other worktrees, shared browser caches, or the shared package store. A reset is optional and is not the first step for every error.
 
-## Guided menu
-
-After installation, run `pnpm run dev` to choose documentation, review, or setup diagnostics. Use the arrow keys to preview a task, then press Enter to run it. The menu returns after completed commands.
-
-Use `pnpm run dev --plain` for numbered prompts, or `pnpm run dev --list` to
-print the commands. The direct commands below remain available.
-
-The docs server stays in the foreground while you edit. Ctrl+C stops it and
-offers to return to the menu so you can choose Review. Ctrl+C during setup or
-review stops that task and exits. Run `pnpm run dev` to open it again. Press q
-or Esc in the visual menu to leave without running anything.
-
-In plain mode, enter a number to preview the task, then press Enter to run it.
-Use b to return to the choices or q to quit. Invalid input stays at the current
-prompt. Setup diagnostics are optional and available whenever you need them. You can
-return to any task without repeating the earlier steps.
+The menu's keyboard controls, plain mode, and cancellation behavior are in the
+[toolchain guide](toolchain.md#developer-menu).
 
 <details>
 <summary>Automate contributor tasks</summary>
