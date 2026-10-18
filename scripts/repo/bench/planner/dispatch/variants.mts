@@ -1,4 +1,12 @@
-import { routeBundle } from '../has/instrument.mts'
+import { replaceFunction, routeBundle } from '../has/instrument.mts'
+
+const maskBody = `function plannerMask(engine, anchor, witness) {
+  return (anchor.indexOf('[') < 0 ? 0 : 2) + (witness.indexOf('[') < 0 ? 0 : 1);
+}`
+
+export function annotatePlannerMask(source: string) {
+  return replaceFunction(source, 'plannerMask', maskBody)
+}
 
 export type Override = (
   a: number,
@@ -18,37 +26,30 @@ export function dispatchBundle(
   if (memoize && !forwardOnly) {
     throw new Error('Decision caching requires a forward-only policy.')
   }
-  const preparation = 'anchor: anchor,'
-  if (source.split(preparation).length !== 2) {
-    throw new Error('Expected one bulk plan preparation.')
-  }
-  const annotated = source.replace(
-    preparation,
-    'attributeMask: (parts[1].indexOf("[") < 0 ? 0 : 2) + (parts[2].indexOf("[") < 0 ? 0 : 1), anchor: anchor,',
-  )
   const fallback =
-    'witnesses.length > anchors.length * 2 && (!plan.denseInverse || anchors.length > 192 || witnesses.length > anchors.length * 4)'
+    'shouldDeclineBulkHas(plan, anchors.length, witnesses.length)'
   const override = memoize
-    ? 'dispatchCached(anchors.length, witnesses.length, plan.attributeMask, +plan.denseInverse)'
-    : 'dispatchOverride(anchors.length, witnesses.length, plan.attributeMask, +plan.denseInverse, witnesses.length / anchors.length)'
+    ? 'dispatchCached(anchors.length, witnesses.length, plan.plannerMask, +plan.denseInverse)'
+    : 'dispatchOverride(anchors.length, witnesses.length, plan.plannerMask, +plan.denseInverse, witnesses.length / anchors.length)'
   // The certificate permits changes only where the existing route is forward.
   // Short-circuit before reading model inputs or calling another function.
   const decision = forwardOnly
     ? `(${fallback}) && !${override}`
-    : `dispatchForward(anchors.length, witnesses.length, plan.attributeMask, +plan.denseInverse)`
+    : `dispatchForward(${fallback}, anchors.length, witnesses.length, plan.plannerMask, +plan.denseInverse)`
   const helpers =
     model.replace(/^export /, '') +
     (memoize ? cachedHelper(instrument) : '') +
     (forwardOnly
       ? ''
       : `
-function dispatchForward(anchors, witnesses, attributes, dense) {
-  var fallback = witnesses > anchors * 2 && (!dense || anchors > 192 || witnesses > anchors * 4);
+function dispatchForward(fallback, anchors, witnesses, attributes, dense) {
   return dispatchOverride(anchors, witnesses, attributes, dense, witnesses / anchors) ? !fallback : fallback;
 }
 `)
   return (
-    routeBundle(annotated, 'baseline', instrument, decision) + '\n' + helpers
+    routeBundle(annotatePlannerMask(source), 'baseline', instrument, decision) +
+    '\n' +
+    helpers
   )
 }
 

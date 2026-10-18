@@ -15,15 +15,15 @@ The latest full comparison ran on October 18, 2026, using an Apple M1 Max, Node.
 
 | Measure | Result | How to read it |
 | --- | --- | --- |
-| Warm query time across 80 selectors | 4.11× faster geometric mean | The average ratio favors `nwsapi`; individual selectors vary. |
+| Warm query time | 4.11× faster geometric mean | The average ratio favors `nwsapi`; individual queries vary. |
 | Retained heap after 100 queries | 79.63 KiB vs. 545.94 KiB | `nwsapi` retained 85.4% less JavaScript heap. |
 | Brotli-compressed browser JavaScript | 48.44 KiB vs. 78.09 KiB | The `nwsapi` core was 38.0% smaller. |
 
 Lower time, memory and file size are better. The query result is an equal-weight geometric mean over the listed fixtures; it does not mean every selector is 4.11× faster. These numbers describe the saved workloads, not every application. The [query data](../../../assets/repo/bench/results.json), [memory data](../../../assets/repo/bench/memory-footprint.json) and [file-size data](../../../assets/repo/bench/file-size.json) include the run metadata and samples.
 
-The 80 curated cases cover 40 component, 20 documentation, and 20 utility-class queries. They are representative workloads, not telemetry from websites.
+The curated cases cover component, documentation, and utility-class queries. They represent plausible workloads, not telemetry from websites. Case selection prioritizes distinct behavior and realistic DOM shapes over suite size.
 
-The [README summary](../../../README.md#performance) uses the geometric mean of the ratios of comparison-library time to `nwsapi` time across 80 different CSS selectors, each called repeatedly to return every matching element.
+The [README summary](../../../README.md#performance) uses the geometric mean of comparison-library time divided by `nwsapi` time for repeated queries that return every matching element.
 Each query has equal weight. Its memory and file size figures use the retained heap after 100 queries and Brotli bytes reported below.
 
 ## All-results comparison
@@ -58,7 +58,7 @@ For a smoke run:
 pnpm run bench --rounds 3 --iterations 100 --min-round-ms 5 --cold-count 2 --output /tmp/nwsapi-bench
 ```
 
-Run `pnpm run bench:selectors:expanded` for broader diagnostics. It checks 152 cases, including mixed form states, sparse matches, and element-rooted queries. It saves a timestamped report under `.cache/bench/`. This five-round screening run does not affect the published score above, which uses 80 curated cases.
+Run `pnpm run bench:selectors:expanded` for broader diagnostics, including mixed form states, sparse matches, and element-rooted queries. It saves a timestamped report under `.cache/bench/`. This five-round screening run does not affect the published score above.
 
 The raw all-results data lives in [components](../../../assets/repo/bench/results.json), [documentation](../../../assets/repo/bench/documentation/results.json) and [utility classes](../../../assets/repo/bench/atomic/results.json).
 The [first-match report](../../../assets/repo/bench/first-query-states.json) includes [cold and warm samples](#cold-and-warm-samples).

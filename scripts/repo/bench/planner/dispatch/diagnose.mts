@@ -17,7 +17,7 @@ import { baselinePath } from '../has/variants.mts'
 import { geomean } from '../neural/oracle.mts'
 import { crossedFixtures } from './crossed.mts'
 import { diagnosticFixtures } from './diagnostic.mts'
-import { dispatchBundle } from './variants.mts'
+import { annotatePlannerMask, dispatchBundle } from './variants.mts'
 import type { Override } from './variants.mts'
 import { splitDispatchBundle, unfilteredCertificate } from './specialize.mts'
 
@@ -36,10 +36,7 @@ function variants(
   rule: string,
   instrument = false,
 ) {
-  const annotated = baseline.replace(
-    'anchor: anchor,',
-    'attributeMask: (parts[1].indexOf("[") < 0 ? 0 : 2) + (parts[2].indexOf("[") < 0 ? 0 : 1), anchor: anchor,',
-  )
+  const annotated = annotatePlannerMask(baseline)
   return [
     instrument ? routeBundle(annotated, 'baseline', true) : baseline,
     routeBundle(annotated, 'baseline', instrument),

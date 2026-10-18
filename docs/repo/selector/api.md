@@ -46,9 +46,9 @@ Change engine options and error handling.
 | --- | --- |
 | [`configure(option, clear)`](../../../src/core/initialize/configure.mts#L3) | Reads or changes options. Pass `true` as the second argument to clear compiled selectors. |
 | [`emit(message, proto)`](../../../src/core/validation/error.mts#L2) | Reports an error using the configured error policy. |
-| [`registerLegacyHooks(factory)`](../../../src/core/initialize/api.mts#L262) | Registers the optional DOM compatibility module on this engine. Returns false when hooks are already registered. |
-| [`useRoutePlanner(host)`](../../../src/core/initialize/api.mts#L247) | Selects the Chromium or jsdom routing policy. Pass null to disable the planner and clear its callback. |
-| [`registerBulkHasPlanner(planner)`](../../../src/core/initialize/api.mts#L253) | Registers a custom bulk :has() routing callback. Pass null to remove it. Query caches are cleared. |
+| [`registerLegacyHooks(factory)`](../../../src/core/initialize/api.mts#L259) | Registers the optional DOM compatibility module on this engine. Returns false when hooks are already registered. |
+| [`useRoutePlanner(host)`](../../../src/core/initialize/api.mts#L244) | Selects the Chromium or jsdom routing policy. Pass null to disable the planner and clear its callback. |
+| [`registerBulkHasPlanner(planner)`](../../../src/core/initialize/api.mts#L250) | Registers a custom bulk :has() routing callback. Pass null to remove it. Query caches are cleared. |
 
 ### Compile and extend selectors
 
@@ -57,9 +57,9 @@ Advanced APIs for compiled resolvers and trusted selector extensions.
 | Method | Result |
 | --- | --- |
 | [`compile(selector, mode, callback, relative, existenceOnly)`](../../../src/core/compile/resolver.mts#L12) | Compiles a selector into a resolver function. This is an advanced API. |
-| [`registerCombinator(combinator, resolver)`](../../../src/core/initialize/api.mts#L281) | Adds a relationship between elements using trusted resolver code. |
-| [`registerOperator(operator, resolver)`](../../../src/core/initialize/api.mts#L315) | Adds an attribute operator using a resolver with `p1`, `p2`, and `p3` fields. |
-| [`registerSelector(name, rexp, func)`](../../../src/core/initialize/api.mts#L342) | Adds a selector pattern and a compiler callback that returns `source` and `status`. |
+| [`registerCombinator(combinator, resolver)`](../../../src/core/initialize/api.mts#L278) | Adds a relationship between elements using trusted resolver code. |
+| [`registerOperator(operator, resolver)`](../../../src/core/initialize/api.mts#L313) | Adds an attribute operator using a resolver with `p1`, `p2`, and `p3` fields. |
+| [`registerSelector(name, rexp, func)`](../../../src/core/initialize/api.mts#L340) | Adds a selector pattern and a compiler callback that returns `source` and `status`. |
 
 ### Override browser DOM methods
 
@@ -122,17 +122,17 @@ These exports support extensions and debugging. Prefer query methods and `config
 | [`Config`](../../../src/core/initialize/runtime.mts#L107) | Contains the active options. Use `configure()` to change them. |
 | [`M_BODY`](../../../src/core/initialize/matching.mts#L177) | Contains the matching resolver body template. |
 | [`M_TEST`](../../../src/core/initialize/matching.mts#L183) | Contains the matching resolver test template. |
-| [`matchLambdas`](../../../src/core/initialize/api.mts#L114) | Caches compiled matching functions, not DOM results. |
-| [`matchResolvers`](../../../src/core/initialize/api.mts#L121) | Caches matching plans, not DOM results. |
+| [`matchLambdas`](../../../src/core/initialize/api.mts#L111) | Caches compiled matching functions, not DOM results. |
+| [`matchResolvers`](../../../src/core/initialize/api.mts#L118) | Caches matching plans, not DOM results. |
 | [`N_BODY`](../../../src/core/initialize/matching.mts#L177) | Exposes the matching resolver body template. |
 | [`N_TEST`](../../../src/core/initialize/matching.mts#L184) | Contains the alternate resolver test template. |
-| [`Operators`](../../../src/core/initialize/runtime.mts#L182) | Contains registered attribute operators. |
+| [`Operators`](../../../src/core/initialize/runtime.mts#L183) | Contains registered attribute operators. |
 | [`S_BODY`](../../../src/core/initialize/matching.mts#L176) | Contains the selection resolver body template. |
 | [`S_TEST`](../../../src/core/initialize/matching.mts#L182) | Contains the selection resolver test template. |
-| [`selectLambdas`](../../../src/core/initialize/api.mts#L117) | Caches compiled selection functions, not DOM results. |
+| [`selectLambdas`](../../../src/core/initialize/api.mts#L114) | Caches compiled selection functions, not DOM results. |
 | [`Selectors`](../../../src/core/initialize/runtime.mts#L181) | Contains registered selector extensions. |
-| [`selectResolvers`](../../../src/core/initialize/api.mts#L128) | Caches selection plans, not DOM results. |
-| [`Snapshot`](../../../src/core/initialize/api.mts#L134) | Contains the document state and helpers used by compiled selectors. |
+| [`selectResolvers`](../../../src/core/initialize/api.mts#L125) | Caches selection plans, not DOM results. |
+| [`Snapshot`](../../../src/core/initialize/api.mts#L131) | Contains the document state and helpers used by compiled selectors. |
 | [`Version`](../../../src/core/initialize/runtime.mts#L42) | Contains the engine version string. |
 
 </details>

@@ -101,7 +101,7 @@ const metadata = {
           phase === 'confirm'
             ? 'guarded implementation'
             : phase === 'preflight'
-              ? 'empty-witness preflight'
+              ? 'forward route after witness preflight'
               : 'trained',
         ],
 }

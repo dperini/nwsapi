@@ -10,6 +10,7 @@ import {
 } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
+import { normalizePath } from '../../../../../scripts/repo/lib/paths.mts'
 import type * as ChildProcess from 'node:child_process'
 import type * as FileSystem from 'node:fs'
 
@@ -92,18 +93,30 @@ test('proof arguments require an explicit local CLI and native template', async 
 test('proof paths preserve the supplied CLI and template without a download step', async () => {
   const { createProofPaths } =
     await import('../../../../../scripts/repo/build/native/proof.mts')
+  const root = path.resolve('/checkout')
+  const paths = createProofPaths({
+    root,
+    abiExecutable: 'tools/abi',
+    ffiTemplate: 'templates/darwin-arm64/ffi-stub.node',
+  })
 
   expect(
-    createProofPaths({
-      root: '/checkout',
-      abiExecutable: 'tools/abi',
-      ffiTemplate: 'templates/darwin-arm64/ffi-stub.node',
-    }),
-  ).toMatchObject({
-    root: '/checkout',
-    abiExecutable: '/checkout/tools/abi',
-    ffiTemplate: '/checkout/templates/darwin-arm64/ffi-stub.node',
-    directCarrier: '/checkout/.cache/hybrid/opentui-ffi-carrier.node',
+    Object.fromEntries(
+      Object.entries(paths).map(([name, value]) => [
+        name,
+        normalizePath(value),
+      ]),
+    ),
+  ).toEqual({
+    root: normalizePath(root),
+    cache: normalizePath(path.join(root, '.cache/hybrid')),
+    abiExecutable: normalizePath(path.join(root, 'tools/abi')),
+    ffiTemplate: normalizePath(
+      path.join(root, 'templates/darwin-arm64/ffi-stub.node'),
+    ),
+    directCarrier: normalizePath(
+      path.join(root, '.cache/hybrid/opentui-ffi-carrier.node'),
+    ),
   })
 })
 

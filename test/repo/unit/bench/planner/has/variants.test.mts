@@ -5,13 +5,8 @@ import { afterEach, test, vi } from 'vitest'
 
 const state = vi.hoisted(() => ({
   read: vi.fn(),
-  bundle: vi.fn((source: string) => source),
 }))
 vi.mock('node:fs', () => ({ readFileSync: state.read }))
-vi.mock(
-  '../../../../../../scripts/repo/bench/planner/has/instrument.mts',
-  () => ({ routeBundle: state.bundle }),
-)
 import {
   baselinePath,
   confirmationVariants,
@@ -21,8 +16,18 @@ import {
   probeSource,
   variants,
 } from '../../../../../../scripts/repo/bench/planner/has/variants.mts'
-const source =
-  'module.exports = function(anchors,witnesses){const anchor=null;const parts=["","",""];const plan={anchor: anchor,};if (witnesses.length > anchors.length * 2) return null;return plan}'
+const source = `function shouldDeclineBulkHas(plan, anchors, witnesses) {
+  return witnesses > anchors * 2;
+}
+function selectBulkHas(plan, anchors, witnesses) {
+  if (!witnesses.length) return [];
+  if (shouldDeclineBulkHas(plan, anchors.length, witnesses.length)) return null;
+  return { plannerMask: plan.plannerMask };
+}
+function runSingle() { return 'resolver'; }
+module.exports = function(anchors, witnesses) {
+  return selectBulkHas({ plannerMask: 2 }, anchors, witnesses);
+};`
 afterEach(() => {
   vi.clearAllMocks()
   vi.unstubAllEnvs()
@@ -34,34 +39,20 @@ function evaluate(code: string) {
   return module.exports as (
     anchors: unknown[],
     witnesses: unknown[],
-  ) => { attributeMask?: number; length?: number } | null
+  ) => { plannerMask?: number; length?: number } | null
 }
 
-test('route variant builders annotate attribute masks and request explicit instrumented route choices', () => {
+test('route variants preserve exact checks and force the selected path', () => {
   state.read.mockReturnValue(source)
   vi.stubEnv('NWSAPI_PLANNER_BASELINE', '/fixture/baseline.js')
   assert.equal(baselinePath(), '/fixture/baseline.js')
   const originals = variants()
   assert.equal(originals.length, 3)
-  assert.equal(evaluate(originals[0]!)([1], [1])!.attributeMask, undefined)
-  assert.equal(evaluate(originals[1]!)([1], [1])!.attributeMask, 0)
-  assert.deepEqual(
-    state.bundle.mock.calls.map(call => call.slice(1)),
-    [['forward'], ['inverse']],
-  )
-  state.bundle.mockClear()
+  assert.equal(evaluate(originals[0]!)([1], [1])!.plannerMask, 2)
+  assert.equal(evaluate(originals[1]!)([1], [1]), null)
+  assert.equal(evaluate(originals[2]!)([1], [1])!.plannerMask, 2)
   assert.equal(instrumentedVariants().length, 3)
-  assert.deepEqual(
-    state.bundle.mock.calls.map(call => call.slice(1)),
-    [
-      ['baseline', true],
-      ['forward', true],
-      ['inverse', true],
-    ],
-  )
-  state.bundle.mockClear()
-  probeSource()
-  assert.deepEqual(state.bundle.mock.calls[0]!.slice(1), ['baseline', true])
+  assert.equal(typeof evaluate(probeSource()), 'function')
   assert.equal(confirmationVariants().length, 2)
   const fitted = {
     model: { broad: true },
@@ -91,18 +82,14 @@ test('route variant builders annotate attribute masks and request explicit instr
   assert.equal(baselinePath(), ENGINE_BUILD_PATH)
 })
 
-test('route variants reject ambiguous planner anchors and missing preflight gates', () => {
+test('route variants reject missing routing functions and calls', () => {
   state.read.mockReturnValue('module.exports = 1')
   assert.throws(() => variants())
   state.read.mockReturnValue(
-    source.replace('anchor: anchor,', 'missing: null,'),
-  )
-  assert.throws(() => variants())
-  state.read.mockReturnValue(
     source.replace(
-      'if (witnesses.length > anchors.length * 2) return null',
-      'const missing = witnesses.length > anchors.length * 2',
+      'if (shouldDeclineBulkHas(plan, anchors.length, witnesses.length)) return null;',
+      'if (witnesses.length) return null;',
     ),
   )
-  assert.throws(() => preflightVariants())
+  assert.throws(() => variants(), /complete has routing condition/)
 })

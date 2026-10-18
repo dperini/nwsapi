@@ -15,7 +15,7 @@ See the [measured selector compatibility](docs/repo/selector/compatibility.md) a
 <details>
 <summary>How the benchmarks work</summary>
 
-- **Speed:** 80 selectors, all matches, equal weight. Setup and loading excluded.
+- **Speed:** warm queries returning all matches. Setup and loading excluded.
 - **Memory:** retained heap after 100 distinct queries and garbage collection.
 - **Size:** Brotli-compressed browser libraries. No `jsdom`.
 

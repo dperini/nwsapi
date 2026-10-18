@@ -68,46 +68,6 @@ function namedFunction(ast: Ast, name: string) {
   return unique(matches, `${name} function`)
 }
 
-function isLength(node: Ast, name: string) {
-  if (node?.type !== 'MemberExpression') {
-    return false
-  }
-  const object = node['object'] as Ast
-  if (object?.['name'] !== name) {
-    return false
-  }
-  const property = node['property'] as Ast
-  return property?.['name'] === 'length'
-}
-
-function hasRatioCheck(value: Ast) {
-  let matched = false
-  nodes(value, node => {
-    const right = node['right'] as Ast
-    if (node.type !== 'BinaryExpression') {
-      return
-    }
-    if (node['operator'] !== '>') {
-      return
-    }
-    if (!isLength(node['left'] as Ast, 'witnesses')) {
-      return
-    }
-    if (right?.type !== 'BinaryExpression') {
-      return
-    }
-    if (right['operator'] !== '*') {
-      return
-    }
-    if (!isLength(right['left'] as Ast, 'anchors')) {
-      return
-    }
-    const multiplier = right['right'] as Ast
-    matched ||= multiplier?.['value'] === 2
-  })
-  return matched
-}
-
 function applyEdits(source: string, edits: Edit[]) {
   let previous = source.length + 1
   for (const edit of edits.toSorted((a, b) => b.start - a.start)) {
@@ -155,24 +115,47 @@ export function routeBundle(
     sourceType: 'script',
   }) as unknown as Ast
   const fn = namedFunction(ast, 'selectBulkHas')
-  const body = (fn['body'] as Ast)['body'] as Ast[]
-  const gate = unique(
-    body.filter(
-      node => node.type === 'IfStatement' && hasRatioCheck(node['test'] as Ast),
-    ),
-    'complete has routing condition',
-  )
+  const routingCalls: Ast[] = []
+  nodes(fn, node => {
+    const callee = node['callee'] as Ast
+    if (
+      node.type === 'CallExpression' &&
+      callee?.['name'] === 'shouldDeclineBulkHas'
+    ) {
+      routingCalls.push(node)
+    }
+  })
+  const routingCall = unique(routingCalls, 'complete has routing condition')
+  const gates: Ast[] = []
+  nodes(fn, node => {
+    const test = node['test'] as Ast
+    if (
+      node.type === 'IfStatement' &&
+      test &&
+      test.start <= routingCall.start &&
+      routingCall.end <= test.end
+    ) {
+      gates.push(node)
+    }
+  })
+  const gate = unique(gates, 'complete has routing condition')
   const edits: Edit[] = []
-  const test = gate['test'] as Ast
   if (choice !== 'baseline' || condition !== undefined) {
     edits.push({
-      start: test.start,
-      end: test.end,
+      start: routingCall.start,
+      end: routingCall.end,
       text: condition ?? String(choice === 'forward'),
     })
   }
   if (instrument) {
-    traceEdits(source, ast, fn, body, gate, edits)
+    traceEdits(
+      source,
+      ast,
+      fn,
+      (fn['body'] as Ast)['body'] as Ast[],
+      gate,
+      edits,
+    )
   }
   const edited = applyEdits(source, edits)
   if (!instrument) {
@@ -237,7 +220,7 @@ function traceEdits(
     start: gate.start,
     end: gate.start,
     text: `plannerTrace.decisions++; plannerTrace.facts.witnesses = witnesses.length;
-      plannerTrace.features = [anchors.length, witnesses.length, plan.attributeMask,
+        plannerTrace.features = [anchors.length, witnesses.length, plan.plannerMask,
         witnesses.length / anchors.length];\n`,
   })
   const result = unique(

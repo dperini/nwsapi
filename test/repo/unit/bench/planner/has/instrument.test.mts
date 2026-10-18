@@ -7,10 +7,14 @@ import {
 } from '../../../../../../scripts/repo/bench/planner/has/instrument.mts'
 
 const source = `
+function shouldDeclineBulkHas(plan, anchors, witnesses) {
+  return witnesses > anchors * 2;
+}
 function selectBulkHas(engine,plan,context,anchors) {
   if (!anchors.length) { return []; }
   var witnesses = engine.witnesses;
-  if (witnesses.length > anchors.length * 2) { return 'forward'; }
+  if (!witnesses.length) { return []; }
+  if (shouldDeclineBulkHas(plan, anchors.length, witnesses.length)) { return 'forward'; }
   if (!engine.weak) { return 'capability'; }
   return 'inverse';
 }
@@ -53,13 +57,13 @@ test.each(['forward', 'inverse'] as const)(
   choice => {
     const engine = execute(routeBundle(source, choice))
     expect(
-      engine.bulk({ witnesses: Array(4), weak: true }, {}, null, Array(2)),
+      engine.bulk({ witnesses: Array(4), weak: true }, {}, null, Array(32)),
     ).toBe(choice)
   },
 )
 test('traces preflight capability resolver and forced decisions', () => {
   const engine = execute(routeBundle(source, 'baseline', true))
-  const plan = { denseInverse: true, attributeMask: 1 }
+  const plan = { denseInverse: true, plannerMask: 1 }
   expect(engine.bulk({ witnesses: [] }, plan, null, [])).toEqual([])
   expect(engine.trace().route).toBe('empty')
   expect(
@@ -84,29 +88,21 @@ test.each(['function other(){}', 'function probe(){}function probe(){}'])(
   },
 )
 test('rejects overlapping edits created by nested return expressions', () => {
-  const nested = `function selectBulkHas(engine,plan,context,anchors){
+  const nested = `function shouldDeclineBulkHas(plan, anchors, witnesses){return witnesses > anchors * 2}
+  function selectBulkHas(engine,plan,context,anchors){
     if (!anchors.length) { return function(){return []}; }
     var witnesses=engine.witnesses;
-    if(witnesses.length > anchors.length * 2){return 'forward'}
+    if(shouldDeclineBulkHas(plan, anchors.length, witnesses.length)){return 'forward'}
     return 'inverse';
   }function runSingle(){return 'resolver'}module.exports={};`
   expect(() => routeBundle(nested, 'baseline', true)).toThrow(Error)
 })
-test.each([
-  'witnesses.length === anchors.length * 2',
-  'other.length > anchors.length * 2',
-  'witnesses.size > anchors.length * 2',
-  'witnesses.length > 2',
-  'witnesses.length > anchors.length + 2',
-  'witnesses.length > other.length * 2',
-  'witnesses.length > anchors.size * 2',
-  'witnesses.length > anchors * 2',
-])('rejects an unsupported ratio expression %s', expression => {
-  const candidate = `function selectBulkHas(engine,plan,context,anchors){
-    if(!anchors.length){return []}
-    var witnesses=engine.witnesses;
-    if(${expression}){return 'forward'}
-    return 'inverse';
-  }function runSingle(){return 'resolver'}module.exports={};`
-  expect(() => routeBundle(candidate, 'baseline', true)).toThrow(Error)
+test('requires one routing call in the bulk selector', () => {
+  const withoutRoute = source.replace(
+    "if (shouldDeclineBulkHas(plan, anchors.length, witnesses.length)) { return 'forward'; }",
+    "if (witnesses.length) { return 'forward'; }",
+  )
+  expect(() => routeBundle(withoutRoute, 'baseline')).toThrow(
+    'complete has routing condition',
+  )
 })

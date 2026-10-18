@@ -15,7 +15,7 @@ That establishes the lineage. It does not establish an original release date.
 The current production-build recording compares `nwsapi` from
 `prerelease/3.0.0`, labeled `2.3.0-prerelease` in the package, with
 `@asamuzakjp/dom-selector` 9.2.4. It records 4.11× geometric mean warm-query
-speedup across 80 selectors, 85.4% less retained engine heap, and 38.0% less
+speedup on representative workloads, 85.4% less retained engine heap, and 38.0% less
 Brotli-compressed browser JavaScript. Use **“fastest in this comparison”** beside
 the measured ranking. An overall “#1 against the rest” title requires the
 broader comparison described below.
@@ -28,7 +28,7 @@ is approved. Keep the dark navy and green visual language of `perf-hero.svg`.
 
 | Time   | Screen and motion                                                                                 | Caption / narration                                                                           |
 | ------ | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| 0–6s   | Two warm-query bars settle, then the measured 4.11× ratio appears.                                | “CSS queries. Less waiting.” Scope: 80 selectors, native Chromium DOM.                        |
+| 0–6s   | Two warm-query bars settle, then the measured 4.11× ratio appears.                                | “CSS queries. Less waiting.” Scope: representative workloads on native Chromium DOM.           |
 | 6–12s  | A single line connects `nwmatcher` in 2008 to the V3 development branch today.                    | “Nearly two decades of selector engineering.”                                                 |
 | 12–18s | `.card:has(.badge)` becomes a small DOM diagram. Matching cards light up.                         | “Same selector. Same ordered results.”                                                        |
 | 18–24s | An anchor-first search visits cards. A witness-first search starts at badges. Counters increment. | “Choose where to start. Avoid unnecessary work.”                                              |

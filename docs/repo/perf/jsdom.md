@@ -3,28 +3,28 @@
 ## In brief
 
 This report compares complete public queries in two `jsdom` installations.
-The reported ratio combines 80 selectors, with one selector counted as one
-case. It does not measure browser performance or application startup. See the
+The reported ratio combines representative component, documentation, and
+utility-class queries. It does not measure browser performance or application startup. See the
 [performance work guide](guide.md) for help reading the ratio.
 
 This comparison measures `document.querySelectorAll()` in two real installations of the same `jsdom` version. This run uses `jsdom` 30.0.1. The comparison installation pins `@asamuzakjp/dom-selector` 9.2.4 with an override. The other installation overrides that dependency with the packed `nwsapi` 2.3.0-prerelease build and installs its `css-tree` peer. The benchmark verifies the resolved package names before measuring. This matches the comparison-library version used by the standalone browser benchmark. It does not replace the module cache or call selector engines directly.
 
 <!-- jsdom-summary:start -->
 
-The `nwsapi` override is **4.91× faster** across 80 selectors, using the geometric mean of their speed ratios. Each selector has equal weight. These timings measure repeated queries and exclude application startup.
+The `nwsapi` override is **4.91× faster** by the geometric mean of the query speed ratios. Each query has equal weight. These timings measure repeated queries and exclude application startup.
 
 <!-- jsdom-summary:end -->
 
 <details>
 <summary>How the comparison works</summary>
 
-Run `pnpm run bench:jsdom` to build and pack this checkout, install both consumers under `os.tmpdir()`, and measure the same 80 selectors used by the [browser comparison](benchmarks.md#all-results-comparison). Installation needs registry access. Temporary consumers are removed when the run finishes.
+Run `pnpm run bench:jsdom` to build and pack this checkout, install both consumers under `os.tmpdir()`, and measure the same representative workloads used by the [browser comparison](benchmarks.md#all-results-comparison). Installation needs registry access. Temporary consumers are removed when the run finishes.
 
 Each installation receives identical component, documentation, and utility-class documents. Ordered result positions must agree before and after timing. Both installations use the same exact `jsdom` and `css-tree` versions. The report identifies the resolved selector packages, entry hashes, packed artifact hash, lockfile hashes, and fixture hashes.
 
 `mitata` measures nine rounds, rotating engine order, with a 50ms minimum measurement period and batches of 16 calls. Each query receives 100 warmup calls. Reported times are the median of the nine round medians. The raw report retains each round's samples and call counts. Package installation, document construction, engine initialization, warmup, and correctness checks are outside the measured calls. Garbage collection during queries remains part of their cost.
 
-The [recorded data](../../../assets/repo/bench/jsdom-override.json) contains all 80 cases. Run `node scripts/repo/gen/jsdom-benchmark.mts` to regenerate the chart and summary from that report without repeating installation or measurement. These results do not measure document loading, stylesheet calculation, retained memory, or every downstream application's workload.
+The [recorded data](../../../assets/repo/bench/jsdom-override.json) contains the measured cases. Run `node scripts/repo/gen/jsdom-benchmark.mts` to regenerate the chart and summary from that report without repeating installation or measurement. These results do not measure document loading, stylesheet calculation, retained memory, or every downstream application's workload.
 
 </details>
 
@@ -60,7 +60,7 @@ dom.window.close()
 
 The benchmark uses a `file:` override pointing to the freshly packed checkout because the measured build may not yet be published. It exercises the package's published file layout and peer resolution. For pnpm, put the same override under `overrides` in `pnpm-workspace.yaml`, as shown in the [installation instructions](../../../README.md#in-jsdom).
 
-The comparison consumer keeps the same dependencies and uses `"@asamuzakjp/dom-selector": "9.2.4"` as its override. Neither library is patched. The 36 timing selectors do not include `#null` or `.null`, which are affected by [PR #344](https://github.com/asamuzaK/domSelector/pull/344). Missing-attribute behavior remains covered by the correctness suite.
+The comparison consumer keeps the same dependencies and uses `"@asamuzakjp/dom-selector": "9.2.4"` as its override. Neither library is patched. The timed cases do not include `#null` or `.null`, which are affected by [PR #344](https://github.com/asamuzaK/domSelector/pull/344). Missing-attribute behavior remains covered by the correctness suite.
 
 ## Duplicate IDs and host helpers
 

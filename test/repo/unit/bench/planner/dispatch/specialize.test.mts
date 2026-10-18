@@ -15,11 +15,16 @@ function model(category = 'attributes === 1 || dense === 1', extra = '') {
   }`
 }
 const source = `
-function prepare() { var anchor=null,parts=['','','']; return {anchor: anchor, denseInverse:false}; }
+function plannerMask(engine, anchor, witness) { return undefined; }
+function prepare() { return { plannerMask: undefined, denseInverse:false }; }
+function shouldDeclineBulkHas(plan, anchors, witnesses) {
+  return witnesses > anchors * 2 && (!plan.denseInverse || anchors > 192 || witnesses > anchors * 4);
+}
 function selectBulkHas(engine,plan,context,anchors) {
   if (!anchors.length) { return []; }
   var witnesses = engine.witnesses;
-  if (witnesses.length > anchors.length * 2 && (!plan.denseInverse || anchors.length > 192 || witnesses.length > anchors.length * 4)) { return 'forward'; }
+  if (!witnesses.length) { return []; }
+  if (shouldDeclineBulkHas(plan, anchors.length, witnesses.length)) { return 'forward'; }
   if (!engine.weak) { return 'capability'; }
   return 'inverse';
 }
@@ -118,8 +123,8 @@ test.each([false, true])(
     }
     vm.runInNewContext(code, { module })
     const engine = { witnesses: Array(80), weak: true }
-    const plain = { bulkHas: { attributeMask: 0, denseInverse: false } }
-    const filtered = { bulkHas: { attributeMask: 1, denseInverse: false } }
+    const plain = { bulkHas: { plannerMask: 0, denseInverse: false } }
+    const filtered = { bulkHas: { plannerMask: 1, denseInverse: false } }
     expect(module.exports.invoke(engine, plain, null, Array(32))).toBe(
       'forward',
     )
@@ -134,7 +139,7 @@ test.each([false, true])(
 test('rejects incompatible baseline routing or missing caller', () => {
   expect(() =>
     splitDispatchBundle('function selectBulkHas() {return null}', model()),
-  ).toThrow(expect.objectContaining({ code: 'ERR_ASSERTION' }))
+  ).toThrow('shouldDeclineBulkHas')
   expect(() =>
     splitDispatchBundle(
       source.slice(0, source.indexOf('function invoke')),

@@ -37,6 +37,13 @@ numbers should not determine the maintained guide's title or filename.
 This structure applies to new work and documents being consolidated. Existing
 historical reports can be migrated when their topic is reviewed.
 
+## Choosing benchmark cases
+
+Select cases to represent distinct selector behavior and realistic document
+shapes. Do not expand a suite to meet a size target. Optimize from measured
+costs on representative cases, and keep correctness and repeatability as
+promotion requirements.
+
 ## Terms used in the reports
 
 | Term              | Meaning                                                                                                                                                            |

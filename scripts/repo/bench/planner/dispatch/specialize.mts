@@ -150,13 +150,13 @@ export function unfilteredCertificate(model: string) {
 
 function baselineCertificate(source: string) {
   const expected = parse(
-    'witnesses.length > anchors.length * 2 && (!plan.denseInverse || anchors.length > 192 || witnesses.length > anchors.length * 4)',
+    'witnesses > anchors * 2 && (!plan.denseInverse || anchors > 192 || witnesses > anchors * 4)',
     {
       ecmaVersion: 'latest',
     },
   ) as unknown as Node
   const expression = (expected['body'] as Node[])[0]!['expression'] as Node
-  const ast = parse(functionSource(source, 'selectBulkHas'), {
+  const ast = parse(functionSource(source, 'shouldDeclineBulkHas'), {
     ecmaVersion: 'latest',
   }) as unknown as Node
   const fn = (ast['body'] as Node[])[0]!
@@ -167,8 +167,8 @@ function baselineCertificate(source: string) {
     )
   const matches = body.filter(
     node =>
-      node.type === 'IfStatement' &&
-      signature(node['test'] as Node) === signature(expression),
+      node.type === 'ReturnStatement' &&
+      signature(node['argument'] as Node) === signature(expression),
   )
   assert.equal(matches.length, 1, 'Baseline routing contract changed')
 }
@@ -189,7 +189,7 @@ export function splitDispatchBundle(
   const call = 'var bulk = selectBulkHas(engine, plan.bulkHas, context, list)'
   assert.equal(dispatched.split(call).length, 2, 'Unexpected bulk call')
   const branch = `var bulk;
-  if (plan.bulkHas.attributeMask === 0) {
+  if (plan.bulkHas.plannerMask === 0) {
     bulk = selectBulkHas(engine, plan.bulkHas, context, list);
   } else {
     bulk = selectBulkHasDispatch(engine, plan.bulkHas, context, list);

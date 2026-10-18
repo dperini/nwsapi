@@ -2,6 +2,19 @@ import { execFileSync } from 'node:child_process'
 import { expect, test } from 'vitest'
 
 test('native instrumentation preserves decisions and exposes route observations', () => {
+  const source = [
+    'function shouldDeclineBulkHas(plan, anchors, witnesses) { return witnesses > anchors * 2; }',
+    'function selectBulkHas(engine, plan, context, anchors) {',
+    'if (!anchors.length) return [];',
+    'var witnesses = engine.witnesses;',
+    'if (!witnesses.length) return [];',
+    'if (shouldDeclineBulkHas(plan, anchors.length, witnesses.length)) return "forward";',
+    'if (!engine.weak) return "capability";',
+    'return "inverse";',
+    '}',
+    'function runSingle() { return "resolver"; }',
+    'module.exports = { bulk: selectBulkHas, single: runSingle };',
+  ].join('\n')
   const module = new URL(
     '../../../../../../scripts/repo/bench/planner/has/instrument.mts',
     import.meta.url,
@@ -9,11 +22,11 @@ test('native instrumentation preserves decisions and exposes route observations'
   const code = `
     import vm from 'node:vm';
     const {routeBundle,functionSource,replaceFunction}=await import(${JSON.stringify(module)});
-    const source="function selectBulkHas(engine,plan,context,anchors){if(!anchors.length){return []}var witnesses=engine.witnesses;if(witnesses.length>anchors.length*2){return 'forward'}if(!engine.weak){return 'capability'}return 'inverse'}function runSingle(){return 'resolver'}module.exports={bulk:selectBulkHas,single:runSingle};";
+    const source=${JSON.stringify(source)};
     const module={exports:{}};
     vm.runInNewContext(routeBundle(source,'baseline',true),{module});
     const engine=module.exports;
-    const plan={denseInverse:true,attributeMask:1};
+    const plan={denseInverse:true,plannerMask:1};
     const empty=engine.bulk({witnesses:[]},plan,null,[]);
     const forward=engine.bulk({witnesses:Array(8),weak:true},plan,null,Array(2));
     const capability=engine.bulk({witnesses:Array(1),weak:false},plan,null,Array(2));

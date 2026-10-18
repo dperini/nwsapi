@@ -1,4 +1,6 @@
 import { expect, test, vi } from 'vitest'
+import path from 'node:path'
+import { normalizePath } from '../../../../../../scripts/repo/lib/paths.mts'
 import {
   nativeAssetAvailable,
   nativeAssetPath,
@@ -9,8 +11,8 @@ import type { NativeFileSystem } from '../../../../../../scripts/repo/cli/ui/nat
 const target = { platform: 'linux', arch: 'x64', libc: 'glibc' } as const
 
 test('native carrier paths follow the selected platform and support raw assets', () => {
-  expect(nativeAssetPath('/assets', target)).toBe(
-    '/assets/@opentui/core-linux-x64/opentui.node',
+  expect(normalizePath(nativeAssetPath('/assets', target)!)).toBe(
+    normalizePath(path.join('/assets', '@opentui/core-linux-x64/opentui.node')),
   )
   expect(
     nativeAssetAvailable('/assets', target, file =>

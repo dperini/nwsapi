@@ -64,7 +64,10 @@ vi.mock(
 )
 vi.mock(
   '../../../../../../scripts/repo/bench/planner/dispatch/variants.mts',
-  () => ({ dispatchBundle: () => 'dispatch' }),
+  () => ({
+    annotatePlannerMask: (source: string) => source,
+    dispatchBundle: () => 'dispatch',
+  }),
 )
 vi.mock(
   '../../../../../../scripts/repo/bench/planner/dispatch/specialize.mts',

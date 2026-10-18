@@ -34,8 +34,13 @@ test('browser lint rejects unsupported APIs and loops and accepts generated reso
     path.relative(REPO_ROOT, ENGINE_SOURCE_PATH),
   )
   mkdirSync(path.dirname(file), { recursive: true })
-  const lint = (code: string) => {
-    writeFileSync(file, code)
+  const lint = (sources: string[]) => {
+    const files = sources.map((code, index) => {
+      const target =
+        index === 0 ? file : file.replace(/\.mts$/, `-${index}.mts`)
+      writeFileSync(target, code)
+      return target
+    })
     return spawnSync(
       process.execPath,
       [
@@ -50,12 +55,12 @@ test('browser lint rejects unsupported APIs and loops and accepts generated reso
         'nwsapi/no-for-of',
         '--deny',
         'nwsapi/prefer-cached-loop-length',
-        file,
+        ...files,
       ],
       { cwd: REPO_ROOT, encoding: 'utf8' },
     )
   }
-  const rejected = lint(
+  const rejected = lint([
     [
       '"text".includes("ex");',
       'String.fromCodePoint(0x1f600);',
@@ -63,7 +68,7 @@ test('browser lint rejects unsupported APIs and loops and accepts generated reso
       'for (const value of [1]) { console.log(value); }',
       'for (var index = 0; index < values.length; index++) { console.log(values[index]); }',
     ].join('\n'),
-  )
+  ])
   expect(rejected.status).not.toBe(0)
   const messages = rejected.stdout + rejected.stderr
   for (const message of [
@@ -114,6 +119,10 @@ test('browser lint rejects unsupported APIs and loops and accepts generated reso
       }
     }
   }
-  const accepted = lint(output.join('\n'))
+  const accepted = lint(
+    Array.from({ length: Math.ceil(output.length / 300) }, (_, index) =>
+      output.slice(index * 300, (index + 1) * 300).join('\n'),
+    ),
+  )
   expect(accepted.status, accepted.stdout + accepted.stderr).toBe(0)
 })

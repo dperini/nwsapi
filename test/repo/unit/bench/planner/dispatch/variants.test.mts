@@ -5,6 +5,7 @@ import { test, vi } from 'vitest'
 vi.mock(
   '../../../../../../scripts/repo/bench/planner/has/instrument.mts',
   () => ({
+    replaceFunction: (source: string) => source,
     routeBundle: (
       source: string,
       _route: string,
@@ -15,8 +16,11 @@ vi.mock(
 )
 import { dispatchBundle } from '../../../../../../scripts/repo/bench/planner/dispatch/variants.mts'
 
-const source =
-  'var anchor=null,parts=["","",""];var plan={anchor: anchor, denseInverse:false};'
+const source = `var plan={plannerMask:0,denseInverse:false};
+function plannerMask(engine, anchor, witness) { return 0; }
+function shouldDeclineBulkHas(plan, anchors, witnesses) {
+  return witnesses > anchors * 2 && (!plan.denseInverse || anchors > 192 || witnesses > anchors * 4);
+}`
 const model =
   'export function dispatchOverride(a,w,attributes,dense,ratio){ seen += 1; return w > a * 3; }'
 
@@ -62,8 +66,6 @@ test('dispatch variants preserve fallback short circuits and optionally cache eq
   }
 })
 
-test('dispatch generation rejects unsafe caching and ambiguous plan preparation', () => {
+test('dispatch generation rejects unsafe decision caching', () => {
   assert.throws(() => dispatchBundle(source, model, false, false, true))
-  assert.throws(() => dispatchBundle('var plan={}', model))
-  assert.throws(() => dispatchBundle(source + source, model))
 })
