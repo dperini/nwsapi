@@ -11,17 +11,22 @@ export function nthFiltered(
   reverse: boolean,
   state: FilteredNthState | null,
 ) {
-  var parent = element.parentNode || element,
-    siblings =
-      state &&
-      (state.parent === parent
-        ? state.siblings
-        : state.parents && state.parents.get(parent)),
-    resolvers: CompiledResolver[] | undefined,
-    child,
-    index,
-    typeNames = simpleTypeNames(engine, selector, state)
-  {
+  const parent = element.parentNode || element
+  let siblings =
+    state &&
+    (state.parent === parent
+      ? state.siblings
+      : state.parents && state.parents.get(parent))
+  const typeNames = siblings ? null : simpleTypeNames(engine, selector, state)
+  if (
+    !siblings &&
+    typeNames &&
+    !matchesSimpleType(engine, element, typeNames)
+  ) {
+    return 0
+  }
+  let resolvers: CompiledResolver[] | undefined, child, index
+  if (!siblings) {
     siblings = collectFilteredSiblings()
   }
   if (state) {

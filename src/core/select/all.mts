@@ -23,16 +23,16 @@ export function select(
   engine.lastContext !== context &&
     (engine.lastContext = engine.switchContext(context))
 
-  const shortcut = selectByDescent(engine, selectors, context, callback)
-  if (shortcut) {
-    return shortcut
-  }
-
   if (selectors) {
     const cached = runCachedResolvers(engine, selectors, context, callback)
     if (cached) {
       return cached
     }
+  }
+
+  const shortcut = selectByDescent(engine, selectors, context, callback)
+  if (shortcut) {
+    return shortcut
   }
 
   const parsed = engine.parse(selectors, true) as string[]

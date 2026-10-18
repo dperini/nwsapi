@@ -38,6 +38,7 @@ export function createNthOfType(engine: EngineState) {
       stable,
     )
     if (adjacent !== undefined) {
+      currentIndex = advanceStableCursor(current, currentIndex, element)
       return adjacent
     }
 
@@ -60,9 +61,12 @@ export function createNthOfType(engine: EngineState) {
     }
 
     // Callback queries can mutate siblings while candidates are visited.
-    // Recompute those positions instead of retaining a parent snapshot.
+    // Recompute only the requested rank so mutations stay visible.
     if (stable === false && !engine.Config.LEGACY) {
-      return scanPosition(engine, parent, target, local, namespace, dir)
+      current = undefined
+      currentIndex = 0
+      currentLength = 0
+      return scanTypePosition(target, local, namespace, dir)
     }
 
     const snapshot = getParentSnapshot(snapshots, parent, engine, target)
@@ -86,6 +90,14 @@ export function createNthOfType(engine: EngineState) {
       : findPosition(type.nodes, target)
     return dir ? currentLength - currentIndex + 1 : currentIndex
   }
+}
+
+function advanceStableCursor(
+  current: Element[] | undefined,
+  index: number,
+  element: Element | null,
+) {
+  return current?.[index] === element ? index + 1 : index
 }
 
 function createSnapshotStore(
@@ -212,31 +224,6 @@ function addPositions(engine: EngineState, type: TypePositions) {
       type.positions.set(type.nodes[i]!, i + 1)
     }
   }
-}
-
-export function scanPosition(
-  engine: EngineState,
-  parent: ParentNode | null,
-  target: Element,
-  local: string,
-  namespace: string | null,
-  dir: number,
-) {
-  let node = parent ? engine.firstOf(parent) : target
-  let index = 0
-  let total = 0
-  while (node) {
-    const sibling = node as Element
-    if (sibling.localName === local && sibling.namespaceURI === namespace) {
-      ++total
-      if (sibling === target) {
-        index = total
-      }
-    }
-    node = sibling.nextElementSibling
-  }
-  const position = index || 1
-  return dir ? total - position + 1 : position
 }
 
 export function scanTypePosition(

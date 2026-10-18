@@ -1,0 +1,341 @@
+{
+  "recorded": "2026-10-18",
+  "purpose": "Targeted before-and-after measurements for selector algorithm changes. These synthetic workloads do not represent the full selector survey.",
+  "baselineSource": "7a8865490bef4c13c86c57b6168e276dfe27cb18",
+  "accepted": [
+    {
+      "name": "Advance stable nth-of-type cursor for ordered candidates",
+      "baselineCommit": "7a8865490bef4c13c86c57b6168e276dfe27cb18",
+      "candidateCommit": "1f3bae434f003fb9c1f2278eb1d22c067b33de55",
+      "integratedCommit": "d90c38fd97346599cd210de1241dca56c77b9e7b",
+      "baselineBundleSha256": "b610c611c72ca77bf3f20edccc7465bf9f1d53908b160874afe0d009c2860443",
+      "candidateBundleSha256": "c5340dd8ea1b9ebf3e5109add23f0f1b87c65da7bbc229a0b53a5174ac265d3c",
+      "environment": {
+        "node": "v26.10.0",
+        "v8": "14.6.202.34-node.34",
+        "jsdom": "30.0.1",
+        "os": "Darwin 27.0.0 arm64",
+        "cpu": "Apple M1 Max"
+      },
+      "method": "For each sibling count, create a jsdom main containing same-type p siblings. Warm with 20 selects, then alternate baseline/candidate order for 17 rounds; each sample is 20 selects, reported as ms per select. Selector: main > p:nth-of-type(2n).",
+      "cases": [
+        {
+          "siblings": 500,
+          "rounds": 17,
+          "baselineMsPerQuery": [
+            0.20141,
+            0.200002,
+            0.191206,
+            0.16456,
+            0.158575,
+            0.157675,
+            0.159529,
+            0.15916,
+            0.164888,
+            0.168194,
+            0.193521,
+            0.155419,
+            0.149079,
+            0.159854,
+            0.152733,
+            0.170996,
+            0.160808
+          ],
+          "candidateMsPerQuery": [
+            0.143221,
+            0.137081,
+            0.259373,
+            0.134425,
+            0.127254,
+            0.135827,
+            0.120896,
+            0.127927,
+            0.127102,
+            0.125969,
+            0.112575,
+            0.120004,
+            0.113448,
+            0.115429,
+            0.119246,
+            0.12859,
+            0.117327
+          ],
+          "baselineMedianMs": 0.160808,
+          "candidateMedianMs": 0.127102,
+          "speedup": 1.2652
+        },
+        {
+          "siblings": 2000,
+          "rounds": 17,
+          "baselineMsPerQuery": [
+            0.76425,
+            0.686173,
+            0.640619,
+            0.654608,
+            0.643965,
+            0.658683,
+            0.651742,
+            0.653529,
+            0.631348,
+            0.643892,
+            0.661119,
+            0.635775,
+            0.654306,
+            0.652294,
+            0.645315,
+            0.657698,
+            0.645121
+          ],
+          "candidateMsPerQuery": [
+            0.534831,
+            0.512994,
+            0.523506,
+            0.512521,
+            0.508356,
+            0.524883,
+            0.523792,
+            0.506625,
+            0.521223,
+            0.508577,
+            0.503329,
+            0.490431,
+            0.490415,
+            0.506346,
+            0.496715,
+            0.50629,
+            0.501385
+          ],
+          "baselineMedianMs": 0.652294,
+          "candidateMedianMs": 0.508356,
+          "speedup": 1.2831
+        },
+        {
+          "siblings": 5000,
+          "rounds": 17,
+          "baselineMsPerQuery": [
+            1.935758,
+            1.981408,
+            1.817223,
+            1.870044,
+            1.95864,
+            1.857433,
+            1.985673,
+            1.996083,
+            1.923625,
+            1.9704,
+            1.823669,
+            1.964408,
+            1.857908,
+            1.904808,
+            1.835765,
+            1.860423,
+            1.886429
+          ],
+          "candidateMsPerQuery": [
+            1.394046,
+            1.429417,
+            1.433475,
+            1.528652,
+            1.439369,
+            1.421465,
+            1.350867,
+            1.444313,
+            1.465665,
+            1.392946,
+            1.522535,
+            1.51655,
+            1.417723,
+            1.43211,
+            1.387531,
+            1.454069,
+            1.44069
+          ],
+          "baselineMedianMs": 1.904808,
+          "candidateMedianMs": 1.433475,
+          "speedup": 1.3288
+        }
+      ],
+      "scope": "Homogeneous sibling lists only. This does not measure or claim a gain on the mixed five-child components survey case."
+    },
+    {
+      "name": "Reject excluded simple-type filtered-position candidates before sibling traversal",
+      "baselineCommit": "7a8865490bef4c13c86c57b6168e276dfe27cb18",
+      "candidateCommit": "9136ed2ac0b418d956a46d359a8d6f01e44ac228",
+      "integratedCommit": "1ba30bde2e7382434f10167717a18c3cff325229",
+      "baselineBundleSha256": "fce10a76c08a25691b65089a2ed81edfa65efe20c75442d02235854957c76664",
+      "candidateBundleSha256": "77138e84689241e2f86926de6a6c3441c6dbffbcc68f813ffeb8a8bd968b9657",
+      "environment": {
+        "chromium": "154.0.8037.0",
+        "os": "macOS 27.0.1 build 26A434 arm64",
+        "cpu": "Apple M1 Max"
+      },
+      "method": "Same mixed fixture and ignored harness for both bundles. Seven rounds, 16 maximum iterations, 50ms minimum per round, alternating engine order. Warm all-results queries, reported as ms/query. Identity checked against native selector results.",
+      "cases": [
+        {
+          "selector": ".deep > :nth-child(2n of button, input)",
+          "rounds": 7,
+          "baselineMsPerQuery": [
+            0.3533680555,
+            0.3952592594,
+            0.3912692299,
+            0.3916406259,
+            0.388296296,
+            0.3942962964,
+            0.3961718753
+          ],
+          "candidateMsPerQuery": [
+            0.2526794256,
+            0.296278408,
+            0.2939772721,
+            0.2951988639,
+            0.3011363636,
+            0.2988068184,
+            0.2953409092
+          ],
+          "baselineMedianMs": 0.3916406259,
+          "candidateMedianMs": 0.2953409092,
+          "speedup": 1.326
+        },
+        {
+          "selector": ".deep > :nth-last-child(1 of button, input)",
+          "rounds": 7,
+          "baselineMsPerQuery": [
+            0.3578571422,
+            0.38625926,
+            0.3815925925,
+            0.3889629629,
+            0.3931640629,
+            0.4055555557,
+            0.3995312499
+          ],
+          "candidateMsPerQuery": [
+            0.2690104172,
+            0.3012215908,
+            0.3015340912,
+            0.2965056815,
+            0.3017045449,
+            0.2961363637,
+            0.3006249998
+          ],
+          "baselineMedianMs": 0.3889629629,
+          "candidateMedianMs": 0.3006249998,
+          "speedup": 1.2936
+        }
+      ]
+    },
+    {
+      "name": "Scan nth-of-type siblings only in the requested direction for live callback queries",
+      "baselineCommit": "1ba30bde2e7382434f10167717a18c3cff325229",
+      "candidateCommit": "89041ec0e4a5075ea377fdb8b600cd198ad4a77d",
+      "integratedCommit": "316373b185f4b5897e8600c9cfa30756cf8b485e",
+      "baselineSourceSha256": "510f395d45f8c0394c0e4bd6d68b3d2a65351d0cd6cd348b3eb0c3dc0bead430",
+      "candidateSourceSha256": "3866ce74366b270de7e1cd1efcc477c82b5dc64fe0cf3e1065ccb69258903902",
+      "environment": {
+        "node": "v26.10.0",
+        "v8": "14.6.202.34-node.34",
+        "jsdom": "30.0.1",
+        "os": "macOS 27.0.1 arm64",
+        "cpu": "Apple M1 Max"
+      },
+      "method": "Direct source-helper A/B. A 600-sibling DOM alternates i and b; 300 i targets are visited in forward or reverse order for 10 passes (3,000 ranks per sample). Seventeen rounds alternate baseline and candidate order. Baseline copies the former whole-parent scan; candidate calls scanTypePosition. Every pair returned matching checksums.",
+      "callsPerSample": 3000,
+      "rounds": 17,
+      "forward": {
+        "baselineMs": [
+          137.318875,
+          129.51858299999992,
+          130.154542,
+          129.14920899999993,
+          128.76604199999997,
+          128.6816670000003,
+          128.94579199999998,
+          129.14920800000027,
+          129.69479200000023,
+          139.60575000000017,
+          129.6972920000003,
+          129.64404099999956,
+          129.43995799999993,
+          129.81229200000053,
+          129.95679199999995,
+          129.45308300000033,
+          129.78312499999993
+        ],
+        "candidateMs": [
+          69.03983300000004,
+          47.59308300000009,
+          47.21737499999995,
+          47.2037499999999,
+          47.090832999999975,
+          46.89937500000042,
+          46.75725000000011,
+          47.29195800000025,
+          47.04266699999971,
+          47.350625000000036,
+          47.53291700000045,
+          47.23691599999984,
+          47.33808399999998,
+          47.25220900000022,
+          47.29545899999994,
+          47.39045900000019,
+          47.25708299999951
+        ],
+        "baselineMedianMs": 129.64404099999956,
+        "candidateMedianMs": 47.25708299999951,
+        "speedup": 2.743377982090027
+      },
+      "reverse": {
+        "baselineMs": [
+          129.756125,
+          129.54600000000005,
+          130.42174999999997,
+          129.21833300000003,
+          129.50533299999984,
+          128.960333,
+          129.02400000000034,
+          129.52754200000027,
+          130.19629200000008,
+          129.7949169999997,
+          129.56783300000006,
+          129.72070900000017,
+          129.60574999999972,
+          129.84212500000012,
+          129.98279099999945,
+          129.5452920000007,
+          129.3773339999998
+        ],
+        "candidateMs": [
+          48.70891700000004,
+          47.370416999999975,
+          47.61245800000006,
+          47.586874999999964,
+          46.81858300000022,
+          47.4106670000001,
+          46.58600000000024,
+          47.38724999999977,
+          47.22508400000015,
+          47.36520799999971,
+          47.20429200000035,
+          47.11420799999996,
+          47.039458000000195,
+          46.97808299999997,
+          47.13245800000004,
+          47.04183400000056,
+          47.18670899999961
+        ],
+        "baselineMedianMs": 129.56783300000006,
+        "candidateMedianMs": 47.20429200000035,
+        "speedup": 2.7448316140405007
+      },
+      "scope": "A focused callback-safe positional scan. The source helper benchmark is not a full end-to-end selector query or a general selector-suite claim."
+    }
+  ],
+  "rejected": [
+    {
+      "name": "Hoist standard attribute regex patterns into compiler prelude",
+      "result": "Rejected: small warm-query benefit did not offset cold-compilation cost.",
+      "jsdom": "Node v26.10.0, jsdom 30.0.1, 3,000 candidate elements; interleaved 25-round comparison of 200 warm queries. `[lang|=\"en\"]`: 127.91ms baseline vs 124.53ms candidate (2.64% faster). `[data-value^=\"foo\"]`: 5.89% faster. Equality control: 1.32% faster.",
+      "chromium": "Chromium 154, 200 queries over 3,000 candidates: 44.8ms baseline vs 44.0ms candidate (1.8% faster; not interleaved).",
+      "coldCompile": "A 1,000-unique-selector interleaved 9-round comparison: median 7.12ms baseline vs 9.13ms candidate (28% slower). Earlier 2,000-selector repeats regressed by 11.5–14.6%."
+    }
+  ]
+}
