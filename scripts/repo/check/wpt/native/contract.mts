@@ -134,6 +134,7 @@ export function writeNativeContract(
   scoped: Scope,
   reports: NativeReport[],
   inputFiles = ['plan.json', 'report.json'],
+  processes = 4,
 ) {
   const report = reports[0]!
   const pool = scoped.selected
@@ -163,7 +164,7 @@ export function writeNativeContract(
       0,
     ),
     runs: reports.length,
-    processes: 4,
+    processes,
     platform: report.run_info.os || 'unknown',
     arch: report.run_info.processor || 'unknown',
     planned: pool.planned + pool.disabled,

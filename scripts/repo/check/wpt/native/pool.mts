@@ -12,6 +12,7 @@ export interface NativePins {
   revision: string
 }
 export interface NativePlan extends NativePins {
+  processes?: number
   scope: 'selector-candidates'
   experimental: false
   featurePolicy: 'browser-defaults'

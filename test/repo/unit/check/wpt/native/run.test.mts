@@ -14,6 +14,7 @@ import {
   analyzeNative,
   candidateRunPlan,
   missingNativeCandidates,
+  nativeProcessCount,
   readNativeRuns,
   runNative,
 } from '../../../../../../scripts/repo/check/wpt/native/run.mts'
@@ -123,6 +124,12 @@ test('native run records plans and resumes additions while retaining prior repor
   state.listed = '/case.html'
   await runNative(directory)
   expect(readNativeRuns(directory)).toHaveLength(1)
+  expect(
+    vi
+      .mocked(spawnSync)
+      .mock.calls.at(-1)?.[1]
+      ?.some((arg: string) => /^--processes=\d+$/.test(arg)),
+  ).toBe(true)
   expect(writeNativeContract).toHaveBeenCalled()
   await expect(runNative(directory)).rejects.toThrow()
   mkdirSync(path.join(directory, 'wpt'))
@@ -161,6 +168,14 @@ test('plan construction preserves disabled entries and missing candidates ignore
   expect(
     missingNativeCandidates([{ test: '/a' }, { test: '/c' }], [plan]),
   ).toEqual([{ test: '/c' }])
+})
+
+test('native worker count follows available parallelism and validates overrides', () => {
+  expect(nativeProcessCount(16, undefined)).toBe(10)
+  expect(nativeProcessCount(6, undefined)).toBe(6)
+  expect(nativeProcessCount(8, '3')).toBe(3)
+  expect(() => nativeProcessCount(8, '9')).toThrow()
+  expect(() => nativeProcessCount(8, '1.5')).toThrow()
 })
 
 test('missing plans, incomplete reports and subprocess startup failures remain failures', async t => {

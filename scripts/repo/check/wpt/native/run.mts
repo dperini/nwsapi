@@ -52,6 +52,23 @@ export function candidateRunPlan(list: TestList, pins: NativePins): NativePlan {
   }
 }
 
+export function nativeProcessCount(
+  parallelism = os.availableParallelism(),
+  requested = process.env['NWSAPI_NATIVE_PROCESSES'],
+) {
+  const maximum = Math.max(1, Math.min(10, parallelism))
+  if (requested === undefined) {
+    return maximum
+  }
+  const value = Number(requested)
+  if (!Number.isSafeInteger(value) || value < 1 || value > maximum) {
+    throw new Error(
+      `NWSAPI_NATIVE_PROCESSES must be an integer from 1 to ${maximum}.`,
+    )
+  }
+  return value
+}
+
 export function missingNativeCandidates(
   candidates: Array<{ test: string }>,
   plans: NativePlan[],
@@ -85,6 +102,7 @@ export function readNativeRuns(directory: string) {
 
 export async function runNative(directory: string, resume = false) {
   const pins = nativePins()
+  const processes = nativeProcessCount()
   const checkout = path.join(directory, 'wpt')
   const run = (command: string, args: string[], cwd = directory) =>
     execFileSync(command, args, {
@@ -163,7 +181,7 @@ export async function runNative(directory: string, resume = false) {
     '--webdriver-binary',
     driver.executablePath,
     '--headless',
-    '--processes=4',
+    `--processes=${processes}`,
     '--no-enable-experimental',
     '--include-file',
     includes,
@@ -181,6 +199,7 @@ export async function runNative(directory: string, resume = false) {
     JSON.parse(listing.slice(listing.indexOf('{'))),
     pins,
   )
+  plan.processes = processes
   writeFileSync(
     path.join(directory, `plan${suffix}.json`),
     JSON.stringify(plan) + '\n',
@@ -258,11 +277,13 @@ export function analyzeNative(
     path.join(directory, 'selector-pool.json'),
     JSON.stringify(scoped) + '\n',
   )
+  const processes = Math.max(...runs.map(run => run.plan.processes ?? 4))
   writeNativeContract(
     directory,
     scoped,
     reports,
     runs.flatMap(run => run.files),
+    processes,
   )
   console.log(
     `Candidate native pool: ${pool.cases.length} passes. Selector/parser candidates: ${scoped.selected.cases.length}. Unresolved: ${scoped.totals['unresolved'] || 0}.`,
