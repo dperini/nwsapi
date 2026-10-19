@@ -14,9 +14,6 @@ const baseline = path.resolve(process.argv[2]!)
 const idlUtils = require('jsdom/lib/generated/idl/utils.js') as {
   implForWrapper(node: Node): object
 }
-const {
-  domSymbolTree,
-} = require('jsdom/lib/jsdom/living/helpers/internal-constants.js')
 const factories: Array<typeof Adapter> = [
   require(path.join(baseline, 'dom-selector.js')),
   require(ADAPTER_BUILD_PATH),
@@ -28,7 +25,6 @@ function populate(Constructor: typeof Adapter) {
     const document = window.document
     const adapter = new Constructor(window, idlUtils.implForWrapper(document), {
       idlUtils,
-      domSymbolTree,
     })
     const refs: Array<WeakRef<Node>> = []
     for (let i = 0; i < 40; ++i) {

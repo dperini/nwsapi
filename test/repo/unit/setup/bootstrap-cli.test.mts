@@ -69,7 +69,9 @@ test('the executable bootstrap preserves installation failures and missing statu
 test('the executable bootstrap completes preparation before reporting success', async () => {
   expect((await invoke(0, null)).exitCode).toBe(0)
   expect(state.setup).toHaveBeenCalledTimes(1)
-  expect(state.run.mock.calls).toEqual([[['install', '--frozen-lockfile']]])
+  expect(state.run.mock.calls).toEqual([
+    [['install', '--frozen-lockfile', '--reporter=silent', '--loglevel=error']],
+  ])
 })
 
 test('the executable bootstrap propagates an interrupted child signal', async () => {

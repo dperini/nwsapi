@@ -48,9 +48,9 @@ export function releasePin(
     .replace(/^# no-release-tag: web-platform-tests.*\n?/m, '')
 }
 
-async function github(resource: string) {
+async function github(resource: string, request: typeof fetch) {
   const token = process.env['GITHUB_TOKEN'] || process.env['GH_TOKEN']
-  const response = await fetch(`${endpoint}/${resource}`, {
+  const response = await request(`${endpoint}/${resource}`, {
     headers: {
       Accept: 'application/vnd.github+json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -63,11 +63,11 @@ async function github(resource: string) {
   return response.json()
 }
 
-export async function updateWpt(check = false) {
-  const release = await github('releases/latest')
+export async function updateWpt(check = false, request: typeof fetch = fetch) {
+  const release = await github('releases/latest', request)
   const tag = releaseTag(release)
   // Resolve the tag itself. target_commitish may name a moving branch.
-  const commit = await github(`commits/${encodeURIComponent(tag)}`)
+  const commit = await github(`commits/${encodeURIComponent(tag)}`, request)
   const sha: string = commit.sha
   if (!/^[a-f0-9]{40}$/.test(sha)) {
     throw new Error('WPT release did not resolve to a commit SHA.')

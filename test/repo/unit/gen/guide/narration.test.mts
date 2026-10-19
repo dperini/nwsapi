@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import {
   existsSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -8,7 +9,6 @@ import {
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import nock from 'nock'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import transcript from '../../../../../assets/repo/model-guide/narration/transcript.json' with { type: 'json' }
 const state = vi.hoisted(() => ({
@@ -80,23 +80,24 @@ beforeEach(() => {
 })
 afterEach(() => {
   transcript.voice = voice
-  nock.cleanAll()
   rmSync(directory, { recursive: true, force: true })
 })
 async function load() {
   return import('../../../../../scripts/repo/gen/guide/narration.mts')
 }
-function download() {
-  return nock('https://huggingface.co')
-    .get('/fixture/model/resolve/pinned/model.onnx')
-    .reply(200, 'model')
+function download(body: string, status = 200) {
+  return vi.fn<typeof fetch>(async () => new Response(body, { status }))
+}
+function cacheModel() {
+  mkdirSync(modelDirectory, { recursive: true })
+  writeFileSync(path.join(modelDirectory, 'model.onnx'), 'model')
 }
 
 test('pinned model downloads verify integrity and subsequent runs stay offline', async () => {
   const { prepareNarrationModel } = await load()
-  const scope = download()
-  await prepareNarrationModel(modelDirectory)
-  expect(scope.isDone()).toBe(true)
+  const request = download('model')
+  await prepareNarrationModel(modelDirectory, undefined, request)
+  expect(request).toHaveBeenCalledOnce()
   expect(readFileSync(path.join(modelDirectory, 'model.onnx'), 'utf8')).toBe(
     'model',
   )
@@ -109,27 +110,22 @@ test('pinned model downloads verify integrity and subsequent runs stay offline',
 
 test('failed and corrupt downloads never leave model files in the cache', async () => {
   const { prepareNarrationModel } = await load()
-  nock('https://huggingface.co')
-    .get('/fixture/model/resolve/pinned/model.onnx')
-    .reply(503)
-  await expect(prepareNarrationModel(modelDirectory)).rejects.toMatchObject({
-    code: 'ERR_NARRATION_DOWNLOAD',
-  })
-  nock('https://huggingface.co')
-    .get('/fixture/model/resolve/pinned/model.onnx')
-    .reply(200, 'corrupt')
-  await expect(prepareNarrationModel(modelDirectory)).rejects.toMatchObject({
-    code: 'ERR_NARRATION_INTEGRITY',
-  })
+  await expect(
+    prepareNarrationModel(modelDirectory, undefined, download('', 503)),
+  ).rejects.toMatchObject({ code: 'ERR_NARRATION_DOWNLOAD' })
+  await expect(
+    prepareNarrationModel(modelDirectory, undefined, download('corrupt')),
+  ).rejects.toMatchObject({ code: 'ERR_NARRATION_INTEGRITY' })
   expect(existsSync(path.join(modelDirectory, 'model.onnx'))).toBe(false)
   const bytes = 'nested'
   const sha256 = createHash('sha256').update(bytes).digest('hex')
-  nock('https://huggingface.co')
-    .get('/fixture/model/resolve/pinned/onnx/nested.bin')
-    .reply(200, bytes)
-  await prepareNarrationModel(modelDirectory, [
-    { name: 'onnx/nested.bin', sha256 },
-  ])
+  const request = download(bytes)
+  await prepareNarrationModel(
+    modelDirectory,
+    [{ name: 'onnx/nested.bin', sha256 }],
+    request,
+  )
+  expect(request).toHaveBeenCalledOnce()
   expect(
     readFileSync(path.join(modelDirectory, 'onnx/nested.bin'), 'utf8'),
   ).toBe(bytes)
@@ -181,7 +177,7 @@ test('spoken segments preserve visible words and validate pace and quiet pause m
 })
 
 test('local neural speech joins sentence chunks into normalized section audio and releases the model', async () => {
-  download()
+  cacheModel()
   const { generateGuideNarration, narrationSegments } = await load()
   const run = vi.fn((_command: string, args: string[]) => {
     writeFileSync(args.at(-1)!, 'rendered audio')
@@ -241,7 +237,7 @@ test('local neural speech joins sentence chunks into normalized section audio an
 })
 
 test('default loader uses CPU inference and commands, while failures clean temporary audio', async () => {
-  download()
+  cacheModel()
   const { generateGuideNarration } = await load()
   await generateGuideNarration({ directory, modelDirectory })
   expect(state.load).toHaveBeenCalledWith(modelDirectory, {
@@ -282,8 +278,10 @@ test('default loader uses CPU inference and commands, while failures clean tempo
 
 test('direct invocation uses the cached model and tracked asset paths on any host', async () => {
   state.main = true
-  download()
+  const request = vi.fn(async () => new Response('model'))
+  vi.stubGlobal('fetch', request)
   await load()
+  expect(request).toHaveBeenCalledOnce()
   const model = path.join(directory, '.cache/narration-model/pinned')
   expect(state.load).toHaveBeenCalledWith(model, {
     dtype: 'fp32',

@@ -1,10 +1,9 @@
 import { execFileSync } from 'node:child_process'
 import https from 'node:https'
 import nock from 'nock'
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import {
   clearTestNetworkMocks,
-  disableTestNetwork,
   testNetworkEnvironment,
 } from '../../../../../scripts/repo/test/network/run.mts'
 
@@ -13,32 +12,36 @@ const importRequest = fetch('https://unmocked.invalid/import').catch(
 )
 
 test('the network guard is active while unit modules are imported', async () => {
-  expect(await importRequest).toMatchObject({ code: 'ENETUNREACH' })
+  expect(await importRequest).toMatchObject({
+    cause: { code: 'ERR_TEST_NETWORK_BLOCKED' },
+  })
 })
 
 test('unmocked HTTP and fetch calls are blocked before opening a connection', async () => {
   await expect(fetch('https://unmocked.invalid/')).rejects.toMatchObject({
-    code: 'ENETUNREACH',
+    cause: { code: 'ERR_TEST_NETWORK_BLOCKED' },
   })
   const request = new Promise((_resolve, reject) => {
     https.get('https://unmocked.invalid/').once('error', reject)
   })
-  await expect(request).rejects.toMatchObject({ code: 'ENETUNREACH' })
+  await expect(request).rejects.toMatchObject({
+    code: 'ERR_TEST_NETWORK_BLOCKED',
+  })
 })
 
-test('HTTP fixtures satisfy native fetch without enabling real connections', async () => {
-  const scope = nock('https://fixture.invalid')
-    .get('/data')
-    .reply(200, { value: 42 })
-  expect(await (await fetch('https://fixture.invalid/data')).json()).toEqual({
-    value: 42,
-  })
-  expect(scope.isDone()).toBe(true)
-  clearTestNetworkMocks()
-  disableTestNetwork()
-  await expect(fetch('https://fixture.invalid/data')).rejects.toMatchObject({
-    code: 'ENETUNREACH',
-  })
+test('Vitest stubs fetch without opening a network connection', async () => {
+  const request = vi.fn<typeof fetch>(
+    async () => new Response(JSON.stringify({ value: 42 })),
+  )
+  vi.stubGlobal('fetch', request)
+  try {
+    expect(await (await fetch('https://fixture.invalid/data')).json()).toEqual({
+      value: 42,
+    })
+    expect(request).toHaveBeenCalledWith('https://fixture.invalid/data')
+  } finally {
+    vi.unstubAllGlobals()
+  }
 })
 
 test('unconsumed mocks fail by code and are removed for the next test', () => {
@@ -60,9 +63,9 @@ test('child Node processes inherit the network guard and existing options', () =
     [
       '--input-type=module',
       '-e',
-      "try { await fetch('https://unmocked.invalid/') } catch (error) { console.log(error.code) }",
+      "try { await fetch('https://unmocked.invalid/') } catch (error) { console.log(error.cause?.code ?? error.code) }",
     ],
     { cwd: new URL('../../../../../', import.meta.url), env, encoding: 'utf8' },
   )
-  expect(result.trim()).toBe('ENETUNREACH')
+  expect(result.trim()).toBe('ERR_TEST_NETWORK_BLOCKED')
 })

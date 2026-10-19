@@ -30,7 +30,10 @@ test('setup provisions tools before installing with the frozen branch lockfile',
   })
   const result = await bootstrap(false, setup, run)
   expect(order).toEqual(['tools', 'install'])
-  expect(run).toHaveBeenCalledWith(['install', '--frozen-lockfile'], '/tools')
+  expect(run).toHaveBeenCalledWith(
+    ['install', '--frozen-lockfile', '--reporter=silent', '--loglevel=error'],
+    '/tools',
+  )
   expect(result.status).toBe(7)
 })
 
@@ -122,7 +125,10 @@ test('successful repeat installs explicitly restore generated runtime outputs', 
     () => false,
   )
   expect(run.mock.calls).toEqual([
-    [['install', '--frozen-lockfile'], '/tools'],
+    [
+      ['install', '--frozen-lockfile', '--reporter=silent', '--loglevel=error'],
+      '/tools',
+    ],
     [['run', 'prepare'], '/tools'],
   ])
 })
@@ -238,5 +244,10 @@ test('successful lifecycle preparation is not repeated when build outputs are re
     async () => ({ status: 0, signal: null }),
     () => true,
   )
-  expect(run.mock.calls).toEqual([[['install', '--frozen-lockfile'], '/tools']])
+  expect(run.mock.calls).toEqual([
+    [
+      ['install', '--frozen-lockfile', '--reporter=silent', '--loglevel=error'],
+      '/tools',
+    ],
+  ])
 })

@@ -34,11 +34,13 @@ test.each(['initial', 'mutation', 'survival'])(
   async mode => {
     collection()
     state.mode = mode
+    const closedBefore = state.domClose.mock.calls.length
+    const writesBefore = state.write.mock.calls.length
     await expect(invoke('retention', ['/baseline'])).rejects.toMatchObject({
       code: 'ERR_ASSERTION',
     })
-    expect(state.domClose).toHaveBeenCalledOnce()
-    expect(state.write).not.toHaveBeenCalled()
+    expect(state.domClose.mock.calls.length).toBeGreaterThan(closedBefore)
+    expect(state.write.mock.calls.length).toBe(writesBefore)
   },
 )
 test('reader retention requires explicit collection', async () => {

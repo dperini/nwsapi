@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, rmSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync, rmSync } from 'node:fs'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import type {
@@ -16,6 +16,7 @@ import {
 import { REPO_ROOT } from '../lib/paths.mts'
 import { nodeInteropEnvironment } from '../node.mts'
 import { setupTools } from './tools.mts'
+import { posixShim, windowsShim } from './firewall.mts'
 
 export function managedEnvironment(directory = TOOL_BIN, env = process.env) {
   const result = nodeInteropEnvironment(env)
@@ -74,6 +75,41 @@ export function cachedToolchain(
   }
 }
 
+export function firewallLaunchersReady(
+  directory = TOOL_BIN,
+  platform = process.platform,
+  read = readFileSync,
+  resolve: (file: string) => string = realpathSync,
+) {
+  try {
+    const node = resolve(
+      path.join(directory, platform === 'win32' ? 'node.exe' : 'node'),
+    )
+    const firewall = toolExecutable('sfw')
+    const commands = {
+      npm: { executable: node, args: [toolExecutable('npm')] },
+      pnpm: { executable: toolExecutable('pnpm') },
+    }
+    const newline = platform === 'win32' ? '\r\n' : '\n'
+    for (const name of ['npm', 'pnpm'] as const) {
+      const lines =
+        platform === 'win32'
+          ? windowsShim(name, firewall, commands[name], directory)
+          : posixShim(name, firewall, commands[name], directory)
+      const launcher = path.join(
+        directory,
+        platform === 'win32' ? `${name}.cmd` : name,
+      )
+      if (read(launcher, 'utf8') !== lines.join(newline) + newline) {
+        return false
+      }
+    }
+    return true
+  } catch {
+    return false
+  }
+}
+
 export async function ensureManagedTools(
   directory = TOOL_BIN,
   setup = setupTools,
@@ -82,6 +118,7 @@ export async function ensureManagedTools(
     args: string[],
     options: SpawnSyncOptionsWithStringEncoding,
   ) => { status: number | null; stdout: string | null } = spawnSync,
+  launchersReady: (directory: string) => boolean = firewallLaunchersReady,
 ) {
   const names =
     process.platform === 'win32'
@@ -99,6 +136,7 @@ export async function ensureManagedTools(
   if (
     !cachedToolchain(directory) ||
     !names.every(name => existsSync(path.join(directory, name))) ||
+    !launchersReady(directory) ||
     !pinned.every(name => existsSync(toolExecutable(name))) ||
     version.status !== 0 ||
     version.stdout?.trim() !== `v${toolVersions()['node']}`

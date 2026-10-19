@@ -14,12 +14,8 @@ const baseline = path.resolve(process.argv[2]!)
 const utils = require('jsdom/lib/generated/idl/utils.js') as {
   implForWrapper(node: Node): object
 }
-const {
-  domSymbolTree,
-} = require('jsdom/lib/jsdom/living/helpers/internal-constants.js')
 const factories: Array<typeof Adapter> = [
   require(path.join(baseline, 'dom-selector.js')),
-  require(ADAPTER_BUILD_PATH),
   require(ADAPTER_BUILD_PATH),
 ]
 const cases = [
@@ -42,15 +38,12 @@ const cases = [
 const rows = []
 const settings = { rounds: 5, milliseconds: 50, batch: 16 }
 for (const entry of cases) {
-  const worlds = factories.map((Constructor, variant) => {
+  const worlds = factories.map(Constructor => {
     const { window } = new JSDOM(entry.html)
     const document = window.document
     const expected = Array.from(document.querySelectorAll(entry.selector))
     const impl = utils.implForWrapper(document)
-    const adapter = new Constructor(window, impl, {
-      idlUtils: utils,
-      ...(variant === 1 ? {} : { domSymbolTree }),
-    })
+    const adapter = new Constructor(window, impl, { idlUtils: utils })
     let version = 0
     const query = () => {
       if (entry.mutate) {
@@ -97,7 +90,7 @@ writeFileSync(
       node: process.version,
       jsdom: require('jsdom/package.json').version,
       settings,
-      variants: ['baseline', 'attributes', 'attributes-and-tree'],
+      variants: ['baseline', 'adapter'],
       hashes: [
         path.join(baseline, 'nwsapi.js'),
         ENGINE_BUILD_PATH,
@@ -107,7 +100,7 @@ writeFileSync(
         createHash('sha256').update(readFileSync(file)).digest('hex'),
       ),
       methodology:
-        'Existing component, shallow/deep ancestor, and four has fixtures. Separate documents per variant. Public adapter receives host implementation nodes. Five rotating mitata rounds after 100 warmups. Sixteen calls per sample. Identity/order checks outside timing. Mutation includes one unrelated attribute write and one query. No memory or browser claim.',
+        'Existing component, shallow/deep ancestor, and four has fixtures. Separate documents per variant. The adapter probes implementation-node attribute and traversal readers from host utilities. Five rotating mitata rounds after 100 warmups. Sixteen calls per sample. Identity/order checks outside timing. Mutation includes one unrelated attribute write and one query. No memory or browser claim.',
       rows,
     },
     null,

@@ -60,8 +60,11 @@ export function chromePin(data: ChromeChannels) {
   }
 }
 
-export async function updateChrome(check = false) {
-  const response = await fetch(CHROME_CHANNELS_URL, {
+export async function updateChrome(
+  check = false,
+  request: typeof fetch = fetch,
+) {
+  const response = await request(CHROME_CHANNELS_URL, {
     signal: AbortSignal.timeout(30_000),
   })
   if (!response.ok) {

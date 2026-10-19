@@ -19,7 +19,8 @@ test('native asset pins match the optional packages in pnpm-lock.yaml', async ()
   const lock = parseAllDocuments(source)
     .map(document => document.toJSON())
     .find(
-      document => document?.packages?.['@opentui/core-darwin-arm64@0.5.17'],
+      document =>
+        document?.packages?.[`@opentui/core-darwin-arm64@${OPENTUI_VERSION}`],
     ) as {
     packages: Record<string, { resolution?: { integrity?: string } }>
   }

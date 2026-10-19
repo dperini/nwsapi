@@ -1,4 +1,4 @@
-export const OPENTUI_VERSION = '0.5.17'
+export const OPENTUI_VERSION = '0.6.6'
 
 export const sharedAssetKeys = [
   '@opentui/core/assets/javascript/highlights.scm',
@@ -21,49 +21,49 @@ export const nativeAssetPackages = [
     packageName: '@opentui/core-darwin-arm64',
     fileName: 'libopentui.dylib',
     integrity:
-      'sha512-ptobzW+1zM29nHvadwy+8uW9jvV8NJr63vcQXWe2rQNtpwN/6k7lEXWiS5LndeBs9AMV5tTsXMEMhttgts4BDQ==',
+      'sha512-pETue+Rm0lVUzJQfdd4ra0zqdqtzObxC4aBsPsRnAg/wc8RCSisT7oxudZyGaTq39Lashnp5R6i7QWPK4HvxLQ==',
   },
   {
     packageName: '@opentui/core-darwin-x64',
     fileName: 'libopentui.dylib',
     integrity:
-      'sha512-6yLbnElIZPxhZSrZSyS4mB5+k0YFlpRO0Q8uX4sLFTmvOy8tIeDPFcTGRQqZQ1Rk938tiAhf7iyAX3P1wL4Liw==',
+      'sha512-nexiM1l4rrUEz68t9XgdpaU5RcBH2ebHCsxw9UAGHBSlE477x6vjlaO8bvfdvx1k8vBbGir8y8zDWgkraE0cdA==',
   },
   {
     packageName: '@opentui/core-linux-arm64-musl',
     fileName: 'libopentui.so',
     integrity:
-      'sha512-QMRdDbmR0LwpmX1HXVbN+V3A44/QsbWzMsF3V7cEz7MaDq6RNBs3CUFqfkPorKgPtI75T0AxM7FdJnjt9C4d0Q==',
+      'sha512-FU10EOCQT0+B6JU6oo/RmFCZqKJ2XNB8diLXCsAJzspMrtRngXV84MfyOiNcR6o033O7SdHdep+6PoXfU6RZQw==',
   },
   {
     packageName: '@opentui/core-linux-arm64',
     fileName: 'libopentui.so',
     integrity:
-      'sha512-HO3dYgzQBGJhe58uJauVClIJg3vToYl/LZa7ZzqxQ+3vZ//cxaJ7tgXhHWR2uJE02550yI69e5nqBpSOTT9E8Q==',
+      'sha512-EXKW3Rmhnv3zkca2sqNBmVXm43TWCHqC/UI4fSDml9WfjZcvdbw+mJ8TEBMe818hwkLOn16bJ/behb3GIVZiZQ==',
   },
   {
     packageName: '@opentui/core-linux-x64-musl',
     fileName: 'libopentui.so',
     integrity:
-      'sha512-M2RatQaeET/werHFSH+cg7OkQk/Wn0VoVXZLLEL7DiCDTuhZyMfi3uFDz0+R1IGiiUITqHWpZdZ1LdBY8NCjwQ==',
+      'sha512-NtRUvk2j7O88JYdVy6aIZyEN31wuHg2cDTsQ13UAoXaGkTc/o3cz8Z7Z1PAA8y5lduZkHWmUd9jhItsfWU8uQw==',
   },
   {
     packageName: '@opentui/core-linux-x64',
     fileName: 'libopentui.so',
     integrity:
-      'sha512-lNmtQlcwsio4IVo2trc0QoMyun31UsN0mzmSc2BtYMOeOC5e0PyWaEAZWJb/g6AinOs9xwJGL02JAN5J3QPWsw==',
+      'sha512-MNAAsU2+ywpYfJkZ+EYr02nh0yc9egBWRCFAcKvZiYiCbxCoSTmO1c03LbUMlZ/zUlYOi5ZtwzSNi6rhrQZNkw==',
   },
   {
     packageName: '@opentui/core-win32-arm64',
     fileName: 'opentui.dll',
     integrity:
-      'sha512-MyVVpZ0CyGDQ+g4eM0zURqEd/9jDrBIPcZdLyZOmWbdoVu36PLM9KAkqwl/n5ASn/rOrQd+d14jUAsZJvFTqzw==',
+      'sha512-Z4bJDA04uCDvXFCquDnbCihof5hMVDP7cGBME4fv/zrKuVMQlQlLGwyExQiG+8vmSZeSeNU0ks+p1g3ewL+3ew==',
   },
   {
     packageName: '@opentui/core-win32-x64',
     fileName: 'opentui.dll',
     integrity:
-      'sha512-etkuzyfclRX9wel4ivCOk90dUdZNtjK7U6vr7ZHmwkZyOik34ec3Gse0B/jyk192Xdx0l50Tl2xgC1h68XRiEQ==',
+      'sha512-i3IMd1uviUlJICRjzxPf8LJaxQXkZGHHm/ExqWkymvbUI+FjP/2XWC/JMqO7pD39GIb+lkv5Wte3bxQGvXx8Hg==',
   },
 ] as const
 

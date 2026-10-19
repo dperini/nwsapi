@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import type * as NodeFs from 'node:fs'
 import path from 'node:path'
-import nock from 'nock'
 import {
   chromePin,
   updateChrome,
@@ -43,10 +42,12 @@ beforeEach(() => {
 })
 afterEach(() => vi.unstubAllGlobals())
 
-function request() {
-  return nock('https://googlechromelabs.github.io')
-    .get('/chrome-for-testing/last-known-good-versions-with-downloads.json')
-    .reply(200, channels())
+function request(status = 200) {
+  return vi.fn<typeof fetch>().mockResolvedValue(
+    new Response(status === 200 ? JSON.stringify(channels()) : null, {
+      status,
+    }),
+  )
 }
 
 function channels(): ChromeChannels {
@@ -144,35 +145,36 @@ test('missing channels and download metadata are rejected before selecting a bro
 })
 
 test('Chrome preview reads verified upstream metadata without writing or installing', async () => {
-  const requests = request()
-  await updateChrome(true)
-  expect(requests.isDone()).toBe(true)
+  const fetch = request()
+  await updateChrome(true, fetch)
+  expect(fetch).toHaveBeenCalledWith(
+    'https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json',
+    expect.objectContaining({ signal: expect.any(AbortSignal) }),
+  )
   expect(state.write).not.toHaveBeenCalled()
   expect(state.run).not.toHaveBeenCalled()
 })
 
 test('Chrome updates write only changed pins and always reload the browser installer', async () => {
   const first = request()
-  await updateChrome()
-  expect(first.isDone()).toBe(true)
+  await updateChrome(false, first)
+  expect(first).toHaveBeenCalledOnce()
   expect(JSON.parse(state.write.mock.calls[0]![1])).toEqual(
     chromePin(channels()),
   )
   state.pin = state.write.mock.calls[0]![1]
   state.write.mockClear()
   const second = request()
-  await updateChrome(false)
-  expect(second.isDone()).toBe(true)
+  await updateChrome(false, second)
+  expect(second).toHaveBeenCalledOnce()
   expect(state.write).not.toHaveBeenCalled()
   expect(state.run).toHaveBeenCalledTimes(2)
 })
 
 test('upstream HTTP failure cannot update Chrome metadata', async () => {
-  const requests = nock('https://googlechromelabs.github.io')
-    .get('/chrome-for-testing/last-known-good-versions-with-downloads.json')
-    .reply(503)
-  await expect(updateChrome()).rejects.toBeInstanceOf(Error)
-  expect(requests.isDone()).toBe(true)
+  const fetch = request(503)
+  await expect(updateChrome(false, fetch)).rejects.toBeInstanceOf(Error)
+  expect(fetch).toHaveBeenCalledOnce()
   expect(state.write).not.toHaveBeenCalled()
 })
 
@@ -189,9 +191,10 @@ test('the Chrome updater command supports preview mode and rejects invalid optio
     }),
   )
   vi.resetModules()
-  const requests = request()
+  const fetch = request()
+  vi.stubGlobal('fetch', fetch)
   await import('../../../../scripts/repo/chrome/update.mts')
-  expect(requests.isDone()).toBe(true)
+  expect(fetch).toHaveBeenCalledOnce()
   vi.stubGlobal(
     'process',
     new Proxy(process, {

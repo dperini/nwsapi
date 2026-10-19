@@ -7,20 +7,17 @@ test.each([false, true])(
     await invoke('timing', explicit ? ['/baseline', '/report'] : ['/baseline'])
     const report = JSON.parse(state.write.mock.calls[0]![1] as string)
     expect(report.rows).toHaveLength(12)
-    expect(report.variants).toEqual([
-      'baseline',
-      'attributes',
-      'attributes-and-tree',
-    ])
+    expect(report.variants).toEqual(['baseline', 'adapter'])
     expect(state.compare).toHaveBeenCalledTimes(12)
     expect(state.load).toHaveBeenCalledWith(ADAPTER_BUILD_PATH)
+    expect(state.options).toHaveLength(24)
     expect(
-      state.options.some(options =>
-        Object.hasOwn(options as object, 'domSymbolTree'),
+      state.options.every(options =>
+        Object.hasOwn(options as object, 'idlUtils'),
       ),
     ).toBe(true)
     expect(
-      state.options.some(
+      state.options.every(
         options => !Object.hasOwn(options as object, 'domSymbolTree'),
       ),
     ).toBe(true)

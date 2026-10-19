@@ -29,22 +29,6 @@ This reports Node.js and package-manager versions, whether pinned checkout tools
 Use `pnpm run setup:check -- --details` when you need executable paths or wrapper details. You do not need to edit PATH to use repository commands. If pnpm is unavailable, see [verified contributor toolchain](toolchain.md) for the direct Node bootstrap, which supports Node.js 22.18 or newer.
 
 <details>
-<summary>If v3 rejects pnpm</summary>
-
-The current v3 checkout accepts pnpm. If an npm-only package-manager guard appears, update the checkout and run its bootstrap:
-
-```sh
-git fetch origin
-git switch prerelease/3.0.0
-git pull --ff-only
-node scripts/repo/setup/bootstrap.mts
-```
-
-The bootstrap installs the pinned pnpm and Node versions, dependencies, and build outputs. It requires Node.js 22.18 or newer.
-
-</details>
-
-<details>
 <summary>Use npm instead</summary>
 
 With Node.js 26.11.0 and npm 12.2.0, install and open the same contributor menu with:

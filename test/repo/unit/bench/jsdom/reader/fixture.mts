@@ -11,6 +11,7 @@ const state = vi.hoisted(() => ({
   compare: vi.fn(),
   domClose: vi.fn(),
   mode: '',
+  queries: 0,
   options: [] as unknown[],
 }))
 export { state }
@@ -72,9 +73,10 @@ vi.mock('node:module', async () => {
       ...args: Parameters<Adapter['querySelectorAll']>
     ) {
       const result = super.querySelectorAll(...args)
+      const query = state.queries++
       if (
-        (state.mode === 'initial' && result.length === 32) ||
-        (state.mode === 'mutation' && result.length === 31)
+        (state.mode === 'initial' && query === 0) ||
+        (state.mode === 'mutation' && query === 1)
       ) {
         return []
       }
@@ -99,6 +101,7 @@ beforeEach(() => {
   vi.resetModules()
   vi.clearAllMocks()
   state.mode = ''
+  state.queries = 0
   state.options = []
   state.compare.mockImplementation(async (queries: Array<() => unknown>) =>
     queries.map(query => {

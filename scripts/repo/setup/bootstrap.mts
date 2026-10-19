@@ -65,7 +65,10 @@ export async function bootstrap(
   }
   const installation = '2 of 3: Install dependencies and prepare package'
   const result = await phase(installation, () =>
-    run(['install', '--frozen-lockfile'], directory),
+    run(
+      ['install', '--frozen-lockfile', '--reporter=silent', '--loglevel=error'],
+      directory,
+    ),
   )
   if (!completed(installation, result)) {
     return result

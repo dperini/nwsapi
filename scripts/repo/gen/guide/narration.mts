@@ -55,6 +55,7 @@ function hash(value: Uint8Array) {
 export async function prepareNarrationModel(
   directory: string,
   files: ModelFile[] = manifest.files,
+  request: typeof fetch = fetch,
 ) {
   for (let i = 0, length = files.length; i < length; i += 1) {
     const file = files[i]!
@@ -70,7 +71,7 @@ export async function prepareNarrationModel(
       }
       continue
     }
-    const response = await fetch(
+    const response = await request(
       `https://huggingface.co/${manifest.model}/resolve/${manifest.revision}/${file.name}`,
     )
     if (!response.ok) {

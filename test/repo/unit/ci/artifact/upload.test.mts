@@ -1,9 +1,9 @@
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import type { Readable } from 'node:stream'
 import { afterEach, expect, test, vi } from 'vitest'
 import type * as Fs from 'node:fs'
-import nock from 'nock'
 import {
   collectFiles,
   runUpload,
@@ -20,16 +20,21 @@ const env = {
     '.y',
 }
 const endpoint = '/twirp/github.actions.results.api.v1.ArtifactService/'
-// Buffer only the mock transport body so nock does not abort an undici upload.
-const mockTransport: typeof fetch = async (input, options) => {
-  const body = options?.body
-  if (body && typeof body !== 'string') {
-    return fetch(input, {
-      ...options,
-      body: await new Response(body).arrayBuffer(),
-    })
-  }
-  return fetch(input, options)
+function mockTransport(create: object, final: object, uploadStatus = 201) {
+  return vi.fn<typeof fetch>(async (input, options) => {
+    const url =
+      typeof input === 'string'
+        ? new URL(input)
+        : input instanceof URL
+          ? input
+          : new URL(input.url)
+    if (options?.method === 'PUT') {
+      return new Response(null, { status: uploadStatus })
+    }
+    return Response.json(
+      url.pathname.endsWith('CreateArtifact') ? create : final,
+    )
+  })
 }
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -74,14 +79,23 @@ test.each([
   },
 )
 test('alternate service fields and numeric artifact ID are accepted', async () => {
-  const service = nock('https://results.example')
-    .post(endpoint + 'CreateArtifact')
-    .reply(200, { ok: true, signed_upload_url: 'https://blob.example/' })
-    .post(endpoint + 'FinalizeArtifact')
-    .reply(200, { ok: true, artifact_id: 42 })
-  const blob = nock('https://blob.example').put('/').reply(201)
-  expect(await uploadArtifact('report', [], 14, env, mockTransport)).toBe('42')
-  expect(service.isDone() && blob.isDone()).toBe(true)
+  const request = mockTransport(
+    { ok: true, signed_upload_url: 'https://blob.example/' },
+    { ok: true, artifact_id: 42 },
+  )
+  expect(await uploadArtifact('report', [], 14, env, request)).toBe('42')
+  expect(
+    request.mock.calls.map(
+      ([input]) =>
+        new URL(
+          typeof input === 'string'
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url,
+        ).pathname,
+    ),
+  ).toEqual([endpoint + 'CreateArtifact', '/', endpoint + 'FinalizeArtifact'])
 })
 test('invalid name is rejected before credentials or upload', async () => {
   await expect(uploadArtifact('', [], 14, {})).rejects.toThrow()
@@ -107,15 +121,13 @@ test('CLI rejects incomplete arguments and uploads a populated path', async t =>
     const [name, value] = environmentEntries[i]!
     vi.stubEnv(name, value)
   }
-  const service = nock('https://results.example')
-    .post(endpoint + 'CreateArtifact')
-    .reply(200, { ok: true, signedUploadUrl: 'https://blob.example/' })
-    .post(endpoint + 'FinalizeArtifact')
-    .reply(200, { ok: true, artifactId: '42' })
-  const blob = nock('https://blob.example').put('/').reply(201)
+  const request = mockTransport(
+    { ok: true, signedUploadUrl: 'https://blob.example/' },
+    { ok: true, artifactId: '42' },
+  )
   vi.spyOn(console, 'log').mockImplementation(() => {})
-  await runUpload(['--name', 'report', '--path', root], mockTransport)
-  expect(service.isDone() && blob.isDone()).toBe(true)
+  await runUpload(['--name', 'report', '--path', root], request)
+  expect(request).toHaveBeenCalledTimes(3)
   expect(collectFiles(path.join(root, 'file'))[0]!.name).toBe('file')
 })
 test('CLI entry point delegates validated arguments', async () => {
@@ -162,9 +174,14 @@ test('failed blob response is redacted and closes the input stream', async t => 
   t.onTestFinished(() => rmSync(root, { recursive: true, force: true }))
   const file = path.join(root, 'file')
   writeFileSync(file, 'payload')
-  const blob = nock('https://blob.example').put('/?private=token').reply(403)
+  let upload: Readable | undefined
+  const request = vi.fn<typeof fetch>(async (_input, options) => {
+    upload = options?.body as unknown as Readable
+    return new Response(null, { status: 403 })
+  })
   await expect(
-    uploadZip('https://blob.example/?private=token', file, 7, mockTransport),
+    uploadZip('https://blob.example/?private=token', file, 7, request),
   ).rejects.toThrow()
-  expect(blob.isDone()).toBe(true)
+  expect(request).toHaveBeenCalledOnce()
+  expect(upload?.destroyed).toBe(true)
 })

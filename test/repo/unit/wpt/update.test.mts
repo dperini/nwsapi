@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import type * as NodeFs from 'node:fs'
 import path from 'node:path'
-import nock from 'nock'
 import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
 import {
   releasePin,
@@ -74,12 +73,23 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-function github(shaValue = sha) {
-  return nock('https://api.github.com')
-    .get('/repos/web-platform-tests/wpt/releases/latest')
-    .reply(200, { tag_name: 'release/v1', published_at: '2026-10-07' })
-    .get('/repos/web-platform-tests/wpt/commits/release%2Fv1')
-    .reply(200, { sha: shaValue })
+function github(shaValue = sha, status = 200) {
+  return vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(
+      new Response(
+        status === 200
+          ? JSON.stringify({
+              tag_name: 'release/v1',
+              published_at: '2026-10-07',
+            })
+          : null,
+        { status },
+      ),
+    )
+    .mockResolvedValueOnce(
+      new Response(JSON.stringify({ sha: shaValue }), { status: 200 }),
+    )
 }
 
 test('WPT pins preserve configuration while replacing release provenance', () => {
@@ -142,17 +152,17 @@ test('dependency updates refresh WPT before install hooks and keep previews read
 })
 
 test('preview resolves the published tag but does not modify the checkout', async () => {
-  const requests = github()
-  await updateWpt(true)
-  expect(requests.isDone()).toBe(true)
+  const request = github()
+  await updateWpt(true, request)
+  expect(request).toHaveBeenCalledTimes(2)
   expect(state.run).not.toHaveBeenCalled()
   expect(state.write).not.toHaveBeenCalled()
 })
 
 test('the current pin verifies fixtures and refreshes audits without fetching a different commit', async () => {
-  const requests = github()
-  await updateWpt()
-  expect(requests.isDone()).toBe(true)
+  const request = github()
+  await updateWpt(false, request)
+  expect(request).toHaveBeenCalledTimes(2)
   expect(state.git).toHaveBeenCalledTimes(1)
   expect(state.run.mock.calls.map(call => call[1])).toEqual([
     ['clone', 'upstream/wpt'],
@@ -165,9 +175,9 @@ test('the current pin verifies fixtures and refreshes audits without fetching a 
 test('a changed release records its measured tree digest and regenerates stale inventory', async () => {
   state.current = 'd'.repeat(40)
   state.inventory = state.current
-  const requests = github()
-  await updateWpt(false)
-  expect(requests.isDone()).toBe(true)
+  const request = github()
+  await updateWpt(false, request)
+  expect(request).toHaveBeenCalledTimes(2)
   expect(state.git.mock.calls.map(call => call[0])).toEqual([
     [
       'config',
@@ -212,24 +222,25 @@ test('authenticated release lookup uses either supported environment token', asy
     vi.stubEnv('GITHUB_TOKEN', '')
     vi.stubEnv('GH_TOKEN', '')
     vi.stubEnv(variables[i]!, 'fixture-token')
-    const requests = github().matchHeader(
-      'authorization',
-      'Bearer fixture-token',
+    const request = github()
+    await updateWpt(true, request)
+    expect(request.mock.calls[0]?.[1]).toEqual(
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: 'Bearer fixture-token',
+        }),
+      }),
     )
-    await updateWpt(true)
-    expect(requests.isDone()).toBe(true)
   }
 })
 
 test('failed HTTP responses and malformed commit resolutions cannot write a pin', async () => {
-  const request = nock('https://api.github.com')
-    .get('/repos/web-platform-tests/wpt/releases/latest')
-    .reply(503)
-  await expect(updateWpt()).rejects.toBeInstanceOf(Error)
-  expect(request.isDone()).toBe(true)
-  const requests = github('not-a-sha')
-  await expect(updateWpt()).rejects.toBeInstanceOf(Error)
-  expect(requests.isDone()).toBe(true)
+  const request = github(sha, 503)
+  await expect(updateWpt(false, request)).rejects.toBeInstanceOf(Error)
+  expect(request).toHaveBeenCalledOnce()
+  const malformedRequest = github('not-a-sha')
+  await expect(updateWpt(false, malformedRequest)).rejects.toBeInstanceOf(Error)
+  expect(malformedRequest).toHaveBeenCalledTimes(2)
   expect(state.write).not.toHaveBeenCalled()
 })
 
@@ -246,9 +257,10 @@ test('the WPT update entrypoint accepts preview mode and rejects unrelated optio
     }),
   )
   vi.resetModules()
-  const requests = github()
+  const request = github()
+  vi.stubGlobal('fetch', request)
   await import('../../../../scripts/repo/wpt/update.mts')
-  expect(requests.isDone()).toBe(true)
+  expect(request).toHaveBeenCalledTimes(2)
   expect(state.run).not.toHaveBeenCalled()
   vi.stubGlobal(
     'process',

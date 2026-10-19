@@ -9,7 +9,6 @@ import {
 import os from 'node:os'
 import path from 'node:path'
 import { afterEach, expect, test, vi } from 'vitest'
-import nock from 'nock'
 import {
   downloadArchive,
   downloadFailure,
@@ -358,34 +357,25 @@ test('SHA256 verification rejects noncanonical base64 and insecure source URLs',
   ).rejects.toThrow()
 })
 test('native download verifies bytes using the mocked HTTPS service', async () => {
-  const service = nock('https://github.com', {
-    reqheaders: { connection: 'close' },
-  })
-    .get('/example/tool/releases/download/v1.0.0/tool.tgz')
-    .reply(200, bytes)
-  expect(await downloadArchive(url, integrity, fixture())).toEqual(bytes)
-  expect(service.isDone()).toBe(true)
+  const request = vi.fn(async () => new Response(bytes))
+  expect(await downloadArchive(url, integrity, fixture(), request)).toEqual(
+    bytes,
+  )
+  expect(request).toHaveBeenCalledOnce()
 })
 test('redirects to HTTP are rejected before cache promotion', async () => {
-  const source = nock('https://github.com')
-    .get('/example/tool/releases/download/v1.0.0/tool.tgz')
-    .reply(302, '', { Location: 'http://redirect.example/tool.tgz' })
-  const destination = nock('http://redirect.example')
-    .get('/tool.tgz')
-    .reply(200, bytes)
   const cache = fixture()
-  // Explicit redirect handling avoids Node's native redirect cancellation under nock.
-  const request: typeof fetch = async (input, options) => {
-    const response = await fetch(input, { ...options, redirect: 'manual' })
-    await response.arrayBuffer()
-    const redirected = await fetch(response.headers.get('location')!, options)
-    await redirected.arrayBuffer()
-    return redirected
-  }
+  const request = vi.fn(async () => {
+    const response = new Response(bytes)
+    Object.defineProperty(response, 'url', {
+      value: 'http://redirect.example/tool.tgz',
+    })
+    return response
+  })
   await expect(
     downloadArchive(url, integrity, cache, request),
   ).rejects.toThrow()
-  expect(source.isDone() && destination.isDone()).toBe(true)
+  expect(request).toHaveBeenCalledOnce()
   expect(readdirSync(cache)).toEqual([])
 })
 

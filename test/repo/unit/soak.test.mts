@@ -2,7 +2,6 @@ import { afterEach, expect, test, vi } from 'vitest'
 import { mkdtempSync, writeFileSync, rmSync, readFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import nock from 'nock'
 import type * as Yaml from 'yaml'
 import {
   addSoakException,
@@ -27,6 +26,7 @@ afterEach(() => {
   vi.doUnmock('../../../scripts/repo/lib/run-node.mts')
   vi.doUnmock('yaml')
   vi.doUnmock('node:fs')
+  vi.unstubAllGlobals()
   vi.resetModules()
 })
 
@@ -186,9 +186,13 @@ test.each(['success', 'http', 'missing', 'no-time'])(
         : mode === 'no-time'
           ? {}
           : { time: { '1.0.0': publication } }
-    const service = nock('https://registry.npmjs.org')
-      .get('/example')
-      .reply(mode === 'http' ? 404 : 200, mode === 'http' ? '' : body)
+    const request = vi.fn(
+      async () =>
+        new Response(JSON.stringify(body), {
+          status: mode === 'http' ? 404 : 200,
+        }),
+    )
+    vi.stubGlobal('fetch', request)
     const argv = process.argv
     process.argv = [argv[0]!, '/soak.mts', '--bypass', 'example@1.0.0']
     vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -207,7 +211,7 @@ test.each(['success', 'http', 'missing', 'no-time'])(
       } else {
         await expect(load()).rejects.toThrow()
       }
-      expect(service.isDone()).toBe(true)
+      expect(request).toHaveBeenCalledOnce()
     } finally {
       process.argv = argv
     }
