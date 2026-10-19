@@ -187,9 +187,7 @@ const sha256 = (value: string) =>
 const revision = (cwd: string) =>
   execFileSync('git', ['rev-parse', 'HEAD'], { cwd, encoding: 'utf8' }).trim()
 const browser = await chromium.launch({
-  ...(values.browser
-    ? { executablePath: values.browser }
-    : browserLaunchOptions()),
+  ...browserLaunchOptions([], values.browser),
   headless: true,
 })
 try {

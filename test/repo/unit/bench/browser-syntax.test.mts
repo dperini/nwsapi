@@ -13,7 +13,10 @@ vi.mock('node:fs', () => ({
   writeFileSync: state.write,
 }))
 vi.mock('../../../../scripts/repo/browser.mts', () => ({
-  browserLaunchOptions: () => ({ executablePath: '/managed-browser' }),
+  browserLaunchOptions: (
+    _extraArgs: string[] = [],
+    executablePath = '/managed-browser',
+  ) => ({ executablePath, args: ['--enable-features=WebMCPTesting'] }),
 }))
 function native(selector: string) {
   if (selector === '::column') {
@@ -101,6 +104,7 @@ test.each([false, true])(
     ])
     expect(state.launch).toHaveBeenCalledWith({
       executablePath: explicit ? '/custom-browser' : '/managed-browser',
+      args: ['--enable-features=WebMCPTesting'],
     })
     expect(state.close).toHaveBeenCalledOnce()
   },

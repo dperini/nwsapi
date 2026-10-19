@@ -76,10 +76,11 @@ async function capture(modelDirectory: string, mixed: boolean) {
     ['model', dispatchBundle(baseline, model, false, true)],
     ['split', splitDispatchBundle(baseline, model)],
   ] as const
-  const browser = await chromium.launch({
-    ...browserLaunchOptions(),
-    args: ['--js-flags=--trace-opt --trace-deopt --trace-turbo-inlining'],
-  })
+  const browser = await chromium.launch(
+    browserLaunchOptions([
+      '--js-flags=--trace-opt --trace-deopt --trace-turbo-inlining',
+    ]),
+  )
   try {
     for (const [name, code] of variants) {
       const page = await browser.newPage()

@@ -24,26 +24,39 @@ export const browserInstallOptions = {
   buildId: CHROME_VERSION,
   cacheDir: path.join(os.homedir(), '.cache', 'nwsapi', 'browsers'),
 }
+export const WEBMCP_LAUNCH_ARGS = ['--enable-features=WebMCPTesting']
 let checkedExecutable: string | undefined
 
-export function browserLaunchOptions() {
-  if (!checkedExecutable) {
-    const executablePath = computeExecutablePath(browserInstallOptions)
-    if (!existsSync(executablePath)) {
-      throw new Error(
-        'Chrome for Testing is missing. Run pnpm run setup:browser.',
-      )
+export function browserLaunchOptions(
+  extraArgs: string[] = [],
+  executableOverride?: string,
+) {
+  let executablePath = executableOverride
+  if (!executablePath) {
+    if (!checkedExecutable) {
+      const pinnedExecutable = computeExecutablePath(browserInstallOptions)
+      if (!existsSync(pinnedExecutable)) {
+        throw new Error(
+          'Chrome for Testing is missing. Run pnpm run setup:browser.',
+        )
+      }
+      const version = execFileSync(pinnedExecutable, ['--version'], {
+        encoding: 'utf8',
+        timeout: 10_000,
+      }).trim()
+      if (version.split(' ').at(-1) !== CHROME_VERSION) {
+        throw new Error(
+          `Expected Chrome ${CHROME_VERSION}, received ${version}.`,
+        )
+      }
+      checkedExecutable = pinnedExecutable
     }
-    const version = execFileSync(executablePath, ['--version'], {
-      encoding: 'utf8',
-      timeout: 10_000,
-    }).trim()
-    if (version.split(' ').at(-1) !== CHROME_VERSION) {
-      throw new Error(`Expected Chrome ${CHROME_VERSION}, received ${version}.`)
-    }
-    checkedExecutable = executablePath
+    executablePath = checkedExecutable
   }
-  return { executablePath: checkedExecutable }
+  return {
+    executablePath,
+    args: [...WEBMCP_LAUNCH_ARGS, ...extraArgs],
+  }
 }
 
 export async function installBrowser() {

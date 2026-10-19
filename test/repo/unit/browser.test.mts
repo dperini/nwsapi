@@ -29,9 +29,23 @@ beforeEach(() => {
 test('launch options validate and memoize the pinned executable', async () => {
   const module = await import('../../../scripts/repo/browser.mts')
   state.exec.mockReturnValue('Google Chrome ' + module.CHROME_VERSION)
-  expect(module.browserLaunchOptions()).toEqual({ executablePath: '/chrome' })
-  expect(module.browserLaunchOptions()).toEqual({ executablePath: '/chrome' })
+  expect(module.browserLaunchOptions(['--fixture-flag'])).toEqual({
+    executablePath: '/chrome',
+    args: ['--enable-features=WebMCPTesting', '--fixture-flag'],
+  })
+  expect(module.browserLaunchOptions()).toEqual({
+    executablePath: '/chrome',
+    args: ['--enable-features=WebMCPTesting'],
+  })
   expect(state.exec).toHaveBeenCalledOnce()
+})
+test('custom executables keep WebMCP enabled without pinned-browser lookup', async () => {
+  const module = await import('../../../scripts/repo/browser.mts')
+  expect(module.browserLaunchOptions([], '/custom/chrome')).toEqual({
+    executablePath: '/custom/chrome',
+    args: ['--enable-features=WebMCPTesting'],
+  })
+  expect(state.exec).not.toHaveBeenCalled()
 })
 test.each([false, true])(
   'missing or incorrect Chrome installations reject exists=%s',

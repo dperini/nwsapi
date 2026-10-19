@@ -2,6 +2,7 @@ import { createRequire } from 'node:module'
 import { readFileSync } from 'node:fs'
 import { rolldown } from 'rolldown'
 import { chromium } from '@playwright/test'
+import { browserLaunchOptions } from '../../../browser.mts'
 import type factory from '../../../../../dist/nwsapi.js'
 import { fixture, selectors } from '../fixture.mts'
 import { options, metadata, writeReport } from '../options.mts'
@@ -43,12 +44,13 @@ try {
   await bundle.close()
 }
 const sources = config.paths.map(p => readFileSync(p, 'utf8'))
-const browser = await chromium.launch({
-  args:
+const browser = await chromium.launch(
+  browserLaunchOptions(
     config.mode === 'memory'
       ? ['--js-flags=--expose-gc', '--enable-precise-memory-info']
       : [],
-})
+  ),
+)
 const rows = []
 try {
   for (const matches of config.counts) {

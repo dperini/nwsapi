@@ -16,6 +16,12 @@ const state = vi.hoisted(() => ({
     code: string
   }>,
   gc: vi.fn(),
+  launches: [] as Array<{ args: string[] }>,
+}))
+vi.mock('../../../../../../scripts/repo/browser.mts', () => ({
+  browserLaunchOptions: (extraArgs: string[] = []) => ({
+    args: ['--enable-features=WebMCPTesting', ...extraArgs],
+  }),
 }))
 vi.mock('node:fs', () => ({ readFileSync: () => 'engine' }))
 vi.mock('../../../../../../scripts/repo/bench/compare/options.mts', () => ({
@@ -35,103 +41,108 @@ vi.mock('rolldown', () => ({
 }))
 vi.mock('@playwright/test', () => ({
   chromium: {
-    launch: async () => ({
-      version: () => 'fixture-browser',
-      close: state.closed,
-      newPage: async () => {
-        let dom: JSDOM
-        return {
-          route: async (
-            _url: string,
-            handler: (route: unknown) => Promise<void>,
-          ) =>
-            handler({
-              fulfill: async ({
-                body,
-                headers,
-              }: {
-                body: string
-                headers: Record<string, string>
-              }) => {
-                assert.equal(
-                  headers['Cross-Origin-Embedder-Policy'],
-                  'require-corp',
-                )
-                dom = new JSDOM(
-                  state.failure === 'fixture' ? '<main></main>' : body,
-                )
-                vi.stubGlobal('window', dom.window)
-                vi.stubGlobal('document', dom.window.document)
-                vi.stubGlobal(
-                  'crossOriginIsolated',
-                  state.failure !== 'isolation',
-                )
-                vi.stubGlobal('performance', {
-                  now: () => 1,
-                  memory:
-                    state.failure === 'memory'
-                      ? undefined
-                      : { usedJSHeapSize: 10 },
-                })
-              },
-            }),
-          goto: async () => {},
-          evaluate: async (fn: (value?: unknown) => unknown, value?: unknown) =>
-            fn(value),
-          addScriptTag: async ({ content }: { content: string }) => {
-            const host = dom.window as unknown as Record<string, unknown>
-            if (content === 'timing') {
-              host['gc'] = state.failure === 'gc' ? undefined : state.gc
-              host['__mitataComparison'] = {
-                compareTiming: async (
-                  queries: Array<() => unknown>,
-                  _settings: unknown,
-                  heap?: { gc: () => void; read: () => number },
-                ) => {
-                  queries.map(query => query())
-                  if (heap) {
-                    heap.gc()
-                    assert.equal(heap.read(), 10)
-                  }
-                  state.measured = true
-                  return ['round']
+    launch: async (options: { args: string[] }) => {
+      state.launches.push(options)
+      return {
+        version: () => 'fixture-browser',
+        close: state.closed,
+        newPage: async () => {
+          let dom: JSDOM
+          return {
+            route: async (
+              _url: string,
+              handler: (route: unknown) => Promise<void>,
+            ) =>
+              handler({
+                fulfill: async ({
+                  body,
+                  headers,
+                }: {
+                  body: string
+                  headers: Record<string, string>
+                }) => {
+                  assert.equal(
+                    headers['Cross-Origin-Embedder-Policy'],
+                    'require-corp',
+                  )
+                  dom = new JSDOM(
+                    state.failure === 'fixture' ? '<main></main>' : body,
+                  )
+                  vi.stubGlobal('window', dom.window)
+                  vi.stubGlobal('document', dom.window.document)
+                  vi.stubGlobal(
+                    'crossOriginIsolated',
+                    state.failure !== 'isolation',
+                  )
+                  vi.stubGlobal('performance', {
+                    now: () => 1,
+                    memory:
+                      state.failure === 'memory'
+                        ? undefined
+                        : { usedJSHeapSize: 10 },
+                  })
                 },
-              }
-            } else {
-              host['NW'] = {
-                Dom: {
-                  select: (selector: string, document: Document) => {
-                    const nodes = Array.from(
-                      document.querySelectorAll(selector),
-                    )
-                    if (
-                      state.failure === 'initial-length' ||
-                      (state.measured && state.failure === 'changed-length')
-                    ) {
-                      return []
+              }),
+            goto: async () => {},
+            evaluate: async (
+              fn: (value?: unknown) => unknown,
+              value?: unknown,
+            ) => fn(value),
+            addScriptTag: async ({ content }: { content: string }) => {
+              const host = dom.window as unknown as Record<string, unknown>
+              if (content === 'timing') {
+                host['gc'] = state.failure === 'gc' ? undefined : state.gc
+                host['__mitataComparison'] = {
+                  compareTiming: async (
+                    queries: Array<() => unknown>,
+                    _settings: unknown,
+                    heap?: { gc: () => void; read: () => number },
+                  ) => {
+                    queries.map(query => query())
+                    if (heap) {
+                      heap.gc()
+                      assert.equal(heap.read(), 10)
                     }
-                    if (
-                      state.failure === 'initial-identity' ||
-                      (state.measured && state.failure === 'changed-identity')
-                    ) {
-                      return nodes.map(node => node.cloneNode())
-                    }
-                    return nodes
+                    state.measured = true
+                    return ['round']
                   },
-                },
+                }
+              } else {
+                host['NW'] = {
+                  Dom: {
+                    select: (selector: string, document: Document) => {
+                      const nodes = Array.from(
+                        document.querySelectorAll(selector),
+                      )
+                      if (
+                        state.failure === 'initial-length' ||
+                        (state.measured && state.failure === 'changed-length')
+                      ) {
+                        return []
+                      }
+                      if (
+                        state.failure === 'initial-identity' ||
+                        (state.measured && state.failure === 'changed-identity')
+                      ) {
+                        return nodes.map(node => node.cloneNode())
+                      }
+                      return nodes
+                    },
+                  },
+                }
               }
-            }
-          },
-          context: () => ({
-            newCDPSession: async () => ({ detach: state.detached }),
-          }),
-          close: async () => {
-            state.pageClosed()
-            dom?.window.close()
-          },
-        }
-      },
-    }),
+            },
+            context: () => ({
+              newCDPSession: async () => ({ detach: state.detached }),
+            }),
+            close: async () => {
+              state.pageClosed()
+              dom?.window.close()
+            },
+          }
+        },
+      }
+    },
   },
 }))
 
@@ -157,6 +168,7 @@ test('browser comparison validates fixtures, isolated timings, memory prerequisi
     }
   }
   await load()
+  assert.deepEqual(state.launches[0]!.args, ['--enable-features=WebMCPTesting'])
   const first = state.write.mock.calls[0]![1]
   assert.equal(first.heapProvider, null)
   assert.equal(first.browser, 'fixture-browser')
@@ -164,6 +176,11 @@ test('browser comparison validates fixtures, isolated timings, memory prerequisi
   assert.ok(first.rows.length > 0)
   state.config['mode'] = 'memory'
   await load()
+  assert.deepEqual(state.launches[1]!.args, [
+    '--enable-features=WebMCPTesting',
+    '--js-flags=--expose-gc',
+    '--enable-precise-memory-info',
+  ])
   assert.deepEqual(state.write.mock.calls[1]![1].rows[0].memory, ['heap'])
   assert.ok(state.gc.mock.calls.length > 0)
   const failures = [

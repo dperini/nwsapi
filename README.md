@@ -57,6 +57,8 @@ Load `src/nwsapi.js` from the package:
 </script>
 ```
 
+To try experimental WebMCP in Chrome, enable `chrome://flags/#enable-webmcp-testing` and relaunch. Playwright enables it by default. This exposes browser tools; it does not connect an agent to a tab.
+
 ## API
 
 See the [full API reference](docs/repo/selector/api.md) for all methods, options, and adapter APIs.

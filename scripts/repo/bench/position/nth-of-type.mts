@@ -6,6 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { JSDOM } from 'jsdom'
 import { chromium } from '@playwright/test'
+import { browserLaunchOptions } from '../../browser.mts'
 import { compareTiming } from '../compare/timing.mts'
 import { median, sha256 } from '../footprint/shared.mts'
 import { checkedPower } from '../planner/has/power.mts'
@@ -119,7 +120,7 @@ if (isMainModule(import.meta.url)) {
     )
   }
   const rounds: unknown[] = []
-  const browser = await chromium.launch()
+  const browser = await chromium.launch(browserLaunchOptions())
   const chromiumVersion = browser.version()
   try {
     for (const host of ['chromium', 'jsdom']) {

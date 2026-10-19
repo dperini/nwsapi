@@ -4,7 +4,7 @@ import { chromium } from '@playwright/test'
 
 const browser = await chromium.launch(
   process.argv[2]
-    ? { executablePath: process.argv[2] }
+    ? browserLaunchOptions([], process.argv[2])
     : browserLaunchOptions(),
 )
 try {
