@@ -45,17 +45,22 @@ test('focus-within fallback distinguishes default body state from actual focus',
   t.onTestFinished(() => window.close())
   const engine = factory(window)
   const { body } = window.document
+  let focused: Element | null = null
   Reflect.get(engine, 'Snapshot').matchesNative = (
-    _node: Element,
-    _selector: string,
+    node: Element,
+    selector: string,
     fallback: boolean,
-  ) => fallback
+  ) => (selector === ':focus' ? node === focused : fallback)
   expect(engine.match(':focus-within', body)).toBe(false)
   body.focus()
+  focused = body
   expect(engine.match(':focus-within', body)).toBe(true)
   body.blur()
+  focused = null
   expect(engine.match(':focus-within', body)).toBe(false)
-  window.document.querySelector('input')!.focus()
+  const input = window.document.querySelector('input')!
+  input.focus()
+  focused = input
   expect(engine.match(':focus-within', body)).toBe(true)
 })
 

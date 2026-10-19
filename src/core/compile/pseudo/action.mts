@@ -24,7 +24,7 @@ export function compilePseudoAction(
       break
     case 'focus-within':
       state.source =
-        'if(s.matchesNative(e,":focus-within",!!s.doc.hasFocus&&s.doc.hasFocus()&&e.contains(s.doc.activeElement))){' +
+        'if(s.matchesNative(e,":focus-within",!!(s.doc.activeElement&&s.isFocusable(s.doc.activeElement)&&e.contains(s.doc.activeElement)))){' +
         state.source +
         '}'
       break
