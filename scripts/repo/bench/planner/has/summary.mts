@@ -11,7 +11,7 @@ if (!directory || !baseline) {
     'Usage: planner/has/summary.mts measurement-directory baseline.cjs',
   )
 }
-const geomean = (values: number[]) =>
+export const geomean = (values: number[]) =>
   Math.exp(
     values.reduce((sum, value) => sum + Math.log(value), 0) / values.length,
   )

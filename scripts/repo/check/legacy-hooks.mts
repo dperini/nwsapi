@@ -32,7 +32,7 @@ const implementations = new Set([
   'helpReads',
 ])
 
-function bindings(source: string) {
+export function bindings(source: string) {
   const names = new Set<string>()
   function visit(node: Node) {
     if (

@@ -13,7 +13,7 @@ export type WordCue = { text: string; start: number; end: number }
 type Token = { id: number; word: number }
 type Scores = { data: ArrayLike<number>; frames: number; vocabulary: number }
 
-function readAudio(file: string) {
+export function readAudio(file: string) {
   const bytes = execFileSync(
     'ffmpeg',
     [
@@ -39,7 +39,7 @@ function readAudio(file: string) {
   return samples
 }
 
-function bestPredecessor(
+export function bestPredecessor(
   scores: Float64Array,
   labels: number[],
   state: number,
@@ -60,7 +60,7 @@ function bestPredecessor(
   return previous
 }
 
-function traceAlignment(logits: Scores, tokens: Token[], blank: number) {
+export function traceAlignment(logits: Scores, tokens: Token[], blank: number) {
   const labels = [blank]
   for (const token of tokens) {
     labels.push(token.id, blank)
@@ -95,7 +95,7 @@ function traceAlignment(logits: Scores, tokens: Token[], blank: number) {
   return frames
 }
 
-function wordCues(
+export function wordCues(
   words: string[],
   frames: Int32Array,
   duration: number,
@@ -117,7 +117,7 @@ function wordCues(
   return cues
 }
 
-function spokenWord(word: string) {
+export function spokenWord(word: string) {
   return pronounceNarration(word)
     .replaceAll('’', "'")
     .replaceAll('-', ' ')

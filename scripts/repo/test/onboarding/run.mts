@@ -1,8 +1,10 @@
 import { spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { mkdir, writeFile } from 'node:fs/promises'
+import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { isMainModule } from '../../lib/run-node.mts'
 import { makeSandbox } from './isolation.mts'
 import { readJourney } from './readme.mts'
 import { startGuide } from './guide.mts'
@@ -28,22 +30,25 @@ import {
   verifySnapshotIntegrity,
 } from './snapshot.mts'
 import type { SnapshotContext } from './snapshot.mts'
+import {
+  parseOnboardingArguments,
+  parseOnboardingControls,
+  presentOnboardingRequest,
+} from './contract.mts'
 
 const REPO = fileURLToPath(new URL('../../../../', import.meta.url))
 const LOG_ROOT = path.join(REPO, '.cache/onboarding')
 const TIMEOUT = 20 * 60_000
-const cases = ['bootstrap', 'npm', 'pnpm', 'journey'] as const
 const phases: Outcome[] = []
 let cleanupSandbox: (() => Promise<void>) | undefined
 let keepSandbox = false
 let activeLog = ''
-let activeScenario: Scenario | undefined
+let activeScenario: Options['scenario'] | undefined
 let activeCommit: string | undefined
 let activeSandbox = ''
 let retainedArtifacts: string[] = []
 let entryNodeVersion = ''
 const managerVersions: Record<string, string> = {}
-type Scenario = (typeof cases)[number]
 type Options = ScenarioOptions
 interface Outcome {
   phase: string
@@ -53,53 +58,7 @@ interface Outcome {
   durationMs?: number
 }
 
-function parse(argv: string[]): Options {
-  const values = new Map<string, string>()
-  for (let index = 0; index < argv.length; index += 1) {
-    const key = argv[index]!
-    if (!key.startsWith('--')) {
-      throw new Error(`Unexpected argument: ${key}`)
-    }
-    if (key === '--keep') {
-      values.set(key, 'true')
-      continue
-    }
-    const value = argv[++index]
-    if (!value) {
-      throw new Error(`Missing value for ${key}`)
-    }
-    values.set(key, value)
-  }
-  return parseOptions(values)
-}
-
-function parseOptions(values: Map<string, string>): Options {
-  const scenario = values.get('--scenario') as Scenario | undefined
-  const node = values.get('--node')
-  if (!scenario || !cases.includes(scenario)) {
-    throw new Error(`Choose --scenario ${cases.join('|')}.`)
-  }
-  if (!node || !path.isAbsolute(node)) {
-    throw new Error('Pass the absolute entry runtime path with --node.')
-  }
-  const npm = values.get('--npm')
-  const pnpm = values.get('--pnpm')
-  if ((npm && !path.isAbsolute(npm)) || (pnpm && !path.isAbsolute(pnpm))) {
-    throw new Error('Pass absolute manager entry paths.')
-  }
-  if ((scenario === 'npm' && !npm) || (scenario === 'pnpm' && !pnpm)) {
-    throw new Error(`Pass the pinned external ${scenario} entry point.`)
-  }
-  return {
-    scenario,
-    node,
-    ...(npm ? { npm } : {}),
-    ...(pnpm ? { pnpm } : {}),
-    keep: values.has('--keep'),
-  }
-}
-
-function run(
+export function run(
   executable: string,
   args: string[],
   cwd: string,
@@ -151,7 +110,7 @@ function run(
   }
 }
 
-async function appendLog(
+export async function appendLog(
   file: string,
   phase: string,
   result: Omit<ReturnType<typeof run>, 'durationMs'> & {
@@ -180,7 +139,7 @@ async function appendLog(
   }
 }
 
-async function command(
+export async function command(
   file: string,
   phase: string,
   executable: string,
@@ -224,7 +183,7 @@ async function command(
   return result
 }
 
-async function runScenario(
+export async function runScenario(
   options: Options,
   log: string,
   context: SnapshotContext,
@@ -268,7 +227,7 @@ async function runScenario(
   await runGuidedScenario(options, log, context)
 }
 
-async function runGuidedScenario(
+export async function runGuidedScenario(
   options: Options,
   log: string,
   context: SnapshotContext,
@@ -300,7 +259,7 @@ async function runGuidedScenario(
   )
 }
 
-async function runManagerScenario(
+export async function runManagerScenario(
   options: ScenarioOptions & { scenario: 'npm' | 'pnpm' },
   log: string,
   context: SnapshotContext,
@@ -349,7 +308,7 @@ async function runManagerScenario(
   await runGuidedScenario(options, log, context, true)
 }
 
-function recordGuideOutcome(outcome: GuideOutcome) {
+export function recordGuideOutcome(outcome: GuideOutcome) {
   phases.push({
     phase: 'guide persistent server',
     command: outcome.command,
@@ -361,7 +320,7 @@ function recordGuideOutcome(outcome: GuideOutcome) {
   })
 }
 
-async function verifyFinalState(
+export async function verifyFinalState(
   options: Options,
   log: string,
   context: SnapshotContext,
@@ -382,8 +341,9 @@ async function verifyFinalState(
   await verifySnapshotIntegrity(context)
 }
 
-async function main() {
-  const options = parse(process.argv.slice(2))
+export async function main(
+  options = parseOnboardingArguments(process.argv.slice(2)),
+) {
   activeScenario = options.scenario
   await mkdir(LOG_ROOT, { recursive: true })
   const sandbox = await makeSandbox()
@@ -428,7 +388,11 @@ async function main() {
   )
 }
 
-async function writeSummary(status: string, commit?: string, message?: string) {
+export async function writeSummary(
+  status: string,
+  commit?: string,
+  message?: string,
+) {
   const summary = {
     scenario: activeScenario ?? 'unknown',
     status,
@@ -449,9 +413,16 @@ async function writeSummary(status: string, commit?: string, message?: string) {
   return summary
 }
 
-async function execute() {
+export async function execute(argv = process.argv.slice(2)) {
+  const controls = parseOnboardingControls(argv)
+  const options = parseOnboardingArguments(controls.args)
+  if (
+    presentOnboardingRequest(controls, options, REPO, os.tmpdir(), console.log)
+  ) {
+    return
+  }
   try {
-    await main()
+    await main(options)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     if (activeScenario !== 'bootstrap' && activeSandbox) {
@@ -485,4 +456,6 @@ async function execute() {
   }
 }
 
-void execute()
+if (isMainModule(import.meta.url)) {
+  void execute()
+}

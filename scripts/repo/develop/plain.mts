@@ -61,7 +61,7 @@ export async function choosePlain(state: MenuState, ask = question) {
   }
 }
 
-async function confirmTask(ask: typeof question) {
+export async function confirmTask(ask: typeof question) {
   while (true) {
     const answer = (await ask('Enter to run, b to go back, or q to quit: '))
       .trim()

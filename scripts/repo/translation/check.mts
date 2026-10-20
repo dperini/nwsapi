@@ -9,18 +9,18 @@ interface DocumentTranslation {
   text: string
 }
 
-function readJson(root: string, file: string): unknown {
+export function readJson(root: string, file: string): unknown {
   return JSON.parse(readFileSync(path.join(root, file), 'utf8'))
 }
 
-function slots(text: string) {
+export function slots(text: string) {
   return [...text.matchAll(/ZXQ\d+QXZ|\{[A-Za-z]\w*\}/g)]
     .map(match => match[0])
     .toSorted()
     .join(',')
 }
 
-function checkMessages(
+export function checkMessages(
   source: Record<string, string>,
   translated: Record<string, string>,
   label: string,
@@ -36,7 +36,11 @@ function checkMessages(
   }
 }
 
-function checkOverrides(root: string, directory: string, problems: string[]) {
+export function checkOverrides(
+  root: string,
+  directory: string,
+  problems: string[],
+) {
   const overrides = readJson(root, `${directory}/overrides.it.json`) as Record<
     string,
     string

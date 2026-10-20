@@ -9,7 +9,7 @@ interface Comparison {
   evaluation: { rows: Row[] }
 }
 
-function compareRows(original: Row[], candidate: Row[]) {
+export function compareRows(original: Row[], candidate: Row[]) {
   const heldout = candidate.filter(row => row.split === 'holdout')
   const baseline = new Map(original.map(row => [row.id, row]))
   if (!heldout.length || baseline.size !== heldout.length) {
@@ -27,7 +27,7 @@ function compareRows(original: Row[], candidate: Row[]) {
   return heldout
 }
 
-function summarize(rows: Row[]) {
+export function summarize(rows: Row[]) {
   const ratios = rows.map(row => row.costs[1]! / row.costs[0]!)
   return {
     cost: geomean(ratios) * 100,

@@ -94,7 +94,7 @@ export async function runNarrationSession(
   }
 }
 
-function createSessionState(options: SessionOptions): SessionState {
+export function createSessionState(options: SessionOptions): SessionState {
   let resolveSignal!: (outcome: WorkerOutcome) => void
   const signal = new Promise<WorkerOutcome>(resolve => {
     resolveSignal = resolve
@@ -113,7 +113,7 @@ function createSessionState(options: SessionOptions): SessionState {
   }
 }
 
-async function prepareSession(state: SessionState) {
+export async function prepareSession(state: SessionState) {
   state.removeSignalHandlers = state.runtime.onSignal(value => {
     state.cancellation = value
     state.resolveSignal({ status: null, signal: value, started: state.started })
@@ -142,7 +142,7 @@ async function prepareSession(state: SessionState) {
   )
 }
 
-function startDeadline(state: SessionState) {
+export function startDeadline(state: SessionState) {
   state.deadlineTimer = setTimeout(() => {
     state.cancellation = 'time limit reached'
     state.resolveSignal({
@@ -154,7 +154,7 @@ function startDeadline(state: SessionState) {
   }, state.options.timeoutMs ?? 120_000)
 }
 
-async function awaitWorker(state: SessionState) {
+export async function awaitWorker(state: SessionState) {
   const worker = state.worker
   if (!worker) {
     throw new Error('The narration worker was not created.')
@@ -162,7 +162,7 @@ async function awaitWorker(state: SessionState) {
   return Promise.race([worker.wait(), state.signal])
 }
 
-async function finishWorker(
+export async function finishWorker(
   state: SessionState,
   outcome: WorkerOutcome,
 ): Promise<SessionResult> {
@@ -224,7 +224,7 @@ async function finishWorker(
   }
 }
 
-async function handleSessionError(
+export async function handleSessionError(
   state: SessionState,
   error: unknown,
 ): Promise<SessionResult> {
@@ -268,7 +268,7 @@ async function handleSessionError(
   return { status: 'failed', exitCode: 1, message: errorText(error) }
 }
 
-async function releaseCompletedSnapshot(state: SessionState) {
+export async function releaseCompletedSnapshot(state: SessionState) {
   const snapshot = state.snapshot
   if (!snapshot) {
     return
@@ -279,7 +279,7 @@ async function releaseCompletedSnapshot(state: SessionState) {
   state.snapshot = undefined
 }
 
-function finishSessionState(state: SessionState) {
+export function finishSessionState(state: SessionState) {
   if (state.deadlineTimer) {
     clearTimeout(state.deadlineTimer)
   }
@@ -289,7 +289,7 @@ function finishSessionState(state: SessionState) {
   }
 }
 
-async function requireSafePreflight(runtime: SessionRuntime) {
+export async function requireSafePreflight(runtime: SessionRuntime) {
   const state = await runtime.probeVoiceOver()
   if (state !== 'stopped') {
     throw new Error(
@@ -301,7 +301,7 @@ async function requireSafePreflight(runtime: SessionRuntime) {
   }
 }
 
-async function stopWorker(
+export async function stopWorker(
   worker: WorkerHandle,
   runtime: SessionRuntime,
   grace: number,
@@ -336,7 +336,7 @@ async function stopWorker(
   }
 }
 
-async function closeWorker(worker: WorkerHandle) {
+export async function closeWorker(worker: WorkerHandle) {
   try {
     worker.kill()
     worker.killOwnedBrowser()
@@ -346,7 +346,7 @@ async function closeWorker(worker: WorkerHandle) {
   }
 }
 
-async function cleanSession(
+export async function cleanSession(
   runtime: SessionRuntime,
   snapshot: PreferenceSnapshot,
   started: boolean,
@@ -415,7 +415,7 @@ async function cleanSession(
   return { complete: true, message: '' }
 }
 
-function validEvidence(
+export function validEvidence(
   evidence: NarrationEvidence | undefined,
   expectedUrl: string,
 ) {
@@ -427,17 +427,20 @@ function validEvidence(
   )
 }
 
-function errorText(error: unknown) {
+export function errorText(error: unknown) {
   return error instanceof Error ? error.message : String(error)
 }
 
-function assertNotCancelled(state: SessionState) {
+export function assertNotCancelled(state: SessionState) {
   if (state.cancellation) {
     throw new Error(state.cancellation)
   }
 }
 
-function incomplete(message: string, snapshot: PreferenceSnapshot | undefined) {
+export function incomplete(
+  message: string,
+  snapshot: PreferenceSnapshot | undefined,
+) {
   return {
     status: 'incomplete' as const,
     exitCode: 1,

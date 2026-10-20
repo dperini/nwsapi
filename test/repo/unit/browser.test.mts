@@ -72,19 +72,23 @@ test('installation prints the verified executable and CLI invokes the installer'
     process.argv = args
   }
 })
-test.each(['--help', '-h'])('CLI %s skips installation', async option => {
-  const args = process.argv
-  process.argv = [args[0]!, '/browser.mts', option]
-  state.main = true
-  vi.spyOn(console, 'log').mockImplementation(() => {})
-  const exit = vi.spyOn(process, 'exit').mockImplementation(() => {
-    throw new Error('exit')
+
+test('browser setup dry run lists the pinned installation paths', async () => {
+  const module = await import('../../../scripts/repo/browser.mts')
+  const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+  await module.main(['--dry-run', '--json'])
+  expect(JSON.parse(log.mock.calls[0]![0] as string)).toMatchObject({
+    type: 'preview',
+    command: 'setup/browser',
+    version: module.CHROME_VERSION,
+    cache: module.browserInstallOptions.cacheDir,
   })
-  try {
-    await expect(import('../../../scripts/repo/browser.mts')).rejects.toThrow()
-    expect(exit).toHaveBeenCalledWith(0)
-    expect(state.install).not.toHaveBeenCalled()
-  } finally {
-    process.argv = args
-  }
+  expect(state.install).not.toHaveBeenCalled()
+})
+test.each(['--help', '-h'])('CLI %s skips installation', async option => {
+  const module = await import('../../../scripts/repo/browser.mts')
+  const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+  await module.main([option])
+  expect(log).toHaveBeenCalledOnce()
+  expect(state.install).not.toHaveBeenCalled()
 })

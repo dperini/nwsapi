@@ -15,7 +15,7 @@ interface Candidate {
   metadata: WorktreeMetadata
 }
 
-function git(repository: string, args: string[]) {
+export function git(repository: string, args: string[]) {
   return execFileSync('git', args, {
     cwd: repository,
     encoding: 'utf8',
@@ -23,7 +23,7 @@ function git(repository: string, args: string[]) {
   }).trim()
 }
 
-function worktreeInventory(repository: string) {
+export function worktreeInventory(repository: string) {
   return parseWorktreeInventory(
     git(repository, ['worktree', 'list', '--porcelain']),
   )
@@ -69,7 +69,7 @@ export function candidatePathsMatch(
   )
 }
 
-async function findCandidates(
+export async function findCandidates(
   repository: string,
   temporaryRoot: string,
 ): Promise<Candidate[]> {
@@ -126,7 +126,7 @@ async function findCandidates(
   return candidates
 }
 
-function hasTarget(repository: string, target: string) {
+export function hasTarget(repository: string, target: string) {
   if (
     !/^[A-Za-z0-9._/-]+$/.test(target) ||
     target.startsWith('-') ||
@@ -145,7 +145,7 @@ function hasTarget(repository: string, target: string) {
   )
 }
 
-async function candidateReason(
+export async function candidateReason(
   repository: string,
   candidate: Candidate,
   inventory: ReturnType<typeof worktreeInventory>,
@@ -162,7 +162,7 @@ async function candidateReason(
   return ownershipReason(candidate)
 }
 
-function checkoutReason(
+export function checkoutReason(
   repository: string,
   candidate: Candidate,
   inventory: ReturnType<typeof worktreeInventory>,
@@ -197,7 +197,10 @@ function checkoutReason(
   return undefined
 }
 
-function integrationReason(repository: string, metadata: WorktreeMetadata) {
+export function integrationReason(
+  repository: string,
+  metadata: WorktreeMetadata,
+) {
   const status = git(metadata.path, [
     'status',
     '--porcelain=v1',
@@ -226,7 +229,7 @@ function integrationReason(repository: string, metadata: WorktreeMetadata) {
   return undefined
 }
 
-async function ownershipReason(candidate: Candidate) {
+export async function ownershipReason(candidate: Candidate) {
   const pulse = await inspectPulse(candidate.pulsePath)
   if (pulse.active) {
     return pulse.expired
@@ -254,7 +257,7 @@ async function ownershipReason(candidate: Candidate) {
   return undefined
 }
 
-async function removeCandidate(
+export async function removeCandidate(
   repository: string,
   candidate: Candidate,
   currentPath: string,
@@ -287,7 +290,7 @@ async function removeCandidate(
   }
 }
 
-async function finalRemovalReason(
+export async function finalRemovalReason(
   repository: string,
   candidate: Candidate,
   currentPath: string,
@@ -339,7 +342,7 @@ async function finalRemovalReason(
   return undefined
 }
 
-function metadataMatches(
+export function metadataMatches(
   previous: WorktreeMetadata,
   latest: WorktreeMetadata,
   branch: string,
@@ -361,7 +364,7 @@ function metadataMatches(
   )
 }
 
-function releaseMatches(metadata: WorktreeMetadata) {
+export function releaseMatches(metadata: WorktreeMetadata) {
   return (
     Boolean(metadata.leaseToken) &&
     metadata.releasedToken === metadata.leaseToken &&

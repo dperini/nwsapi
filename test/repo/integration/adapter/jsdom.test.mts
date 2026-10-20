@@ -11,9 +11,17 @@ const idlUtils = require('jsdom/lib/generated/idl/utils.js') as {
   implForWrapper(node: Node): object
   wrapperForImpl(node: unknown): Node
 }
-const {
-  domSymbolTree,
-} = require('jsdom/lib/jsdom/living/helpers/internal-constants.js')
+const domSymbolTree = {
+  parent(node: Node) {
+    return (node as Node & { parentNode: Node | null }).parentNode
+  },
+  nextSibling(node: Node) {
+    return (node as Node & { nextSibling: Node | null }).nextSibling
+  },
+  previousSibling(node: Node) {
+    return (node as Node & { previousSibling: Node | null }).previousSibling
+  },
+}
 
 for (const contentType of ['text/html', 'application/xml']) {
   test(`supplied host helpers preserve duplicate IDs in ${contentType}`, t => {

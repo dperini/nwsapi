@@ -21,13 +21,13 @@ interface Confirmation {
   ruleTraces: TraceRow[]
 }
 
-function load(directory: string, host: string): Confirmation {
+export function load(directory: string, host: string): Confirmation {
   return JSON.parse(
     readFileSync(path.join(directory, `${host}.json`), 'utf8'),
   ) as Confirmation
 }
 
-function routeMap(rows: TraceRow[]) {
+export function routeMap(rows: TraceRow[]) {
   const entries = new Map(
     rows.map(row => [row.id, row.traces.map(trace => trace.route)]),
   )
@@ -35,7 +35,7 @@ function routeMap(rows: TraceRow[]) {
   return entries
 }
 
-function groupComparison(
+export function groupComparison(
   data: Confirmation,
   group: string,
   feature?: { index: number; value: number },
@@ -69,7 +69,7 @@ function groupComparison(
   }
 }
 
-function evaluationSlices(first: Confirmation, repeat: Confirmation) {
+export function evaluationSlices(first: Confirmation, repeat: Confirmation) {
   const slices: Record<string, unknown> = {}
   for (const [name, index] of [
     ['anchors', 0],

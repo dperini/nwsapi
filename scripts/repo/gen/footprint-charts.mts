@@ -32,7 +32,7 @@ if (!memory.metadata.runtime?.startsWith('Chromium')) {
   throw new Error('Memory marketing requires standalone browser measurements.')
 }
 
-function render(
+export function render(
   title: string,
   names: string[],
   groups: Array<{ label: string; values: number[] }>,

@@ -119,11 +119,11 @@ for (let round = 0; round < rounds; round++) {
   }
   console.log(`Completed round ${round + 1}/${rounds}`)
 }
-const median = (samples: number[]) =>
+export const median = (samples: number[]) =>
   samples.toSorted((a: number, b: number) => a - b)[
     Math.floor(samples.length / 2)
   ]
-const hash = (data: string | Buffer) =>
+export const hash = (data: string | Buffer) =>
   createHash('sha256').update(data).digest('hex')
 writeFileSync(
   values.output,

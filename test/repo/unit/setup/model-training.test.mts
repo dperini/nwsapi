@@ -21,7 +21,11 @@ vi.mock('../../../../scripts/repo/external-tools.mts', () => ({
 vi.mock('../../../../scripts/repo/setup/install.mts', () => ({
   installTool: state.install,
 }))
-import { setupModelTraining } from '../../../../scripts/repo/setup/model-training.mts'
+import {
+  main,
+  modelTrainingPlan,
+  setupModelTraining,
+} from '../../../../scripts/repo/setup/model-training.mts'
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -56,6 +60,22 @@ test('training setup synchronizes the pinned project and verifies PyTorch', asyn
 test('a mismatching trainer version fails setup', async () => {
   state.checked.mockReturnValue('0.0.0')
   await expect(setupModelTraining()).rejects.toBeInstanceOf(Error)
+})
+test('model training dry run lists its checkout environment without installing', async () => {
+  const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+  await main(['--dry-run', '--json'])
+  expect(JSON.parse(log.mock.calls[0]![0] as string)).toMatchObject({
+    type: 'preview',
+    command: 'setup/model-training',
+    targets: expect.arrayContaining([
+      expect.stringContaining('.cache/uv'),
+      expect.stringContaining('.venv'),
+    ]),
+  })
+  expect(modelTrainingPlan('/checkout').targets).toContain(
+    '/checkout/.cache/uv',
+  )
+  expect(state.install).not.toHaveBeenCalled()
 })
 test('CLI runs the same pinned setup', async () => {
   vi.resetModules()

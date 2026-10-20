@@ -19,7 +19,7 @@ test('integration fixtures allow loopback fetch bodies while external HTTP remai
     })
     expect(await response.text()).toBe('fixture body')
     await expect(fetch('https://unmocked.invalid/')).rejects.toMatchObject({
-      code: 'ENETUNREACH',
+      cause: { code: 'ERR_TEST_NETWORK_BLOCKED' },
     })
   } finally {
     await new Promise<void>((resolve, reject) =>

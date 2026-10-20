@@ -74,7 +74,7 @@ const heap: [number, number] = [
   memory.rows[1]!.queried.median,
 ]
 const bytes: [number, number] = [sizes.rows[0]!.brotli, sizes.rows[1]!.brotli]
-const reduction = (values: [number, number], labels: [string, string]) =>
+export const reduction = (values: [number, number], labels: [string, string]) =>
   `${(Math.abs(1 - values[0] / values[1]) * 100).toFixed(1)}% ${labels[values[0] <= values[1] ? 0 : 1]}`
 writeFileSync(
   new URL('assets/repo/bench/perf-hero.svg', root),

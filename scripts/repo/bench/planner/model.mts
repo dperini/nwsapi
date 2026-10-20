@@ -17,7 +17,7 @@ export type Tree =
   | { broad: boolean }
   | { feature: number; threshold: number; left: Tree; right: Tree }
 
-function leaf(rows: Observation[]) {
+export function leaf(rows: Observation[]) {
   const costs: [number, number] = [0, 0]
   for (const row of rows) {
     const best = Math.min(...row.costs)

@@ -15,18 +15,18 @@ interface OracleResult {
   currentInputEmpiricalSpeedRatio: number
 }
 
-function read(directory: string, file: string): unknown {
+export function read(directory: string, file: string): unknown {
   return JSON.parse(readFileSync(path.join(directory, file), 'utf8'))
 }
 
-function escape(value: string) {
+export function escape(value: string) {
   return value
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
 }
 
-function chart(
+export function chart(
   title: string,
   rows: Array<{ label: string; value: number }>,
   unit: string,
@@ -37,7 +37,7 @@ function chart(
     <div class="chart">${rows.map((row, i) => `<div class="row"><span>${escape(row.label)}</span><div class="track"><div class="bar ${i === 0 ? 'base' : ''}" style="width:${(row.value / max) * 100}%"></div></div><strong>${row.value.toFixed(1)}${unit}</strong></div>`).join('')}</div><p class="context">${escape(context)}</p></section>`
 }
 
-function measuredChart(data: Timings, host: string) {
+export function measuredChart(data: Timings, host: string) {
   const names = ['Current v3', 'Simple prefix rule', 'Trained neural policy']
   const rows = names.map((label, index) => ({
     label,

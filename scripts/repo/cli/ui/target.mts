@@ -6,7 +6,7 @@ export type OpenTuiTarget = {
 
 type RuntimeReport = Pick<typeof process.report, 'getReport'>
 
-function detectLinuxLibc(env: NodeJS.ProcessEnv, report: RuntimeReport) {
+export function detectLinuxLibc(env: NodeJS.ProcessEnv, report: RuntimeReport) {
   const override = env['OPENTUI_LIBC']
   if (override === 'glibc' || override === 'musl') {
     return override

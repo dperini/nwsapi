@@ -34,7 +34,7 @@ export async function main(args = process.argv.slice(2)) {
   return result.status
 }
 
-async function chooseAction() {
+export async function chooseAction() {
   if (!stdin.isTTY || !stdout.isTTY) {
     console.log(
       `VoiceOver is ${voiceOverState()}. Use --start or --stop for an explicit action. Command-F5 is the macOS emergency toggle.`,

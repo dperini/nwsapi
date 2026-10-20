@@ -19,7 +19,7 @@ const factories: Array<typeof Adapter> = [
   require(ADAPTER_BUILD_PATH),
 ]
 const rows = []
-function populate(Constructor: typeof Adapter) {
+export function populate(Constructor: typeof Adapter) {
   const { window } = new JSDOM('<body></body>')
   try {
     const document = window.document

@@ -164,7 +164,7 @@ if (isMainModule(import.meta.url)) {
   )
 }
 
-async function measureJsdom(entry: Case, sources: string[]) {
+export async function measureJsdom(entry: Case, sources: string[]) {
   const factories = sources.map(source => {
     const module = { exports: {} }
     compileFunction(source, ['module', 'exports', 'require'])(
@@ -207,7 +207,7 @@ async function measureJsdom(entry: Case, sources: string[]) {
   }
 }
 
-async function measureChromium(
+export async function measureChromium(
   browser: Awaited<ReturnType<typeof chromium.launch>>,
   entry: Case,
   sources: string[],

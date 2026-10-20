@@ -25,7 +25,7 @@ export function comparableCosts(row: TrainingRow) {
   ] as number[]
 }
 
-function featureKey(row: TrainingRow) {
+export function featureKey(row: TrainingRow) {
   return JSON.stringify([
     row.host,
     row.decisionReached,
@@ -34,7 +34,7 @@ function featureKey(row: TrainingRow) {
   ])
 }
 
-function groupsByFeatures(rows: TrainingRow[]) {
+export function groupsByFeatures(rows: TrainingRow[]) {
   const groups = new Map<string, TrainingRow[]>()
   for (const row of rows) {
     const key = featureKey(row)

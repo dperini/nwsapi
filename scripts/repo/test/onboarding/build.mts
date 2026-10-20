@@ -7,14 +7,14 @@ export type BuildInventory = (
   checkout: string,
 ) => Promise<Array<{ output: string }>>
 
-async function targetBuildInventory(checkout: string) {
+export async function targetBuildInventory(checkout: string) {
   const { buildRequiredFiles } = await import(
     pathToFileURL(path.join(checkout, 'scripts/repo/setup/build.mts')).href
   )
   return buildRequiredFiles() as Array<{ output: string }>
 }
 
-async function exists(target: string) {
+export async function exists(target: string) {
   try {
     await access(target)
     return true

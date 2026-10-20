@@ -8,7 +8,7 @@ import { convert } from 'ast-v8-to-istanbul'
 import libCoverage from 'istanbul-lib-coverage'
 import { normalizeCoverageLocations } from '../../lib/coverage/normalize.mts'
 
-function source(file: string) {
+export function source(file: string) {
   const original = readFileSync(file, 'utf8')
   const code = file.endsWith('.mts') ? stripTypeScriptTypes(original) : original
   return {

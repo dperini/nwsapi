@@ -80,7 +80,7 @@ export function updateDependencies(
   }
 }
 
-function runTaze(entry: string, args: string[], retry = true): void {
+export function runTaze(entry: string, args: string[], retry = true): void {
   const result = spawnSync(process.execPath, [entry, ...args], {
     cwd: REPO_ROOT,
     stdio: ['inherit', 'pipe', 'pipe'],
@@ -106,7 +106,7 @@ function runTaze(entry: string, args: string[], retry = true): void {
   }
 }
 
-function installDependencies() {
+export function installDependencies() {
   runManagedManager('pnpm', ['install', '--no-frozen-lockfile'])
   refreshNpmLock()
 }
@@ -134,7 +134,7 @@ export function refreshNpmLock(root = REPO_ROOT, run = runManagedManager) {
   }
 }
 
-function runManagedManager(
+export function runManagedManager(
   manager: 'pnpm' | 'npm',
   args: string[],
   cwd = REPO_ROOT,

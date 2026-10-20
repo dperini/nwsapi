@@ -13,7 +13,7 @@ import {
 } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
 
-function treePaths(directory: string): string[] {
+export function treePaths(directory: string): string[] {
   const paths: string[] = []
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const absolutePath = path.join(directory, entry.name)

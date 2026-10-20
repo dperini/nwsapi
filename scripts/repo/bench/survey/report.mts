@@ -11,7 +11,7 @@ const output = path.join(
   'assets/repo/bench/survey-2026-10-03/index.html',
 )
 
-function render() {
+export function render() {
   const revision = execFileSync('git', ['rev-parse', 'HEAD'], {
     cwd: REPO_ROOT,
     encoding: 'utf8',

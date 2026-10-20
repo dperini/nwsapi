@@ -29,7 +29,7 @@ export function replaceCacheLimit(source: string, limit: number) {
   )
 }
 
-function cacheLimitLiteral(node: Record<string, unknown>) {
+export function cacheLimitLiteral(node: Record<string, unknown>) {
   const property = node['type'] === 'Property'
   const id = (property ? node['key'] : node['id']) as
     | { name?: string; value?: string }

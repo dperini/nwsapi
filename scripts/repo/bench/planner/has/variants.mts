@@ -21,7 +21,7 @@ export function baselinePath() {
   return process.env['NWSAPI_PLANNER_BASELINE'] || ENGINE_BUILD_PATH
 }
 
-function source() {
+export function source() {
   const code = readFileSync(baselinePath(), 'utf8')
   functionSource(code, 'selectBulkHas')
   functionSource(code, 'shouldDeclineBulkHas')

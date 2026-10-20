@@ -10,7 +10,7 @@ export interface Task {
   args: string[]
 }
 
-function files(directory: string, kind: TaskKind): string[] {
+export function files(directory: string, kind: TaskKind): string[] {
   const found: string[] = []
   for (const item of readdirSync(directory, { withFileTypes: true })) {
     const entry = path.join(directory, item.name)
@@ -23,7 +23,7 @@ function files(directory: string, kind: TaskKind): string[] {
   return found
 }
 
-function packageTask(
+export function packageTask(
   name: string,
   command: string,
   kind: TaskKind,

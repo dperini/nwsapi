@@ -43,7 +43,7 @@ if (values.workers !== undefined) {
 }
 
 const raw = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-wpt-coverage-'))
-const run = (entry: string, args: string[], env = process.env) =>
+export const run = (entry: string, args: string[], env = process.env) =>
   execFileSync(process.execPath, [entry, ...args], {
     cwd: REPO_ROOT,
     stdio: 'inherit',

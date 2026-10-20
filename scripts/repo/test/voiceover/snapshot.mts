@@ -123,7 +123,10 @@ export async function restorePreferenceSnapshot(
   }
 }
 
-async function readNode(file: string, local: boolean): Promise<PreferenceNode> {
+export async function readNode(
+  file: string,
+  local: boolean,
+): Promise<PreferenceNode> {
   let info
   try {
     info = await lstat(file)
@@ -157,7 +160,7 @@ async function readNode(file: string, local: boolean): Promise<PreferenceNode> {
   }
 }
 
-async function restoreNode(node: PreferenceNode) {
+export async function restoreNode(node: PreferenceNode) {
   if (node.kind === 'missing') {
     await rm(node.path, { recursive: false, force: true })
     return
@@ -178,7 +181,7 @@ async function restoreNode(node: PreferenceNode) {
   await rename(temporary, node.path)
 }
 
-async function verifyNode(node: PreferenceNode) {
+export async function verifyNode(node: PreferenceNode) {
   const current = await readNode(node.path, false)
   if (JSON.stringify(current) !== JSON.stringify(node)) {
     throw new Error(
@@ -187,7 +190,10 @@ async function verifyNode(node: PreferenceNode) {
   }
 }
 
-async function writeManifest(root: string, snapshot: PreferenceSnapshot) {
+export async function writeManifest(
+  root: string,
+  snapshot: PreferenceSnapshot,
+) {
   const file = path.join(root, 'snapshot.json')
   const temporary = path.join(root, `snapshot-${randomUUID()}.tmp`)
   await writeFile(temporary, JSON.stringify(snapshot), {
@@ -197,7 +203,7 @@ async function writeManifest(root: string, snapshot: PreferenceSnapshot) {
   await rename(temporary, file)
 }
 
-function validateSnapshot(
+export function validateSnapshot(
   snapshot: PreferenceSnapshot,
   expectedRoot: string,
   identity: SnapshotIdentity,
@@ -220,7 +226,7 @@ function validateSnapshot(
   }
 }
 
-function validateNode(
+export function validateNode(
   node: PreferenceNode,
   expectedPath: string,
   local: boolean,

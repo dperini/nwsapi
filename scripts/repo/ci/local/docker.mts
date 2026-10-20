@@ -29,7 +29,7 @@ export function runLocalCiCommand(
 
 const run: Run = runLocalCiCommand
 
-function appExists(name: 'OrbStack' | 'Docker') {
+export function appExists(name: 'OrbStack' | 'Docker') {
   const app = `${name}.app`
   return [
     path.join('/Applications', app),
@@ -37,11 +37,11 @@ function appExists(name: 'OrbStack' | 'Docker') {
   ].some(existsSync)
 }
 
-function dockerWorks(execute: Run) {
+export function dockerWorks(execute: Run) {
   return execute('docker', ['info'], 'ignore') === 0
 }
 
-function installMacRuntime(execute: Run, hasApp: AppExists) {
+export function installMacRuntime(execute: Run, hasApp: AppExists) {
   if (hasApp('OrbStack')) {
     console.log('OrbStack is installed. Starting it…')
   } else if (hasApp('Docker')) {
@@ -58,7 +58,7 @@ function installMacRuntime(execute: Run, hasApp: AppExists) {
   return execute('open', ['-a', 'OrbStack'])
 }
 
-function installLinuxRuntime(execute: Run) {
+export function installLinuxRuntime(execute: Run) {
   console.log('Installing Docker Engine with Docker’s official installer…')
   if (execute('sh', ['-c', 'curl -fsSL https://get.docker.com | sh']) !== 0) {
     throw new Error(
@@ -67,7 +67,7 @@ function installLinuxRuntime(execute: Run) {
   }
 }
 
-function installWindowsRuntime(execute: Run) {
+export function installWindowsRuntime(execute: Run) {
   console.log('Installing Docker Desktop with winget…')
   const status = execute('winget', [
     'install',
@@ -126,7 +126,7 @@ export async function ensureLocalCiDockerAvailable(
   )
 }
 
-function delay(milliseconds: number) {
+export function delay(milliseconds: number) {
   return new Promise<void>(resolve => setTimeout(resolve, milliseconds))
 }
 

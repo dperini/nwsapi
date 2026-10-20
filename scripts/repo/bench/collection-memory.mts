@@ -18,7 +18,7 @@ window.MutationObserver = class extends NativeObserver {
   }
 }
 
-function populate() {
+export function populate() {
   for (let i = 0; i < 20; ++i) {
     const engine = factory(window)
     const context = document.createElement('section')

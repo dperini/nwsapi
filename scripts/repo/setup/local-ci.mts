@@ -16,7 +16,7 @@ export function localCiStatus(
   }
 }
 
-function localCiDockerGuidance(platform: NodeJS.Platform) {
+export function localCiDockerGuidance(platform: NodeJS.Platform) {
   if (platform === 'darwin') {
     return 'macOS setup checks OrbStack and Docker first, then installs OrbStack if neither is available.'
   }
@@ -26,7 +26,7 @@ function localCiDockerGuidance(platform: NodeJS.Platform) {
   return 'Linux setup checks Docker first, then installs Docker Engine with Docker’s official installer if it is unavailable.'
 }
 
-function taskStatus(readiness: CheckoutReadiness) {
+export function taskStatus(readiness: CheckoutReadiness) {
   const issues: string[] = []
   if (!readiness.tools.ready) {
     issues.push('Pinned checkout tools are not ready.')

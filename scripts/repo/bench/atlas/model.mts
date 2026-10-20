@@ -40,7 +40,7 @@ export function readReport(json: string): Report {
   return report
 }
 
-function validateRow(row: Measurement) {
+export function validateRow(row: Measurement) {
   if (
     typeof row.category !== 'string' ||
     typeof row.selector !== 'string' ||
@@ -66,7 +66,7 @@ function validateRow(row: Measurement) {
   }
 }
 
-function validateSamples(samples: number[] | undefined) {
+export function validateSamples(samples: number[] | undefined) {
   if (
     samples &&
     samples.some(sample => !Number.isFinite(sample) || sample <= 0)

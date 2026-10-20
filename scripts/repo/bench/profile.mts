@@ -53,7 +53,7 @@ const worlds = Object.entries(cases)
     return { window, engine, doc, nodes, queries }
   })
 let consumed = 0
-function run(iterations: number) {
+export function run(iterations: number) {
   for (const { engine, doc, nodes, queries } of worlds) {
     for (let i = 0; i < iterations; ++i) {
       for (const { selector, resolve } of queries) {

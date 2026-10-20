@@ -14,7 +14,7 @@ export interface ScriptEntrypoint {
   help: boolean
 }
 
-function walk(node: LooseNode, visit: (node: LooseNode) => void) {
+export function walk(node: LooseNode, visit: (node: LooseNode) => void) {
   visit(node)
   for (const value of Object.values(node)) {
     if (Array.isArray(value)) {
@@ -29,7 +29,7 @@ function walk(node: LooseNode, visit: (node: LooseNode) => void) {
   }
 }
 
-function staticName(node: unknown) {
+export function staticName(node: unknown) {
   if (!node || typeof node !== 'object') {
     return undefined
   }
@@ -77,7 +77,38 @@ export function inspectEntrypointSource(source: string) {
   return { guarded, help }
 }
 
-function quotedCharacter(command: string, index: number, quote: string) {
+export function unexportedTopLevelFunctions(source: string) {
+  const ast = parse(source, {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+    typescript: true,
+  }) as unknown as LooseNode
+  const body = ast['body'] as LooseNode[] | undefined
+  return (body ?? []).flatMap(node => {
+    if (node.type === 'FunctionDeclaration') {
+      const id = node['id'] as LooseNode | undefined
+      return [staticName(id) ?? '<anonymous>']
+    }
+    if (node.type === 'VariableDeclaration') {
+      const declarations = node['declarations'] as LooseNode[] | undefined
+      return (declarations ?? [])
+        .filter(declaration => {
+          const init = declaration['init'] as LooseNode | undefined
+          return (
+            init?.type === 'ArrowFunctionExpression' ||
+            init?.type === 'FunctionExpression'
+          )
+        })
+        .map(declaration => {
+          const id = declaration['id'] as LooseNode | undefined
+          return staticName(id) ?? '<anonymous>'
+        })
+    }
+    return []
+  })
+}
+
+export function quotedCharacter(command: string, index: number, quote: string) {
   const char = command[index]!
   if (char === quote) {
     return { char: '', index, quote: '' }
@@ -88,7 +119,7 @@ function quotedCharacter(command: string, index: number, quote: string) {
   return { char, index, quote }
 }
 
-function shellWords(command: string) {
+export function shellWords(command: string) {
   const words: string[] = []
   let quote = ''
   let word = ''
@@ -133,7 +164,7 @@ export function runnerTargets(command: string) {
   return targets
 }
 
-function scriptFiles(directory: string): string[] {
+export function scriptFiles(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
     const file = path.join(directory, entry.name)
     if (entry.isDirectory()) {
@@ -143,7 +174,7 @@ function scriptFiles(directory: string): string[] {
   })
 }
 
-function recordPackageTarget(
+export function recordPackageTarget(
   root: string,
   name: string,
   target: string,
@@ -164,12 +195,19 @@ function recordPackageTarget(
   }
 }
 
-function guardedFiles(root: string, errors: string[]) {
+export function guardedFiles(root: string, errors: string[]) {
   const files: string[] = []
-  for (const absolute of scriptFiles(path.join(root, 'scripts/repo'))) {
+  for (const absolute of scriptFiles(path.join(root, 'scripts'))) {
     const relative = normalizePath(path.relative(root, absolute))
     try {
-      if (inspectEntrypointSource(readFileSync(absolute, 'utf8')).guarded) {
+      const source = readFileSync(absolute, 'utf8')
+      const privateFunctions = unexportedTopLevelFunctions(source)
+      if (privateFunctions.length) {
+        errors.push(
+          `${relative}: export top-level functions for direct testing: ${privateFunctions.join(', ')}`,
+        )
+      }
+      if (inspectEntrypointSource(source).guarded) {
         files.push(relative)
       }
     } catch (error) {

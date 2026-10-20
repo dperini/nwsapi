@@ -175,7 +175,7 @@ export async function runVoiceOverWorker(
   }
 }
 
-async function verifyPage(
+export async function verifyPage(
   page: NarrationPage,
   url: string,
   adapters: WorkerAdapters,
@@ -192,7 +192,7 @@ async function verifyPage(
   }
 }
 
-async function openPage(
+export async function openPage(
   url: string,
   onBrowserStarted: (pid: number) => void,
   onBrowserClosed: (pid: number) => void,
@@ -328,12 +328,12 @@ export async function closeOwnedBrowser(
   onBrowserClosed(processId)
 }
 
-async function loadVoiceOver(): Promise<VoiceOverDriver> {
+export async function loadVoiceOver(): Promise<VoiceOverDriver> {
   const module = await import('@guidepup/guidepup')
   return module.voiceOver as unknown as VoiceOverDriver
 }
 
-function isOwnedBrowserFrontmost(processId: number) {
+export function isOwnedBrowserFrontmost(processId: number) {
   if (processId <= 0) {
     return Promise.resolve(false)
   }
@@ -354,11 +354,11 @@ function isOwnedBrowserFrontmost(processId: number) {
   })
 }
 
-function writeMessage(value: unknown) {
+export function writeMessage(value: unknown) {
   process.stdout.write(`${JSON.stringify(value)}\n`)
 }
 
-async function main(args = process.argv.slice(2)) {
+export async function main(args = process.argv.slice(2)) {
   const urlIndex = args.indexOf('--url')
   const url = urlIndex >= 0 ? args[urlIndex + 1] : undefined
   const nonceIndex = args.indexOf('--nonce')
@@ -406,7 +406,10 @@ async function main(args = process.argv.slice(2)) {
   return result.status
 }
 
-async function nextControlLine(lines: AsyncIterator<string>, timeout: number) {
+export async function nextControlLine(
+  lines: AsyncIterator<string>,
+  timeout: number,
+) {
   let timer: ReturnType<typeof setTimeout> | undefined
   try {
     const result = await Promise.race([

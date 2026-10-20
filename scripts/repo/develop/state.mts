@@ -112,7 +112,7 @@ export function writeDeveloperState(
   return state
 }
 
-function validState(
+export function validState(
   value: unknown,
   taskIds: readonly string[],
 ): value is DeveloperState {

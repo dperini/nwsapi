@@ -24,7 +24,7 @@ import {
  * Checkout paths in .gitmodules are resolved against it. This lets the tool
  * run from repo subdirectories and against copies of .gitmodules elsewhere.
  */
-function findRoot() {
+export function findRoot() {
   let dir = process.cwd()
   for (;;) {
     if (existsSync(path.join(dir, '.gitmodules'))) {
@@ -129,7 +129,7 @@ export function tryGitText(cwd: string, args: string[]) {
   }
 }
 
-function manifestSha256(dir: string, ref: string) {
+export function manifestSha256(dir: string, ref: string) {
   const stdout = git(dir, [
     '-C',
     dir,
@@ -143,7 +143,7 @@ function manifestSha256(dir: string, ref: string) {
 }
 
 // oxlint-disable-next-line eslint/complexity -- Report each checkout invariant in one diagnostic result.
-function verifyEntry(entry: Entry) {
+export function verifyEntry(entry: Entry) {
   const dir = checkoutDir(entry)
   const checks: Array<{ name: string; ok: boolean; detail: string }> = []
   const record = (name: string, ok: boolean, detail: string) => {
@@ -291,7 +291,7 @@ function verifyEntry(entry: Entry) {
  * keep the `verify` key a simple "<command> <arg>..." like
  * "pnpm run test:wpt".
  */
-function deepVerifyEntry(entry: Entry) {
+export function deepVerifyEntry(entry: Entry) {
   const label = 'deep verify'.padEnd(16)
   if (!entry.verifyCommand) {
     console.log(`  SKIP  ${label} no "verify" key in .gitmodules`)
@@ -316,7 +316,7 @@ function deepVerifyEntry(entry: Entry) {
   return true
 }
 
-function restoreSparseEntry(entry: Entry) {
+export function restoreSparseEntry(entry: Entry) {
   const dir = checkoutDir(entry)
   if (!existsSync(dir) || !isGitRepo(dir)) {
     throw new Error(`${entry.path}: no checkout to restore; run clone first`)
@@ -328,7 +328,7 @@ function restoreSparseEntry(entry: Entry) {
   )
 }
 
-function main() {
+export function main() {
   const { values, positionals } = parseArgs({
     args: process.argv.slice(2),
     options: {

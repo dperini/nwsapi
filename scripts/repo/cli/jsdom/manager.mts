@@ -35,7 +35,7 @@ export function installWithExecutor(
   run(execute, request.manager, installArgs(request.manager), request)
 }
 
-function activeManagerScript(
+export function activeManagerScript(
   request: PackageInstallRequest,
 ): string | undefined {
   const agent = request.env['npm_config_user_agent']?.trim()
@@ -53,11 +53,11 @@ function activeManagerScript(
   return matches ? execPath : undefined
 }
 
-function installArgs(manager: JsdomPackageManager): string[] {
+export function installArgs(manager: JsdomPackageManager): string[] {
   return manager === 'pnpm' ? ['install', '--no-frozen-lockfile'] : ['install']
 }
 
-function run(
+export function run(
   execute: PackageCommandExecutor,
   command: string,
   args: string[],

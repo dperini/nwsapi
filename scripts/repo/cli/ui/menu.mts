@@ -25,7 +25,7 @@ const ACTIONS: readonly InteractiveAction[] = interactiveActions
 const MINIMUM_WIDTH = 80
 const MINIMUM_HEIGHT = 24
 
-function createMenu(renderer: CliRenderer, selectedIndex: number) {
+export function createMenu(renderer: CliRenderer, selectedIndex: number) {
   const panel = new BoxRenderable(renderer, {
     width: '100%',
     height: '100%',
@@ -107,7 +107,7 @@ function createMenu(renderer: CliRenderer, selectedIndex: number) {
   return list
 }
 
-async function chooseAction() {
+export async function chooseAction() {
   let finish: (value: number | undefined) => void = () => {}
   let terminatedSignal: NodeJS.Signals | undefined
   let fail: (error: Error) => void = () => {}
@@ -171,7 +171,7 @@ async function chooseAction() {
   }
 }
 
-async function readSelector() {
+export async function readSelector() {
   const prompt = createInterface({
     input: process.stdin,
     output: process.stdout,

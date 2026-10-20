@@ -19,7 +19,7 @@ const COLORS = {
   details: '#cceadf',
 }
 
-function optionName(index: number, state: MenuState) {
+export function optionName(index: number, state: MenuState) {
   const task = TASKS[index]!
   const status = state.readiness?.[task.script]
   const readiness = status
@@ -34,7 +34,7 @@ const OPTION_LABEL_WIDTH = Math.max(
   ...TASKS.map((task, index) => `${index + 1}. ${task.name}`.length),
 )
 
-function alignedOptionName(
+export function alignedOptionName(
   index: number,
   state: MenuState,
   alignStatus: boolean,

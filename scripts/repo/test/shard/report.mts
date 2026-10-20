@@ -105,7 +105,7 @@ export function verifyUnitShardEnvelopes(
   }
 }
 
-function assertShardTiming(envelope: UnitShardEnvelope) {
+export function assertShardTiming(envelope: UnitShardEnvelope) {
   const startedAt = Date.parse(envelope.startedAt)
   const finishedAt = Date.parse(envelope.finishedAt)
   if (
@@ -121,7 +121,10 @@ function assertShardTiming(envelope: UnitShardEnvelope) {
   }
 }
 
-function assertShardMetadata(envelope: UnitShardEnvelope, shardCount: number) {
+export function assertShardMetadata(
+  envelope: UnitShardEnvelope,
+  shardCount: number,
+) {
   if (
     envelope.schemaVersion !== 1 ||
     envelope.shardCount !== shardCount ||
@@ -133,7 +136,7 @@ function assertShardMetadata(envelope: UnitShardEnvelope, shardCount: number) {
   }
 }
 
-function assertShardIdentity(
+export function assertShardIdentity(
   envelope: UnitShardEnvelope,
   identity: UnitShardIdentity,
 ) {
@@ -149,7 +152,9 @@ function assertShardIdentity(
   }
 }
 
-function assertShardPassed(envelope: UnitShardEnvelope): VitestShardReport {
+export function assertShardPassed(
+  envelope: UnitShardEnvelope,
+): VitestShardReport {
   const report = envelope.report
   if (
     envelope.exitCode !== 0 ||
@@ -175,7 +180,7 @@ function assertShardPassed(envelope: UnitShardEnvelope): VitestShardReport {
   return report
 }
 
-function recordSuites(
+export function recordSuites(
   envelope: UnitShardEnvelope,
   observed: Map<string, number>,
 ) {
@@ -197,7 +202,7 @@ function recordSuites(
   }
 }
 
-function assertAllShardsPresent(
+export function assertAllShardsPresent(
   byShard: Map<number, UnitShardEnvelope>,
   shardCount: number,
 ) {
@@ -212,7 +217,7 @@ function assertAllShardsPresent(
   }
 }
 
-function assertCompleteInventory(
+export function assertCompleteInventory(
   observed: Map<string, number>,
   expectedFiles: readonly string[],
 ) {

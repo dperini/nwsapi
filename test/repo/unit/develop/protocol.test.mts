@@ -1,6 +1,7 @@
 import { afterEach, expect, test, vi } from 'vitest'
 import { TASKS } from '../../../../scripts/repo/develop/actions.mts'
 import {
+  developerDescription,
   parseOptions,
   printJsonTasks,
   runTask,
@@ -45,9 +46,21 @@ test.each([
   ['--plain', '--task', 'setup'],
   ['--other'],
   ['setup'],
+  ['--dry-run'],
+  ['--dry-run', '--task', 'review'],
+  ['--describe', '--list'],
 ])('invalid arguments never execute: %j', (...args) => {
   expect(() => parseOptions(args)).toThrow()
   expect(execute).not.toHaveBeenCalled()
+})
+
+test('description lists task contracts and only exposes setup preview', () => {
+  const description = developerDescription()
+  expect(description.options).toEqual(['--json', '--describe', '--dry-run'])
+  expect(description.tasks).toHaveLength(TASKS.length)
+  expect(description.tasks.filter(task => task.changes === 'declared')).toEqual(
+    [expect.objectContaining({ id: 'setup' })],
+  )
 })
 
 test.each([

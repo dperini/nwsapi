@@ -11,7 +11,7 @@ interface Bounds {
   chosen: { categoricalPairs: number[][] }
 }
 
-function supported(row: TrainingRow, bounds: Bounds) {
+export function supported(row: TrainingRow, bounds: Bounds) {
   if (!row.decisionReached || !row.routeFacts) {
     return false
   }
@@ -30,7 +30,10 @@ function supported(row: TrainingRow, bounds: Bounds) {
   )
 }
 
-function ceiling(rows: TrainingRow[], allow: (row: TrainingRow) => boolean) {
+export function ceiling(
+  rows: TrainingRow[],
+  allow: (row: TrainingRow) => boolean,
+) {
   let logSpeed = 0
   let baseline = 0
   let selected = 0

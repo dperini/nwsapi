@@ -26,7 +26,7 @@ export interface Row {
 export const settings = { rounds: 7, milliseconds: 12, batch: 16 }
 type Factory = (window: unknown) => NwsapiEngine
 
-function compile(source: string): Factory {
+export function compile(source: string): Factory {
   const module = { exports: {} }
   compileFunction(source, ['module', 'exports', 'require'])(
     module,
@@ -66,7 +66,7 @@ export function assertRoutes(entries: Fixture[], source = probeSource()) {
   }
 }
 
-function features(doc: Document, tags: string[]): Features {
+export function features(doc: Document, tags: string[]): Features {
   const count = tags.reduce(
     (sum, tag) => sum + doc.getElementsByTagName(tag).length,
     0,
@@ -170,7 +170,7 @@ export async function measureBrowser(entries: Fixture[], sources: string[]) {
   }
 }
 
-async function nativeRow(page: Page, fixture: Fixture) {
+export async function nativeRow(page: Page, fixture: Fixture) {
   return page.evaluate(
     ({ entry, timing }) => {
       if (!crossOriginIsolated) {

@@ -48,7 +48,7 @@ type NarrationOptions = {
   align?: typeof loadNarrationAligner
 }
 
-function hash(value: Uint8Array) {
+export function hash(value: Uint8Array) {
   return createHash('sha256').update(value).digest('hex')
 }
 
@@ -96,7 +96,7 @@ export async function prepareNarrationModel(
   }
 }
 
-function validateSegment(segment: NarrationSegment) {
+export function validateSegment(segment: NarrationSegment) {
   const speed = segment.speed ?? transcript.speed
   if (!segment.text.trim() || segment.text.length > 240) {
     throw Object.assign(
@@ -163,7 +163,7 @@ export function narrationSpeech(text: string) {
   return pronounceNarration(text)
 }
 
-function publishNarration(source: string, target: string) {
+export function publishNarration(source: string, target: string) {
   const temporary = target + '.tmp'
   try {
     copyFileSync(source, temporary)
@@ -173,7 +173,9 @@ function publishNarration(source: string, target: string) {
   }
 }
 
-async function loadSpeechEngine(directory: string): Promise<SpeechEngine> {
+export async function loadSpeechEngine(
+  directory: string,
+): Promise<SpeechEngine> {
   const { KokoroTTS } = await import('kokoro-js')
   const engine = await KokoroTTS.from_pretrained(directory, {
     dtype: 'fp32',

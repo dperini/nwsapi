@@ -5,6 +5,7 @@ import { normalizePath } from '../../../../../scripts/repo/lib/paths.mts'
 import {
   setupVoiceOver,
   main,
+  voiceOverSetupPlan,
 } from '../../../../../scripts/repo/setup/voiceover/run.mts'
 import type { VoiceOverPreflight } from '../../../../../scripts/repo/setup/voiceover/preflight.mts'
 import type { VoiceOverRun } from '../../../../../scripts/repo/setup/voiceover/run.mts'
@@ -263,6 +264,28 @@ test('optional-only help never probes settings or starts configuration', async (
   const run = vi.fn<VoiceOverRun>()
   const result = await main(['--help'], { probe, run, log: vi.fn() })
   expect(result.status).toBe(0)
+  expect(probe).not.toHaveBeenCalled()
+  expect(run).not.toHaveBeenCalled()
+})
+
+test('VoiceOver dry run lists checkout and macOS targets without probing or setup', async () => {
+  const log = vi.fn()
+  const probe = vi.fn()
+  const run = vi.fn<VoiceOverRun>()
+  const result = await main(['--dry-run', '--json'], {
+    root: '/checkout',
+    platform: 'darwin',
+    probe,
+    run,
+    log,
+  })
+  expect(result.status).toBe(0)
+  expect(JSON.parse(log.mock.calls[0]![0] as string)).toMatchObject({
+    type: 'preview',
+    command: 'setup/voiceover',
+    targets: expect.arrayContaining(['/checkout/.cache/guidepup']),
+  })
+  expect(voiceOverSetupPlan('/checkout', 'linux').supported).toBe(false)
   expect(probe).not.toHaveBeenCalled()
   expect(run).not.toHaveBeenCalled()
 })

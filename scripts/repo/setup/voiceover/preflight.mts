@@ -80,7 +80,7 @@ export function preflightVoiceOver(
   }
 }
 
-function probeMachineSettings(
+export function probeMachineSettings(
   release: string,
   home: string,
   fileProbe: (file: string) => ProbeState,
@@ -108,7 +108,7 @@ function probeMachineSettings(
   return 'unknown'
 }
 
-function voiceOverPreferencesPath(release: string, home: string) {
+export function voiceOverPreferencesPath(release: string, home: string) {
   const darwinMajor = Number.parseInt(release.split('.')[0] ?? '', 10)
   const directory =
     darwinMajor >= 24
@@ -120,7 +120,7 @@ function voiceOverPreferencesPath(release: string, home: string) {
   return path.join(directory, 'com.apple.VoiceOver4.local.plist')
 }
 
-function probeReadableFile(file: string): ProbeState {
+export function probeReadableFile(file: string): ProbeState {
   try {
     accessSync(file, constants.R_OK)
     return 'present'
@@ -130,7 +130,7 @@ function probeReadableFile(file: string): ProbeState {
   }
 }
 
-function probeAppleScriptDefault(): ProbeState {
+export function probeAppleScriptDefault(): ProbeState {
   try {
     const value = execFileSync(
       'defaults',
@@ -147,7 +147,9 @@ function probeAppleScriptDefault(): ProbeState {
   }
 }
 
-function readGuidepupManifest(root: string): GuidepupManifest | undefined {
+export function readGuidepupManifest(
+  root: string,
+): GuidepupManifest | undefined {
   try {
     const require = createRequire(path.join(root, 'package.json'))
     const packagePath = require.resolve('@guidepup/guidepup/package.json')
@@ -158,7 +160,7 @@ function readGuidepupManifest(root: string): GuidepupManifest | undefined {
   }
 }
 
-function probeVoiceOverAsset(
+export function probeVoiceOverAsset(
   root: string,
   release: string,
   manifestProbe: () => GuidepupManifest | undefined,
@@ -187,7 +189,7 @@ function probeVoiceOverAsset(
   return assetProbe(file, asset.sha256)
 }
 
-function probeAssetChecksum(file: string, expected: string): ProbeState {
+export function probeAssetChecksum(file: string, expected: string): ProbeState {
   try {
     const actual = createHash('sha256').update(readFileSync(file)).digest('hex')
     return actual === expected ? 'present' : 'missing'

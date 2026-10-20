@@ -17,7 +17,11 @@ import { crossedFixtures } from './crossed.mts'
 import { dispatchBundle } from './variants.mts'
 import { splitDispatchBundle } from './specialize.mts'
 
-async function captureFixture(page: Page, fixture: Fixture, calls: number) {
+export async function captureFixture(
+  page: Page,
+  fixture: Fixture,
+  calls: number,
+) {
   return page.evaluate(
     ({ entry, iterations }) => {
       const frame = document.createElement('iframe')
@@ -57,7 +61,7 @@ async function captureFixture(page: Page, fixture: Fixture, calls: number) {
   )
 }
 
-async function capture(modelDirectory: string, mixed: boolean) {
+export async function capture(modelDirectory: string, mixed: boolean) {
   const baseline = readFileSync(baselinePath(), 'utf8')
   const model = readFileSync(path.join(modelDirectory, 'chromium.mjs'), 'utf8')
   const evaluation = JSON.parse(

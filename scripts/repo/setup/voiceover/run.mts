@@ -1,5 +1,6 @@
 import { spawn, spawnSync } from 'node:child_process'
 import { createInterface } from 'node:readline/promises'
+import os from 'node:os'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
 import { stdin, stdout } from 'node:process'
@@ -77,12 +78,12 @@ export async function setupVoiceOver(options: VoiceOverOptions = {}) {
   return configureVoiceOver(state, root, options, log)
 }
 
-async function confirmVoiceOver(options: VoiceOverOptions) {
+export async function confirmVoiceOver(options: VoiceOverOptions) {
   const answer = await askQuestion(options, settingsPrompt)
   return answer?.trim().toLowerCase() === 'y'
 }
 
-async function askQuestion(options: VoiceOverOptions, question: string) {
+export async function askQuestion(options: VoiceOverOptions, question: string) {
   if (options.ask) {
     return options.ask(question)
   }
@@ -106,7 +107,7 @@ async function askQuestion(options: VoiceOverOptions, question: string) {
   }
 }
 
-async function configureVoiceOver(
+export async function configureVoiceOver(
   state: VoiceOverPreflight,
   root: string,
   options: VoiceOverOptions,
@@ -193,11 +194,11 @@ async function configureVoiceOver(
   return { status: 0, signal: null }
 }
 
-function successful(result: ManagedResult) {
+export function successful(result: ManagedResult) {
   return result.status === 0 && !result.signal && !result.error
 }
 
-async function runGuidepup(
+export async function runGuidepup(
   args: string[],
   directory: string,
 ): Promise<ManagedResult> {
@@ -275,7 +276,7 @@ async function runGuidepup(
   }
 }
 
-async function offerSettingsPanel(
+export async function offerSettingsPanel(
   options: VoiceOverOptions,
   log: (message: string) => void,
   destination: 'utility' | 'privacy',
@@ -319,10 +320,13 @@ export async function main(
   options: VoiceOverOptions = {},
 ) {
   const { values } = parseArgs({
-    args,
+    args: args[0] === '--' ? args.slice(1) : args,
     options: {
       help: { type: 'boolean', short: 'h' },
       yes: { type: 'boolean' },
+      json: { type: 'boolean' },
+      describe: { type: 'boolean' },
+      'dry-run': { type: 'boolean' },
     },
   })
   if (values.help) {
@@ -331,7 +335,72 @@ export async function main(
     )
     return { status: 0, signal: null }
   }
+  if (values.describe) {
+    const description = describeVoiceOverSetup()
+    ;(options.log ?? console.log)(
+      values.json ? JSON.stringify(description) : description.description,
+    )
+    return { status: 0, signal: null }
+  }
+  if (values['dry-run']) {
+    const plan = voiceOverSetupPlan(options.root)
+    ;(options.log ?? console.log)(
+      values.json ? JSON.stringify(plan) : formatVoiceOverSetupPlan(plan),
+    )
+    return { status: 0, signal: null }
+  }
   return setupVoiceOver({ choice: values.yes ? 'yes' : 'ask', ...options })
+}
+
+export function voiceOverSetupPlan(
+  root = REPO_ROOT,
+  platform = process.platform,
+) {
+  return {
+    schemaVersion: 1,
+    type: 'preview',
+    command: 'setup/voiceover',
+    supported: platform === 'darwin',
+    steps: [
+      'Download verified Guidepup VoiceOver assets.',
+      'On macOS, configure current-user VoiceOver settings only after opt-in.',
+      'Never start VoiceOver or narration.',
+    ],
+    targets: [
+      path.join(root, '.cache/guidepup'),
+      ...(platform === 'darwin'
+        ? [
+            '/private/var/db/Accessibility/.VoiceOverAppleScriptEnabled',
+            path.join(
+              os.homedir(),
+              'Library/Group Containers/group.com.apple.VoiceOver/Library/Preferences/com.apple.VoiceOver4.local.plist',
+            ),
+          ]
+        : []),
+    ],
+  }
+}
+
+export function describeVoiceOverSetup() {
+  return {
+    schemaVersion: 1,
+    type: 'command',
+    name: 'setup/voiceover',
+    description: 'Prepare optional VoiceOver testing assets and settings.',
+    options: ['--json', '--describe', '--dry-run', '--yes'],
+    mutates: true,
+  }
+}
+
+export function formatVoiceOverSetupPlan(
+  plan: ReturnType<typeof voiceOverSetupPlan>,
+) {
+  return [
+    'Would prepare optional VoiceOver setup:',
+    ...plan.steps.map(step => `  ${step}`),
+    'Targets:',
+    ...plan.targets.map(target => `  ${target}`),
+  ].join('\n')
 }
 
 if (isMainModule(import.meta.url)) {

@@ -35,7 +35,11 @@ interface Evaluation {
   >
 }
 
-async function parityPolicy(model: string, name: string, expectedHash: string) {
+export async function parityPolicy(
+  model: string,
+  name: string,
+  expectedHash: string,
+) {
   const source = readFileSync(path.join(model, `${name}.mjs`))
   assert.equal(sha256(source), expectedHash)
   const { dispatchOverride } = (await import(
@@ -93,7 +97,7 @@ export async function parity(model: string, evaluation: Evaluation) {
   return { cases, ruleCases, mismatches: 0 }
 }
 
-async function routeEvidence(
+export async function routeEvidence(
   entries: Fixture[],
   source: string,
   choose: Override,
@@ -153,7 +157,7 @@ async function routeEvidence(
   return results
 }
 
-function summary(rows: Array<{ costs: number[] }>, index: number) {
+export function summary(rows: Array<{ costs: number[] }>, index: number) {
   const speed = geomean(rows.map(row => row.costs[0]! / row.costs[index]!))
   const total =
     rows.reduce((sum, row) => sum + row.costs[0]!, 0) /
@@ -168,7 +172,7 @@ function summary(rows: Array<{ costs: number[] }>, index: number) {
   }
 }
 
-function policyBundle(
+export function policyBundle(
   baseline: string,
   policy: string,
   instrument: boolean,
@@ -182,7 +186,7 @@ function policyBundle(
   return dispatchBundle(baseline, policy, instrument, forwardOnly)
 }
 
-async function measureHost(
+export async function measureHost(
   host: string,
   entries: Fixture[],
   collection: string,

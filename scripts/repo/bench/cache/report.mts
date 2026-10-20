@@ -35,16 +35,16 @@ if (!input || !output) {
   throw new Error('Usage: report.mts <recording.json> <report.md>')
 }
 const data = JSON.parse(readFileSync(input, 'utf8')) as Recording
-const median = (row: Row, key: keyof Sample) =>
+export const median = (row: Row, key: keyof Sample) =>
   row.samples.map(sample => sample[key]).toSorted((a, b) => a - b)[1]!
-const row = (name: string, variant: string) =>
+export const row = (name: string, variant: string) =>
   data.rows.find(item => item.case === name && item.variant === variant)!
-const rate = (item: Row) =>
+export const rate = (item: Row) =>
   ((100 * item.counts.hits) / item.counts.lookups).toFixed(2) + '%'
-const ms = (item: Row) => median(item, 'milliseconds').toFixed(2) + 'ms'
-const heap = (item: Row) =>
+export const ms = (item: Row) => median(item, 'milliseconds').toFixed(2) + 'ms'
+export const heap = (item: Row) =>
   (median(item, 'heapDeltaBytes') / 1024 / 1024).toFixed(2) + 'MiB'
-const relativeLink = (target: string) =>
+export const relativeLink = (target: string) =>
   path.relative(path.dirname(output), target).split(path.sep).join('/')
 const link = relativeLink(input)
 const guide = relativeLink('docs/repo/selector/selector-cache.md')

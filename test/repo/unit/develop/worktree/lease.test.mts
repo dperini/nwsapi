@@ -1,10 +1,18 @@
 import { expect, test, vi } from 'vitest'
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  mkdirSync,
+  mkdtempSync,
+  realpathSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import os, { hostname } from 'node:os'
 import path from 'node:path'
 import {
   claimWorktree,
   inspectPulse,
+  withCurrentWorktreeLease,
 } from '../../../../../scripts/repo/develop/worktree/lease.mts'
 
 function metadata(root: string) {
@@ -98,6 +106,32 @@ test('refreshes a live pulse and leaves a matching clean release marker', async 
   } finally {
     await lease?.release()
     vi.useRealTimers()
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('current checkout lease bypasses absent metadata and rejects foreign ownership', async () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-current-lease-'))
+  const checkout = path.join(root, 'checkout')
+  const action = vi.fn(async () => 'ran')
+  try {
+    mkdirSync(checkout)
+    await expect(withCurrentWorktreeLease(checkout, action)).resolves.toBe(
+      'ran',
+    )
+    expect(action).toHaveBeenCalledOnce()
+    writeFileSync(
+      path.join(root, '.nwsapi-worktree.json'),
+      JSON.stringify({
+        ...metadata(root),
+        path: realpathSync(checkout),
+        hostname: 'another-host',
+      }),
+    )
+    await expect(withCurrentWorktreeLease(checkout, action)).rejects.toThrow(
+      'belongs to another or unknown host',
+    )
+  } finally {
     rmSync(root, { recursive: true, force: true })
   }
 })

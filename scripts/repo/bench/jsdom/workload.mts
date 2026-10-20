@@ -36,7 +36,7 @@ const inputs = [
   'dom/common.js',
   'resources/testharness.js',
 ]
-const hash = (file: string) =>
+export const hash = (file: string) =>
   createHash('sha256').update(readFileSync(file)).digest('hex')
 const hostRequire = createRequire(path.join(host, 'package.json'))
 

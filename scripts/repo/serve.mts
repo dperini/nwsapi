@@ -32,7 +32,7 @@ if (!existsSync(docRoot)) {
 const realRepoRoot = realpathSync(repoRoot)
 const realDocRoot = realpathSync(docRoot)
 
-function resolvePort(raw: string | undefined) {
+export function resolvePort(raw: string | undefined) {
   // Env *presence* decides: PORT=0 is a valid request for an ephemeral port.
   if (raw === undefined || raw.trim() === '') {
     return 8000
@@ -66,7 +66,12 @@ const CONTENT_TYPES: Record<string, string> = {
   '.xml': 'text/xml; charset=utf-8',
 }
 
-function send(res: ServerResponse, status: number, body: string, headers = {}) {
+export function send(
+  res: ServerResponse,
+  status: number,
+  body: string,
+  headers = {},
+) {
   res.writeHead(status, {
     'content-type': 'text/plain; charset=utf-8',
     ...headers,
@@ -79,7 +84,7 @@ const server = createServer((req, res) => {
 })
 
 // oxlint-disable-next-line eslint/complexity -- Keep request validation and response handling together.
-async function serve(req: IncomingMessage, res: ServerResponse) {
+export async function serve(req: IncomingMessage, res: ServerResponse) {
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     send(res, 405, 'method not allowed')
     return

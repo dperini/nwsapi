@@ -67,7 +67,7 @@ const dom = new JSDOM('<main><i class="item"></i></main>')
 const target = dom.window.document.querySelector('.item')!
 const engines: Array<ReturnType<typeof factoryType>> = []
 const measurements: Record<string, number> = {}
-async function capture(name: string) {
+export async function capture(name: string) {
   for (let pass = 0; pass < 4; pass++) {
     await new Promise<void>(resolve => {
       setTimeout(() => resolve(), 0)

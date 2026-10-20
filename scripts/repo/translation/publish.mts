@@ -29,7 +29,7 @@ if (missing.length) {
   )
 }
 mkdirSync(output, { recursive: true })
-function write(name: string, data: unknown) {
+export function write(name: string, data: unknown) {
   writeFileSync(path.join(output, name), JSON.stringify(data, null, 2) + '\n')
 }
 write('strings.it.generated.json', {

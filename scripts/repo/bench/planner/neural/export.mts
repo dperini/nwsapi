@@ -52,7 +52,7 @@ export interface TrainingRow {
 
 const hosts = ['chromium', 'jsdom'] as const
 
-function verifyInputs(
+export function verifyInputs(
   features: number[],
   trace: Trace,
   host: string,

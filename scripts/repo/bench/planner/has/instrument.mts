@@ -26,7 +26,7 @@ export interface Trace {
   features: number[] | null
 }
 
-function nodes(value: unknown, visit: (node: Ast) => void) {
+export function nodes(value: unknown, visit: (node: Ast) => void) {
   if (!value || typeof value !== 'object') {
     return
   }
@@ -47,14 +47,14 @@ function nodes(value: unknown, visit: (node: Ast) => void) {
   }
 }
 
-function unique<T>(items: T[], description: string): T {
+export function unique<T>(items: T[], description: string): T {
   if (items.length !== 1) {
     throw new Error(`Expected one ${description}, received ${items.length}`)
   }
   return items[0]!
 }
 
-function namedFunction(ast: Ast, name: string) {
+export function namedFunction(ast: Ast, name: string) {
   const matches: Ast[] = []
   nodes(ast, node => {
     if (node.type !== 'FunctionDeclaration') {
@@ -68,7 +68,7 @@ function namedFunction(ast: Ast, name: string) {
   return unique(matches, `${name} function`)
 }
 
-function applyEdits(source: string, edits: Edit[]) {
+export function applyEdits(source: string, edits: Edit[]) {
   let previous = source.length + 1
   for (const edit of edits.toSorted((a, b) => b.start - a.start)) {
     if (edit.end > previous) {
@@ -177,7 +177,7 @@ module.exports.features = function() { return plannerTrace.features; };
   )
 }
 
-function traceEdits(
+export function traceEdits(
   source: string,
   ast: Ast,
   fn: Ast,

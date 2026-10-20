@@ -64,10 +64,10 @@ export interface ScenarioOptions {
   keep?: boolean
 }
 
-function protectedPath(paths: string[]) {
+export function protectedPath(paths: string[]) {
   return paths.join(path.delimiter)
 }
-async function exists(target: string) {
+export async function exists(target: string) {
   try {
     await access(target)
     return true
@@ -76,7 +76,7 @@ async function exists(target: string) {
   }
 }
 
-async function harness(
+export async function harness(
   file: string,
   checkout: string,
   node: string,
@@ -108,7 +108,7 @@ async function harness(
   return object
 }
 
-async function captureReadinessDetails(
+export async function captureReadinessDetails(
   file: string,
   checkout: string,
   node: string,

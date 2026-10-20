@@ -35,13 +35,13 @@ export function parseLintArguments(args: readonly string[]): LintArguments {
   return { files: files.length > 0 ? files : undefined, forwarded }
 }
 
-function assertPathArgument(file: string) {
+export function assertPathArgument(file: string) {
   if (!file || file.includes('\0')) {
     throw new Error('--file requires a nonempty path without NUL characters.')
   }
 }
 
-function isWithin(root: string, target: string): boolean {
+export function isWithin(root: string, target: string): boolean {
   const relative = path.relative(root, target)
   return (
     relative === '' ||

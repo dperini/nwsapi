@@ -34,7 +34,7 @@ export function planStagedChecks(
   }
 }
 
-function requiresFullFormat(file: string) {
+export function requiresFullFormat(file: string) {
   return (
     file === '.config/oxfmt.json' ||
     file === 'scripts/repo/format.mts' ||
@@ -42,7 +42,7 @@ function requiresFullFormat(file: string) {
   )
 }
 
-function requiresFullLint(file: string) {
+export function requiresFullLint(file: string) {
   return (
     file === 'package.json' ||
     file === 'pnpm-lock.yaml' ||
@@ -56,14 +56,14 @@ function requiresFullLint(file: string) {
   )
 }
 
-function gitOutput(args: string[], root: string) {
+export function gitOutput(args: string[], root: string) {
   return execFileSync('git', args, {
     cwd: root,
     encoding: 'utf8',
   })
 }
 
-function getStagedFiles(root: string) {
+export function getStagedFiles(root: string) {
   return parseStagedPaths(
     gitOutput(['diff', '--cached', '--name-only', '-z', '--'], root),
   )
@@ -121,15 +121,18 @@ export function createStagedSnapshot(sourceRoot = REPO_ROOT) {
   }
 }
 
-function getLintableFiles(root: string) {
+export function getLintableFiles(root: string) {
   return toolingFiles(root)
 }
 
-function getFormattableFiles(root: string, lintFiles: readonly string[]) {
+export function getFormattableFiles(
+  root: string,
+  lintFiles: readonly string[],
+) {
   return [...lintFiles, ...globSync('.config/*.json', { cwd: root })]
 }
 
-async function runNodeTool(args: string[], cwd: string) {
+export async function runNodeTool(args: string[], cwd: string) {
   return runProcess({
     command: process.execPath,
     args,
@@ -138,7 +141,10 @@ async function runNodeTool(args: string[], cwd: string) {
   })
 }
 
-async function checkStagedTranslations(files: string[], snapshot: string) {
+export async function checkStagedTranslations(
+  files: string[],
+  snapshot: string,
+) {
   const changed = files.some(
     file =>
       file === 'README.md' ||
@@ -158,7 +164,10 @@ async function checkStagedTranslations(files: string[], snapshot: string) {
   return result.code ?? 1
 }
 
-async function checkStagedFormat(plan: StagedCheckPlan, snapshot: string) {
+export async function checkStagedFormat(
+  plan: StagedCheckPlan,
+  snapshot: string,
+) {
   if (plan.fullFormat || plan.formatFiles.length > 0) {
     const formatArgs = plan.fullFormat
       ? [path.join(snapshot, 'scripts/repo/format.mts'), '--check']

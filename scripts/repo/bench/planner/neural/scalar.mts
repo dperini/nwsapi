@@ -12,14 +12,14 @@ export interface Weights {
   B2: number[]
 }
 
-function number(value: number) {
+export function number(value: number) {
   if (!Number.isFinite(value)) {
     throw new Error('Nonfinite weight')
   }
   return '(' + String(value) + ')'
 }
 
-function sum(weights: number[], input: string[], bias: number) {
+export function sum(weights: number[], input: string[], bias: number) {
   return weights.reduce(
     (expression, weight, column) =>
       '(' + expression + '+' + number(weight) + '*' + input[column] + ')',
@@ -112,7 +112,7 @@ export function extractWeights(source: string): Weights {
   return weights
 }
 
-function validLayers(weights: Weights) {
+export function validLayers(weights: Weights) {
   return (
     !!weights.B1?.length &&
     weights.W1?.length === weights.B1.length &&
@@ -175,7 +175,7 @@ export function score(anchors, witnesses, attributes, host) {
   return config.sourceSha256
 }
 
-function decisionSource(
+export function decisionSource(
   domain: { anchors: number[]; witnesses: number[]; ratio: number[] },
   margin: number,
   band: number,

@@ -206,6 +206,26 @@ export async function handoff(
   return run(['exec', node, entry, ...args], directory)
 }
 
+export async function handoffCapture(
+  entry: string,
+  args: string[],
+  setup = ensureManagedTools,
+) {
+  const directory = await setup()
+  const node = path.join(
+    directory,
+    process.platform === 'win32' ? 'node.exe' : 'node',
+  )
+  const request = managedCommand(['exec', node, entry, ...args], directory)
+  return spawnSync(request.command, request.args, {
+    cwd: REPO_ROOT,
+    env: managedEnvironment(directory),
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+    stdio: ['inherit', 'pipe', 'pipe'],
+  })
+}
+
 export function setupNotice(agent = process.env['npm_config_user_agent']) {
   const version = toolVersions()['pnpm']!
   const invoked = agent?.split('/')[0]

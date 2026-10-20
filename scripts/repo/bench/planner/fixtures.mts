@@ -49,7 +49,7 @@ export function fixtures(): Fixture[] {
   )
 }
 
-function layout(family: string, nodes: string[]) {
+export function layout(family: string, nodes: string[]) {
   if (family === 'flat' || family === 'clustered') {
     return nodes.join('')
   }

@@ -16,6 +16,7 @@ import {
   checkExternalTools,
   TOOL_BIN,
   TOOLCHAIN_STATE,
+  toolDirectory,
   toolchainState,
   managedNodeEntry,
   toolPlan,
@@ -134,6 +135,50 @@ export async function setupTools({ full = false } = {}) {
   return TOOL_BIN
 }
 
+export function toolSetupPlan(root = REPO_ROOT, platform = process.platform) {
+  const names = ['nub', 'pnpm', 'npm', 'sfw', 'mise'] as const
+  const platformName = toolPlatform(platform)
+  const bin = path.join(root, '.cache/bin')
+  const cache = path.join(root, '.cache/external-tools')
+  const state = path.join(bin, 'toolchain.json')
+  const tools = names.map(name => {
+    const plan = toolPlan(name, platformName)
+    return {
+      name,
+      version: plan.version,
+      asset: plan.asset,
+      cache: path.relative(root, toolDirectory(plan, cache)),
+    }
+  })
+  const suffix = platform === 'win32' ? '.cmd' : ''
+  return {
+    schemaVersion: 1,
+    type: 'preview',
+    command: 'setup/tools',
+    root,
+    tools,
+    targets: [
+      ...names.map(name =>
+        path.relative(root, path.join(bin, `${name}${suffix}`)),
+      ),
+      path.relative(root, managedNodeEntry(bin, platform)),
+      path.relative(root, state),
+      path.relative(root, cache),
+    ].filter((target, index, list) => list.indexOf(target) === index),
+  }
+}
+
+export function describeToolSetup() {
+  return {
+    schemaVersion: 1,
+    type: 'command',
+    name: 'setup/tools',
+    description: 'Install and activate pinned tools in the checkout cache.',
+    options: ['--json', '--describe', '--dry-run', '--full', '--github-path'],
+    mutates: true,
+  }
+}
+
 export async function main(
   args = process.argv.slice(2),
   setup = setupTools,
@@ -142,8 +187,28 @@ export async function main(
 ) {
   const { values } = parseArgs({
     args,
-    options: { 'github-path': { type: 'boolean' }, full: { type: 'boolean' } },
+    options: {
+      'github-path': { type: 'boolean' },
+      full: { type: 'boolean' },
+      'dry-run': { type: 'boolean' },
+      json: { type: 'boolean' },
+      describe: { type: 'boolean' },
+    },
   })
+  if (values.describe) {
+    const description = describeToolSetup()
+    log(
+      values.json
+        ? JSON.stringify(description)
+        : `${description.name}: ${description.description}\nUse --dry-run to list cache and activation paths.`,
+    )
+    return TOOL_BIN
+  }
+  if (values['dry-run']) {
+    const plan = toolSetupPlan()
+    log(values.json ? JSON.stringify(plan) : formatToolSetupPlan(plan))
+    return TOOL_BIN
+  }
   if (values['github-path'] && !env['GITHUB_PATH']) {
     throw new Error('GITHUB_PATH is required with --github-path.')
   }
@@ -151,9 +216,30 @@ export async function main(
   if (values['github-path']) {
     appendFileSync(env['GITHUB_PATH']!, bin + '\n')
   }
-  log('Toolchain ready for repository commands. Global defaults are unchanged.')
+  log(
+    values.json
+      ? JSON.stringify({
+          schemaVersion: 1,
+          type: 'result',
+          command: 'setup/tools',
+          status: 'completed',
+          bin,
+          githubPath: values['github-path'] ? env['GITHUB_PATH'] : undefined,
+        })
+      : 'Toolchain ready for repository commands. Global defaults are unchanged.',
+  )
+  return bin
 }
 
 if (isMainModule(import.meta.url)) {
   await main()
+}
+
+export function formatToolSetupPlan(plan: ReturnType<typeof toolSetupPlan>) {
+  return [
+    `Would prepare ${plan.command} in ${plan.root}:`,
+    ...plan.tools.map(tool => `  ${tool.name} ${tool.version} → ${tool.cache}`),
+    'Activation paths:',
+    ...plan.targets.map(target => `  ${target}`),
+  ].join('\n')
 }

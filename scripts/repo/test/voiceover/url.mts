@@ -25,7 +25,7 @@ export function validateNarrationUrl(value: string): URL {
   return url
 }
 
-function validPort(port: string) {
+export function validPort(port: string) {
   if (!port) {
     return false
   }

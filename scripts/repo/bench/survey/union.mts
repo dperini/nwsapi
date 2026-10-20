@@ -60,7 +60,11 @@ export function unionFixtures(): Fixture[] {
   return entries
 }
 
-function replaceOnce(source: string, original: string, replacement: string) {
+export function replaceOnce(
+  source: string,
+  original: string,
+  replacement: string,
+) {
   if (source.split(original).length !== 2) {
     throw new Error('Expected one collection-copy site in the built bundle.')
   }

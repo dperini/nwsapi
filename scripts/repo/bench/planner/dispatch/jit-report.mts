@@ -22,24 +22,29 @@ interface Measurement {
   summaries: Record<string, Metric[]>
 }
 
-function escape(value: string) {
+export function escape(value: string) {
   return value
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
 }
 
-function load(directory: string, host: string): Measurement {
+export function load(directory: string, host: string): Measurement {
   return JSON.parse(
     readFileSync(path.join(directory, `${host}.json`), 'utf8'),
   ) as Measurement
 }
 
-function bar(metric: Metric, maximum: number, repeat: boolean) {
+export function bar(metric: Metric, maximum: number, repeat: boolean) {
   return `<div class="run"><span>${repeat ? 'Repeat' : 'First'}</span><div class="track"><div class="bar ${repeat ? 'repeat' : ''}" style="width:${(100 * metric.geometricTimePercent) / maximum}%"></div></div><strong>${metric.geometricTimePercent.toFixed(1)}%</strong></div>`
 }
 
-function panel(host: string, group: string, first: Metric[], repeat: Metric[]) {
+export function panel(
+  host: string,
+  group: string,
+  first: Metric[],
+  repeat: Metric[],
+) {
   const titles: Record<string, string> = {
     fresh: 'All fresh diagnostic cases',
     unfiltered: 'Fresh cases without attribute filters',
@@ -81,7 +86,7 @@ function panel(host: string, group: string, first: Metric[], repeat: Metric[]) {
   return `<section><h2>${host} · ${titles[group]}</h2><p class="direction">↓ Lower is faster. Current v3 = 100%.</p>${rows}<p>${scope[group]} All bars measure complete warm queries and use the geometric average of relative query time.</p><p>${description}. The weights and route choices are unchanged.</p><p>Worst split-model query: ${(100 * first[4]!.worstTimeRatio).toFixed(1)}% of baseline in the first pass and ${(100 * repeat[4]!.worstTimeRatio).toFixed(1)}% in the repeat. A favorable average can still hide slower cases.</p></section>`
 }
 
-function olderConfirmation(firstDirectory: string) {
+export function olderConfirmation(firstDirectory: string) {
   const directory = path.join(
     path.dirname(firstDirectory),
     'planner-dispatch-crossed-split-2026-10-05-r1',

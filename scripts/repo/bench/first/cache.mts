@@ -77,7 +77,7 @@ try {
     window.close()
   }
 }
-const hash = (file: string) =>
+export const hash = (file: string) =>
   createHash('sha256').update(readFileSync(file)).digest('hex')
 writeFileSync(
   output,

@@ -15,7 +15,7 @@ export function fixtures(): Fixture[] {
   return entries
 }
 
-function makeFixture(
+export function makeFixture(
   template: number,
   anchors: number,
   ratio: number,

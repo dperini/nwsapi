@@ -1,5 +1,9 @@
 import { expect, test, vi } from 'vitest'
-import { prepareCheckout } from '../../../../scripts/repo/setup/prepare.mts'
+import {
+  main,
+  prepareCheckout,
+  preparePlan,
+} from '../../../../scripts/repo/setup/prepare.mts'
 
 test('prepare verifies tools before source preparation and a repeatable build', async () => {
   const ensure = vi.fn(async () => '/checkout-tools')
@@ -39,4 +43,20 @@ test('prepare stops at the first failed phase and prints a direct retry', async 
     process.exitCode = original
     log.mockRestore()
   }
+})
+
+test('prepare dry run lists setup and build paths without provisioning tools', async () => {
+  const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+  await main(['--dry-run', '--json'])
+  expect(JSON.parse(log.mock.calls[0]![0] as string)).toMatchObject({
+    type: 'preview',
+    command: 'setup/prepare',
+    targets: expect.arrayContaining([
+      expect.stringContaining('hooks'),
+      expect.stringContaining('dist/'),
+    ]),
+  })
+  expect(preparePlan('/checkout').targets).toEqual(
+    expect.arrayContaining([expect.stringContaining('hooks')]),
+  )
 })

@@ -61,13 +61,13 @@ Options:
   --help             Show this help.
 `
 
-function fail(message: string) {
+export function fail(message: string) {
   console.error(message)
   process.exit(1)
 }
 
 // Write a copy of the engine with a different CACHE_LIMIT.
-function materialize(dir: string, limit: number, source: string) {
+export function materialize(dir: string, limit: number, source: string) {
   const file = path.join(dir, `nwsapi-${limit}.cjs`)
   writeFileSync(file, replaceCacheLimit(source, limit))
   return file
@@ -76,7 +76,7 @@ function materialize(dir: string, limit: number, source: string) {
 // Distinct selectors, each cheap to match, so the timing reflects cache
 // behavior rather than traversal. Half match, half do not, as in
 // domSelector's bench-cache.js.
-function selectorSet(count: number) {
+export function selectorSet(count: number) {
   const list = []
   for (let i = 0; i < count; ++i) {
     list.push(
@@ -88,14 +88,14 @@ function selectorSet(count: number) {
   return list
 }
 
-function settle() {
+export function settle() {
   for (let i = 0; i < 4; ++i) {
     globalThis.gc!()
   }
   return process.memoryUsage().heapUsed
 }
 
-async function main() {
+export async function main() {
   const args = process.argv
     .slice(2)
     .filter((arg, i, all) => !(arg === '--' && all.indexOf('--') === i))

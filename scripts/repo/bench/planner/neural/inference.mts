@@ -35,7 +35,7 @@ export function production(features: [number, number, number, number]) {
   return inDomain ? true : witnesses <= anchors * 2
 }
 
-function measure(fn: () => boolean) {
+export function measure(fn: () => boolean) {
   let checksum = 0
   for (let index = 0; index < 10_000; ++index) {
     checksum += Number(fn())

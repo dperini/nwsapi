@@ -48,7 +48,7 @@ export function releasePin(
     .replace(/^# no-release-tag: web-platform-tests.*\n?/m, '')
 }
 
-async function github(resource: string, request: typeof fetch) {
+export async function github(resource: string, request: typeof fetch) {
   const token = process.env['GITHUB_TOKEN'] || process.env['GH_TOKEN']
   const response = await request(`${endpoint}/${resource}`, {
     headers: {

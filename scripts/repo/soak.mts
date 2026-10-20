@@ -44,7 +44,7 @@ export function syncNpmSoak(workspace: string, npmrc: string) {
   return lines.join('\n') + '\n'
 }
 
-function exceptionExpiry(
+export function exceptionExpiry(
   annotation: string | null | undefined,
   minutes: number,
 ) {
@@ -168,7 +168,7 @@ export function refreshSoak() {
   }
 }
 
-async function main() {
+export async function main() {
   const [mode, spec, ...rest] = process.argv.slice(2)
   if (mode === '--check' && !spec) {
     checkSoak()

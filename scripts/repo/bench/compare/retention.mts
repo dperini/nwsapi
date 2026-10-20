@@ -13,7 +13,7 @@ if (!global.gc) {
 const require = createRequire(import.meta.url)
 const make = config.paths.map(p => require(p) as typeof factory)
 const samples = []
-const heap = async () => {
+export const heap = async () => {
   for (let pass = 0; pass < 4; ++pass) {
     await setTimeout(0)
     global.gc!()

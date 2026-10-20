@@ -21,7 +21,7 @@ export interface CiTestPlan {
 const TEST_FILE_RE = /^test\/repo\/(unit|integration)\/.*\.test\.mts$/
 
 // Every lane schedules on the shared drivers, plus its own triggers.
-function laneChanged(
+export function laneChanged(
   normalized: string[],
   shared: boolean,
   match: (file: string) => boolean,
@@ -113,7 +113,7 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
   }
 }
 
-function nodeTestDriverChanged(files: string[]) {
+export function nodeTestDriverChanged(files: string[]) {
   return files.some(
     file =>
       file.startsWith('scripts/repo/lib/') ||
@@ -257,7 +257,7 @@ export async function main(): Promise<void> {
   await runNodePlan(plan)
 }
 
-async function runRelatedTests(files: string[]) {
+export async function runRelatedTests(files: string[]) {
   if (files.length === 0) {
     return
   }

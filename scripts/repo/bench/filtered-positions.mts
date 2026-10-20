@@ -33,7 +33,7 @@ const before = execFileSync(
   { cwd: REPO_ROOT, encoding: 'utf8' },
 )
 const after = readFileSync(ENGINE_SOURCE_PATH, 'utf8')
-async function load(source: string, name: string) {
+export async function load(source: string, name: string) {
   const result = await transform('nwsapi.mts', source, {
     lang: 'ts',
     sourceType: 'script',

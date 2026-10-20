@@ -22,7 +22,7 @@ export function inline(source: string): Recipe {
     : inlineText(source)
 }
 
-function inlineText(source: string): Recipe {
+export function inlineText(source: string): Recipe {
   const slots: Recipe[] = []
   let text = ''
   for (const token of Lexer.lexInline(source)) {
@@ -58,14 +58,14 @@ function inlineText(source: string): Recipe {
   return phrase(text, slots)
 }
 
-function join(parts: Recipe[], separator = ''): Recipe {
+export function join(parts: Recipe[], separator = ''): Recipe {
   return {
     text: parts.map((_, index) => `ZXQ${index}QXZ`).join(separator),
     slots: parts,
   }
 }
 
-function table(token: Extract<Token, { type: 'table' }>): Recipe {
+export function table(token: Extract<Token, { type: 'table' }>): Recipe {
   const row = (cells: Array<{ text: string }>) => ({
     text: '| ' + cells.map((_, index) => `ZXQ${index}QXZ`).join(' | ') + ' |\n',
     slots: cells.map(cell => inline(cell.text)),
@@ -81,7 +81,7 @@ function table(token: Extract<Token, { type: 'table' }>): Recipe {
   return join([row(token.header), separator, ...token.rows.map(row)])
 }
 
-function list(token: Extract<Token, { type: 'list' }>): Recipe {
+export function list(token: Extract<Token, { type: 'list' }>): Recipe {
   const parts: Recipe[] = []
   token.items.forEach((item, index) => {
     const marker = token.ordered ? `${Number(token.start) + index}. ` : '- '
@@ -99,7 +99,7 @@ function list(token: Extract<Token, { type: 'list' }>): Recipe {
   return join(parts)
 }
 
-function htmlRecipe(source: string): Recipe {
+export function htmlRecipe(source: string): Recipe {
   const parts: Recipe[] = []
   const markup =
     /<(?:code|pre|script|style)\b[^>]*>[\s\S]*?<\/(?:code|pre|script|style)\s*>|<!--[\s\S]*?-->|<[^>]*>/gi
@@ -113,7 +113,7 @@ function htmlRecipe(source: string): Recipe {
   return join(parts)
 }
 
-function spacedInline(text: string): Recipe {
+export function spacedInline(text: string): Recipe {
   return text.trim()
     ? join([
         text.match(/^\s*/)?.[0] ?? '',
@@ -123,7 +123,7 @@ function spacedInline(text: string): Recipe {
     : text
 }
 
-function block(token: Token): Recipe {
+export function block(token: Token): Recipe {
   const tail = token.raw.match(/\n*$/)?.[0] ?? ''
   if (token.type === 'heading') {
     return join(['#'.repeat(token.depth) + ' ', inline(token.text), tail])

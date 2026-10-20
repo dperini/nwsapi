@@ -19,6 +19,9 @@ import type {
 
 export type TransactionOptions = {
   dryRun: boolean
+  json?: boolean
+  action?: 'add' | 'remove'
+  projectRoot?: string
   installRequest: PackageInstallRequest
   install?: PackageInstaller
 }
@@ -27,46 +30,112 @@ export function executePlan(
   plan: ConfigPlan,
   options: TransactionOptions,
 ): string {
-  const preview = [
-    ...plan.messages,
-    ...plan.changes.map(change => `Would update ${relativePath(change)}.`),
-  ]
-  if (options.dryRun) {
-    if (plan.hasProvenance) {
-      preview.push(
-        `Would run ${options.installRequest.manager} install in ${options.installRequest.cwd}.`,
-      )
-    }
-    return preview.join('\n')
+  const projectRoot = options.projectRoot ?? options.installRequest.cwd
+  const changes = summarizeChanges(plan.changes, projectRoot)
+  const install = plan.hasProvenance
+    ? {
+        manager: options.installRequest.manager,
+        cwd: options.installRequest.cwd,
+        args:
+          options.installRequest.manager === 'pnpm'
+            ? ['install', '--no-frozen-lockfile']
+            : ['install'],
+      }
+    : undefined
+  const result = {
+    schemaVersion: 1,
+    type: 'result',
+    command: `jsdom ${options.action ?? 'unknown'}`,
+    status: resultStatus(options.dryRun, plan.hasProvenance),
+    projectRoot,
+    messages: plan.messages,
+    changes,
+    ...(install ? { install } : {}),
   }
-  if (!plan.hasProvenance) {
-    return preview.join('\n')
+  const json = () => JSON.stringify(result)
+  if (options.dryRun || !plan.hasProvenance) {
+    return options.json
+      ? json()
+      : formatPreview(plan, options, projectRoot, install?.args ?? [])
   }
-  applyChanges(plan.changes)
+  applyChanges(plan.changes, projectRoot)
   try {
     ;(options.install ?? installProject)(options.installRequest)
   } catch (error) {
-    const recovery = rollbackChanges(plan.changes)
+    const recovery = rollbackChanges(plan.changes, projectRoot)
     const detail = error instanceof Error ? error.message : String(error)
     throw new Error(
       `Package installation failed: ${detail}. ${recovery} The lockfile or node_modules may need repair.`,
     )
   }
-  return [
+  const messages = [
     ...plan.messages,
-    ...plan.changes.map(change => `Updated ${relativePath(change)}.`),
+    ...plan.changes.map(
+      change => `Updated ${relativePath(change, projectRoot)}.`,
+    ),
     `Updated the dependency graph with ${options.installRequest.manager}.`,
-  ].join('\n')
+  ]
+  return options.json
+    ? JSON.stringify({ ...result, messages })
+    : messages.join('\n')
 }
 
-function applyChanges(changes: FileChange[]): void {
+export function summarizeChanges(changes: FileChange[], root: string) {
+  return changes.map(change => ({
+    path: relativePath(change, root),
+    operation: changeOperation(change),
+  }))
+}
+
+export function changeOperation(change: FileChange) {
+  if (change.updated === undefined) {
+    return 'delete'
+  }
+  return change.original === undefined ? 'create' : 'update'
+}
+
+export function resultStatus(dryRun: boolean, hasProvenance: boolean) {
+  if (dryRun) {
+    return 'preview'
+  }
+  return hasProvenance ? 'completed' : 'unchanged'
+}
+
+export function formatPreview(
+  plan: ConfigPlan,
+  options: TransactionOptions,
+  root: string,
+  installArgs: string[],
+) {
+  const lines = [
+    ...plan.messages,
+    ...plan.changes.map(
+      change => `Would ${changeVerb(change)} ${relativePath(change, root)}.`,
+    ),
+  ]
+  if (options.dryRun && plan.hasProvenance) {
+    lines.push(
+      `Would run ${options.installRequest.manager} ${installArgs.join(' ')} in ${options.installRequest.cwd}.`,
+    )
+  }
+  return lines.join('\n')
+}
+
+export function changeVerb(change: FileChange): string {
+  if (change.updated === undefined) {
+    return 'remove'
+  }
+  return change.original === undefined ? 'create' : 'update'
+}
+
+export function applyChanges(changes: FileChange[], projectRoot: string): void {
   for (const change of changes) {
     const current = existsSync(change.path)
       ? readFileSync(change.path, 'utf8')
       : undefined
     if (current !== change.original) {
       throw new Error(
-        `${relativePath(change)} changed after planning. No files were changed.`,
+        `${relativePath(change, projectRoot)} changed after planning. No files were changed.`,
       )
     }
   }
@@ -81,7 +150,7 @@ function applyChanges(changes: FileChange[]): void {
       written.push(change)
     }
   } catch (error) {
-    const recovery = rollbackChanges(written)
+    const recovery = rollbackChanges(written, projectRoot)
     const detail = error instanceof Error ? error.message : String(error)
     throw new Error(
       `Could not update project configuration: ${detail}. ${recovery}`,
@@ -89,7 +158,10 @@ function applyChanges(changes: FileChange[]): void {
   }
 }
 
-function rollbackChanges(changes: FileChange[]): string {
+export function rollbackChanges(
+  changes: FileChange[],
+  projectRoot: string,
+): string {
   const skipped: string[] = []
   for (const change of changes.toReversed()) {
     let current: string | undefined
@@ -100,11 +172,11 @@ function rollbackChanges(changes: FileChange[]): string {
         current = readFileSync(change.path, 'utf8')
       }
     } catch {
-      skipped.push(relativePath(change))
+      skipped.push(relativePath(change, projectRoot))
       continue
     }
     if (current !== change.updated) {
-      skipped.push(relativePath(change))
+      skipped.push(relativePath(change, projectRoot))
       continue
     }
     try {
@@ -116,7 +188,7 @@ function rollbackChanges(changes: FileChange[]): string {
         writeAtomic(change.path, change.original)
       }
     } catch {
-      skipped.push(relativePath(change))
+      skipped.push(relativePath(change, projectRoot))
     }
   }
   return skipped.length
@@ -124,7 +196,7 @@ function rollbackChanges(changes: FileChange[]): string {
     : 'Restored the configuration files written by this command.'
 }
 
-function writeAtomic(filename: string, contents: string): void {
+export function writeAtomic(filename: string, contents: string): void {
   const directory = path.dirname(filename)
   const temporary = path.join(directory, `.nwsapi-jsdom-${randomUUID()}.tmp`)
   const mode = existsSync(filename) ? statSync(filename).mode : 0o666
@@ -141,6 +213,9 @@ function writeAtomic(filename: string, contents: string): void {
   }
 }
 
-function relativePath(change: FileChange): string {
-  return path.basename(change.path)
+export function relativePath(change: FileChange, projectRoot: string): string {
+  return (
+    path.relative(projectRoot, change.path).split(path.sep).join('/') ||
+    path.basename(change.path)
+  )
 }

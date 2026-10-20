@@ -106,7 +106,10 @@ export function planChanges(
   return { changes, messages, hasProvenance: true }
 }
 
-function formatPackageJson(original: string, packageJson: PackageJson): string {
+export function formatPackageJson(
+  original: string,
+  packageJson: PackageJson,
+): string {
   const indentation = original.match(/\n([ \t]+)"[^"\n]+":/)?.[1] ?? '  '
   const rendered = JSON.stringify(packageJson, null, indentation)
   const lineEnding = original.includes('\r\n') ? '\r\n' : '\n'

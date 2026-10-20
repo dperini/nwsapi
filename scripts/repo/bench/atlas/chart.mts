@@ -7,7 +7,7 @@ import { chartGradients } from '../chart-theme.mts'
 const left = 400
 const width = 540
 
-function scale(rows: Measurement[]) {
+export function scale(rows: Measurement[]) {
   const values = rows.flatMap(row =>
     row.milliseconds.flatMap((value, i) =>
       value === null ? [] : [value, ...(row.samples?.[i] ?? [])],
@@ -28,7 +28,7 @@ function scale(rows: Measurement[]) {
   }
 }
 
-function series(
+export function series(
   row: Measurement,
   index: number,
   y: number,

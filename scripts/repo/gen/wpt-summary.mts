@@ -49,7 +49,7 @@ const report: { suites: Suite[]; stats: { startTime: string } } = JSON.parse(
   readFileSync(values.input, 'utf8'),
 )
 const pages: Page[] = []
-function collect(suites: Suite[]) {
+export function collect(suites: Suite[]) {
   for (const suite of suites) {
     collect(suite.suites || [])
     for (const spec of suite.specs || []) {

@@ -67,7 +67,7 @@ export type TuiLaunchOptions = {
   warn?: (message: string) => void
 }
 
-function warnCacheCleanupFailure(warn?: (message: string) => void) {
+export function warnCacheCleanupFailure(warn?: (message: string) => void) {
   try {
     const report = warn ?? console.error
     report('Could not remove temporary OpenTUI files.')
@@ -133,7 +133,7 @@ export async function launchTui(
   }
 }
 
-function observeChild(
+export function observeChild(
   child: ChildProcess,
   signals: SignalSource,
   platform: NodeJS.Platform,

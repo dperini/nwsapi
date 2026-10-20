@@ -39,7 +39,7 @@ export function classifyScript(source: string, file: string) {
 
 type PageAnalysis = ReturnType<typeof inferScripts> & { dependencies: string[] }
 
-function decideCase(
+export function decideCase(
   title: string | null,
   analysis: PageAnalysis,
   relative: string,
@@ -80,7 +80,7 @@ function decideCase(
   return decision
 }
 
-function assignDefaultTitles(
+export function assignDefaultTitles(
   analysis: ReturnType<typeof inferScripts>,
   relative: string,
   title: string | undefined,

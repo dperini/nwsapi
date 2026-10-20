@@ -66,7 +66,7 @@ export function runLocalUnitShards({
   return verify(directory, identity)
 }
 
-function shardReportPath(directory: string, index: number) {
+export function shardReportPath(directory: string, index: number) {
   const reports = globSync(`**/unit-shard-${index}*.json`, { cwd: directory })
     .filter(file =>
       [`unit-shard-${index}.json`, `unit-shard-${index}.vitest.json`].includes(
@@ -80,7 +80,7 @@ function shardReportPath(directory: string, index: number) {
   return report ? path.resolve(directory, report) : undefined
 }
 
-function logShardCompletion(
+export function logShardCompletion(
   log: (message: string) => void,
   index: number,
   elapsedMs: number,
@@ -92,7 +92,7 @@ function logShardCompletion(
   )
 }
 
-function logShardFailure(
+export function logShardFailure(
   log: (message: string) => void,
   report: string | undefined,
 ) {
@@ -114,7 +114,7 @@ function logShardFailure(
   )
 }
 
-function failedSuitePaths(reportPath: string | undefined) {
+export function failedSuitePaths(reportPath: string | undefined) {
   if (!reportPath?.endsWith('.json')) {
     return []
   }
@@ -147,11 +147,11 @@ function failedSuitePaths(reportPath: string | undefined) {
   }
 }
 
-function shellArgument(value: string) {
+export function shellArgument(value: string) {
   return `'${value.replaceAll("'", "'\\''")}'`
 }
 
-function executeShard(
+export function executeShard(
   index: number,
   directory: string,
   identity: LocalUnitShardIdentity,
@@ -181,12 +181,12 @@ function executeShard(
   )
 }
 
-function createLocalReportDirectory() {
+export function createLocalReportDirectory() {
   const root = path.join(os.tmpdir(), 'nwsapi-review-unit-')
   return mkdtempSync(root)
 }
 
-function currentIdentity(): LocalUnitShardIdentity {
+export function currentIdentity(): LocalUnitShardIdentity {
   return {
     revision: execFileSync('git', ['rev-parse', 'HEAD'], {
       cwd: REPO_ROOT,

@@ -38,15 +38,15 @@ export async function main(
   return runOptIn(url, options, write, error)
 }
 
-function isStatusRequest(args: string[]) {
+export function isStatusRequest(args: string[]) {
   return args.length === 0
 }
 
-function isHelpRequest(args: string[]) {
+export function isHelpRequest(args: string[]) {
   return args.length === 1 && ['--help', '-h'].includes(args[0]!)
 }
 
-function printStatus(write: (message: string) => void) {
+export function printStatus(write: (message: string) => void) {
   write('VoiceOver narration is opt-in. No session has started.')
   write('Start the local model guide, then run the explicit session command.')
   write(usage)
@@ -54,7 +54,7 @@ function printStatus(write: (message: string) => void) {
   write('Stop with Ctrl+C. Command-F5 is the macOS emergency toggle.')
 }
 
-function parseTarget(args: string[], error: (message: string) => void) {
+export function parseTarget(args: string[], error: (message: string) => void) {
   if (
     args.length !== 3 ||
     args[0] !== '--start-session' ||
@@ -71,7 +71,7 @@ function parseTarget(args: string[], error: (message: string) => void) {
   }
 }
 
-async function runOptIn(
+export async function runOptIn(
   url: string,
   options: RunOptions,
   write: (message: string) => void,
@@ -115,7 +115,7 @@ const consentMessage = [
   'Start narration? [y/N] ',
 ].join('\n')
 
-async function askForConfirmation(
+export async function askForConfirmation(
   input: NodeJS.ReadStream,
   output: NodeJS.WriteStream,
   message: string,

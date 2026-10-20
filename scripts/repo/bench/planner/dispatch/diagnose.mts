@@ -30,7 +30,7 @@ const labels = [
   'Split rule',
 ]
 
-function variants(
+export function variants(
   baseline: string,
   model: string,
   rule: string,
@@ -52,7 +52,7 @@ function variants(
   ]
 }
 
-function verify(row: Evidence, model: Override, rule: Override) {
+export function verify(row: Evidence, model: Override, rule: Override) {
   for (const [index, trace] of row.traces.entries()) {
     if (!trace.facts) {
       assert.equal(trace.route, 'ineligible', row.id)
@@ -83,7 +83,7 @@ function verify(row: Evidence, model: Override, rule: Override) {
   )
 }
 
-async function evidence(
+export async function evidence(
   host: string,
   entries: ReturnType<typeof diagnosticFixtures>,
   sources: string[],
@@ -102,7 +102,7 @@ async function evidence(
   return rows
 }
 
-function summary(rows: Row[]) {
+export function summary(rows: Row[]) {
   return labels.map((label, index) => ({
     label,
     cases: rows.length,
@@ -117,7 +117,7 @@ function summary(rows: Row[]) {
   }))
 }
 
-function summaries(rows: Row[]) {
+export function summaries(rows: Row[]) {
   const fresh = rows.filter(row => row.family !== 'reproduction')
   return {
     fresh: summary(fresh),

@@ -69,7 +69,10 @@ type PackageTreeEntry = {
   contents?: Buffer | string
 }
 
-async function packageTree(root: string, io: NativePackageCacheAdapters) {
+export async function packageTree(
+  root: string,
+  io: NativePackageCacheAdapters,
+) {
   const entries = new Map<string, PackageTreeEntry>()
   const rootInfo = await io.lstat(root)
   if (!rootInfo.isDirectory() || rootInfo.isSymbolicLink()) {
@@ -104,7 +107,7 @@ async function packageTree(root: string, io: NativePackageCacheAdapters) {
   return entries
 }
 
-async function packageTreesEqual(
+export async function packageTreesEqual(
   current: string,
   authenticated: string,
   io: NativePackageCacheAdapters,
@@ -136,7 +139,7 @@ async function packageTreesEqual(
   return true
 }
 
-async function verifiedNativeArchive(
+export async function verifiedNativeArchive(
   archive: string,
   entry: NativePackageSpec,
   io: NativePackageCacheAdapters,
@@ -159,7 +162,7 @@ async function verifiedNativeArchive(
   }
 }
 
-async function replacePackageTree(
+export async function replacePackageTree(
   staged: string,
   packageRoot: string,
   cache: string,
@@ -215,7 +218,7 @@ async function replacePackageTree(
   }
 }
 
-function isMissingPath(error: unknown) {
+export function isMissingPath(error: unknown) {
   return (
     typeof error === 'object' &&
     error !== null &&
@@ -224,7 +227,7 @@ function isMissingPath(error: unknown) {
   )
 }
 
-async function installNativePackage(
+export async function installNativePackage(
   cache: string,
   packageRoot: string,
   entry: NativePackageSpec,

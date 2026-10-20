@@ -2,6 +2,7 @@
 import { spawnSync } from 'node:child_process'
 import { realpathSync } from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { createInterface } from 'node:readline/promises'
 import { runCli } from '../../scripts/repo/cli.mts'
 import { interactiveActions } from '../../scripts/repo/cli/ui/actions.mts'
@@ -20,9 +21,21 @@ import {
   shouldUseColor,
 } from '../../scripts/repo/cli/ui/terminal.mts'
 
-const ACTIONS = interactiveActions
+export const ACTIONS = interactiveActions
 
-function tuiRuntime(directory: string) {
+export function isMainModule(url: string, entry = process.argv[1]) {
+  if (!entry) {
+    return false
+  }
+  const modulePath = fileURLToPath(url)
+  try {
+    return realpathSync(entry) === realpathSync(modulePath)
+  } catch {
+    return entry === modulePath
+  }
+}
+
+export function tuiRuntime(directory: string) {
   let target: ReturnType<typeof currentOpenTuiTarget>
   try {
     target = currentOpenTuiTarget()
@@ -54,7 +67,7 @@ function tuiRuntime(directory: string) {
   )
 }
 
-function probeRuntime(command: string): TuiRuntime | undefined {
+export function probeRuntime(command: string): TuiRuntime | undefined {
   const version = spawnSync(command, ['--version'], {
     encoding: 'utf8',
     timeout: 3000,
@@ -75,12 +88,12 @@ function probeRuntime(command: string): TuiRuntime | undefined {
   return ffi.status === 0 ? { command, version: value } : undefined
 }
 
-function selectedAction(value: string) {
+export function selectedAction(value: string) {
   const selected = Number(value.trim() || '1') - 1
   return Number.isInteger(selected) && ACTIONS[selected] ? selected : undefined
 }
 
-function showOutput(output: string, argv: readonly string[]) {
+export function showOutput(output: string, argv: readonly string[]) {
   const color = shouldUseColor({
     isTTY: Boolean(process.stdout.isTTY),
     env: process.env,
@@ -89,7 +102,27 @@ function showOutput(output: string, argv: readonly string[]) {
   console.log(formatCliOutput(output, color))
 }
 
-async function runPlainMenu() {
+export function showError(error: unknown, argv: readonly string[]) {
+  const message = error instanceof Error ? error.message : String(error)
+  if (jsonArguments(argv)) {
+    console.error(
+      JSON.stringify({
+        schemaVersion: 1,
+        type: 'error',
+        status: 'failed',
+        message,
+      }),
+    )
+    return
+  }
+  const color = shouldUseColor({
+    isTTY: Boolean(process.stderr.isTTY),
+    env: process.env,
+  })
+  console.error(formatCliOutput(`nwsapi: ${message}`, color, true))
+}
+
+export async function runPlainMenu() {
   if (!process.stdin.isTTY || !process.stdout.isTTY) {
     showOutput(await runCli([]), [])
     return 0
@@ -128,13 +161,7 @@ async function runPlainMenu() {
       showOutput(await runCli(args), args)
       return 0
     } catch (error) {
-      const message = `nwsapi: ${error instanceof Error ? error.message : String(error)}`
-      const errorColor = shouldUseColor({
-        isTTY: Boolean(process.stderr.isTTY),
-        env: process.env,
-        json: jsonArguments(args),
-      })
-      console.error(formatCliOutput(message, errorColor, true))
+      showError(error, args)
       return 1
     }
   } finally {
@@ -142,7 +169,7 @@ async function runPlainMenu() {
   }
 }
 
-async function runNoArguments() {
+export async function runNoArguments() {
   const executable = process.argv[1] || '.'
   const directory = path.dirname(realpathSync(executable))
   const runtime = tuiRuntime(directory)
@@ -161,7 +188,7 @@ async function runNoArguments() {
   return runPlainMenu()
 }
 
-async function main() {
+export async function main() {
   const argv = process.argv.slice(2)
   try {
     if (argv.length === 0) {
@@ -173,24 +200,18 @@ async function main() {
     if (error instanceof Error && error.name === 'AbortError') {
       return 130
     }
-    const message = `nwsapi: ${error instanceof Error ? error.message : String(error)}`
-    const color = shouldUseColor({
-      isTTY: Boolean(process.stderr.isTTY),
-      env: process.env,
-      json: jsonArguments(argv),
-    })
-    console.error(formatCliOutput(message, color, true))
+    showError(error, argv)
     return 1
   }
 }
 
-main()
-  .then(code => {
-    process.exitCode = code
-  })
-  .catch(error => {
-    console.error(
-      `nwsapi: ${error instanceof Error ? error.message : String(error)}`,
-    )
-    process.exitCode = 1
-  })
+if (isMainModule(import.meta.url)) {
+  void main()
+    .then(code => {
+      process.exitCode = code
+    })
+    .catch(error => {
+      showError(error, process.argv.slice(2))
+      process.exitCode = 1
+    })
+}

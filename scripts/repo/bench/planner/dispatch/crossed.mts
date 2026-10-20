@@ -16,7 +16,7 @@ export function crossedFixtures(): Fixture[] {
   return entries
 }
 
-function makeFixture(
+export function makeFixture(
   layout: number,
   anchors: number,
   ratio: number,

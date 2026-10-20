@@ -79,7 +79,7 @@ export function readinessForTask(
   return taskStatus(readiness)
 }
 
-function taskStatus(readiness: CheckoutReadiness) {
+export function taskStatus(readiness: CheckoutReadiness) {
   const issues: string[] = []
   if (!readiness.tools.ready) {
     issues.push('Pinned checkout tools are not ready.')
@@ -174,7 +174,10 @@ export async function dependencyReadiness(root: string) {
   }
 }
 
-async function npmDependencyReadiness(root: string, nodeModules: string) {
+export async function npmDependencyReadiness(
+  root: string,
+  nodeModules: string,
+) {
   try {
     const manifest = JSON.parse(
       readFileSync(path.join(root, 'package.json'), 'utf8'),
@@ -241,7 +244,7 @@ interface NpmLockPackage {
   devDependencies?: Record<string, string>
 }
 
-function checkManifestCatalog(
+export function checkManifestCatalog(
   manifest: PackageManifest,
   workspace: PnpmWorkspace,
 ) {
@@ -256,7 +259,7 @@ function checkManifestCatalog(
     )
 }
 
-function checkNpmDependencyGroup(
+export function checkNpmDependencyGroup(
   root: string,
   nodeModules: string,
   group: 'dependencies' | 'devDependencies',
@@ -295,7 +298,7 @@ function checkNpmDependencyGroup(
   return issues
 }
 
-function checkOptionalPeerGroup(
+export function checkOptionalPeerGroup(
   root: string,
   nodeModules: string,
   manifest: PackageManifest,
@@ -333,7 +336,7 @@ function checkOptionalPeerGroup(
   )
 }
 
-function parseLockDocuments(
+export function parseLockDocuments(
   documents: Array<{ errors: Error[]; toJSON(): unknown }>,
 ): PnpmLock {
   const result: PnpmLock = {}
@@ -351,7 +354,7 @@ function parseLockDocuments(
   return result
 }
 
-function mergeImporterMaps(
+export function mergeImporterMaps(
   current: PnpmLock['importers'],
   next: PnpmLock['importers'],
 ): NonNullable<PnpmLock['importers']> {
@@ -362,7 +365,7 @@ function mergeImporterMaps(
   return merged
 }
 
-function mergeCatalogMaps(
+export function mergeCatalogMaps(
   current: PnpmLock['catalogs'],
   next: PnpmLock['catalogs'],
 ): NonNullable<PnpmLock['catalogs']> {
@@ -373,7 +376,7 @@ function mergeCatalogMaps(
   return merged
 }
 
-function checkDependencyGroup(
+export function checkDependencyGroup(
   root: string,
   nodeModules: string,
   group: 'dependencies' | 'devDependencies' | 'optional peerDependencies',
@@ -411,7 +414,7 @@ function checkDependencyGroup(
   return issues
 }
 
-function catalogResolutionIssue(
+export function catalogResolutionIssue(
   name: string,
   specifier: string,
   resolution: PnpmResolution,
@@ -440,7 +443,7 @@ function catalogResolutionIssue(
   return undefined
 }
 
-function catalogImporterMatches(
+export function catalogImporterMatches(
   specifier: string | undefined,
   expected: string,
   request: string,
@@ -448,7 +451,7 @@ function catalogImporterMatches(
   return specifier === expected || specifier === request
 }
 
-function catalogEntryMatches(
+export function catalogEntryMatches(
   locked: PnpmResolution | undefined,
   expected: string,
   version: string,

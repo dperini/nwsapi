@@ -41,7 +41,7 @@ export async function runReadmeHarnessSteps(
   }
 }
 
-async function captureReadinessDetails(
+export async function captureReadinessDetails(
   file: string,
   checkout: string,
   node: string,

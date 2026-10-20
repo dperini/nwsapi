@@ -22,7 +22,7 @@ interface ShardOptions {
   directory: string
 }
 
-function parseShardOptions(args: string[]): ShardOptions | undefined {
+export function parseShardOptions(args: string[]): ShardOptions | undefined {
   const { values } = parseArgs({
     args,
     options: {
@@ -53,7 +53,7 @@ function parseShardOptions(args: string[]): ShardOptions | undefined {
   return { index, count, directory: values.directory }
 }
 
-function createOutputDirectory(index: number, directory: string) {
+export function createOutputDirectory(index: number, directory: string) {
   const tempRoot = path.resolve(process.env['RUNNER_TEMP'] ?? os.tmpdir())
   const reportRoot = path.resolve(directory)
   const rootRelative = path.relative(tempRoot, reportRoot)
@@ -64,7 +64,11 @@ function createOutputDirectory(index: number, directory: string) {
   return mkdtempSync(path.join(reportRoot, `nwsapi-unit-shard-${index}-`))
 }
 
-async function executeShard(index: number, count: number, directory: string) {
+export async function executeShard(
+  index: number,
+  count: number,
+  directory: string,
+) {
   const outputDirectory = createOutputDirectory(index, directory)
   const output = path.join(outputDirectory, `unit-shard-${index}.json`)
   const vitestOutput = output.replace(/\.json$/, '.vitest.json')

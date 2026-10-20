@@ -34,14 +34,14 @@ interface Metric {
   passesGate: boolean
 }
 
-function escape(value: string) {
+export function escape(value: string) {
   return value
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
 }
 
-function chart(data: Timings, host: string, group: string) {
+export function chart(data: Timings, host: string, group: string) {
   const names: Record<string, string> = {
     evaluation: 'Reserved synthetic cases',
     development: 'Existing benchmark cases',
@@ -67,7 +67,7 @@ function chart(data: Timings, host: string, group: string) {
     <p>${metrics.cachedModel ? 'Compared with the cached filter rule, the cached model takes' : 'Compared with the simple rule, the model takes'} ${(100 * Math.abs(ruleTime - 1)).toFixed(1)}% ${ruleTime > 1 ? 'more' : 'less'} time on average. Small differences need stable repeat measurements before claiming a model advantage.</p>${cacheNote(rows, Boolean(metrics.cachedModel))}</section>`
 }
 
-function cacheNote(rows: Array<{ costs: number[] }>, enabled: boolean) {
+export function cacheNote(rows: Array<{ costs: number[] }>, enabled: boolean) {
   if (!enabled) {
     return ''
   }
@@ -75,17 +75,17 @@ function cacheNote(rows: Array<{ costs: number[] }>, enabled: boolean) {
   return `<p>With decision reuse, the model takes ${(ratio * 100).toFixed(1)}% of its uncached complete-query time in this group. Both variants have the same weights. These timings repeat the same inputs on an unchanged DOM. Cold queries and alternating input patterns still need measurement.</p>`
 }
 
-function qualifies(data: Timings, group: string) {
+export function qualifies(data: Timings, group: string) {
   const metric = data.summaries[group]
   return (metric?.cachedModel ?? metric?.model)?.passesGate
 }
 
-function trainingDescription(data: Timings, host: string) {
+export function trainingDescription(data: Timings, host: string) {
   const counts = data.metadata.familyCounts
   return `${host}: ${counts?.['train'] ?? 6} training families, ${counts?.['validation'] ?? 2} selection families, ${counts?.['evaluation'] ?? 2} evaluation families. ${data.metadata.trainingScope ?? 'Previous fixtures are development controls.'} ${data.metadata.decisionCache ?? ''}`
 }
 
-function scopeParagraph(note: string | undefined) {
+export function scopeParagraph(note: string | undefined) {
   return note ? `<p>${escape(note)}</p>` : ''
 }
 

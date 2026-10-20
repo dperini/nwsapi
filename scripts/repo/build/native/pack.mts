@@ -70,7 +70,7 @@ export function packNativeLibrary(
   return receipt
 }
 
-function inspectNativeOutput(filename: string): NativeOutputInfo {
+export function inspectNativeOutput(filename: string): NativeOutputInfo {
   try {
     const metadata = lstatSync(filename)
     return {
@@ -85,7 +85,7 @@ function inspectNativeOutput(filename: string): NativeOutputInfo {
   }
 }
 
-function validateReceipt(
+export function validateReceipt(
   value: unknown,
   options: NativePackOptions,
 ): asserts value is NativePackReceipt {

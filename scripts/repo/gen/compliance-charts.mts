@@ -47,7 +47,7 @@ interface WptReport {
   }>
 }
 
-function validOutcome(outcome: unknown): outcome is Outcome {
+export function validOutcome(outcome: unknown): outcome is Outcome {
   if (!outcome || typeof outcome !== 'object') {
     return false
   }
@@ -175,7 +175,7 @@ export function summarizeCompliance(comparison: Comparison, wpt: WptReport) {
   }
 }
 
-function complianceChart(
+export function complianceChart(
   title: string,
   description: string,
   rows: Array<{ name: string; passed: number; total: number }>,

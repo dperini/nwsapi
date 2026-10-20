@@ -29,7 +29,7 @@ const { DOMSelector } = competitorRequire('@asamuzakjp/dom-selector') as {
   ) => SelectorEngine
 }
 
-async function heap() {
+export async function heap() {
   for (let pass = 0; pass < 4; pass++) {
     await setImmediate()
     globalThis.gc!()
@@ -37,7 +37,7 @@ async function heap() {
   return process.memoryUsage().heapUsed
 }
 
-async function measure(engine: string, count: number, queries: number) {
+export async function measure(engine: string, count: number, queries: number) {
   const documents = Array.from({ length: count }, () => new JSDOM(fixture))
   const retained: unknown[] = Array.from({ length: count })
   const selectors = Array.from(

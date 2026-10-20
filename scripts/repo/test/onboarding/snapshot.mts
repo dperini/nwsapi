@@ -79,11 +79,11 @@ type AppendLogger = (
   result: CommandResult,
 ) => Promise<void>
 
-function protectedPath(paths: string[]) {
+export function protectedPath(paths: string[]) {
   return paths.join(path.delimiter)
 }
 
-function absentArtifacts(checkout: string) {
+export function absentArtifacts(checkout: string) {
   for (const name of ['node_modules', 'dist', '.cache']) {
     if (existsSync(path.join(checkout, name))) {
       return name
@@ -298,7 +298,7 @@ export async function copyTrackedTree(
   })
 }
 
-async function createWorkingTreeSnapshot(
+export async function createWorkingTreeSnapshot(
   log: string,
   repo: string,
   snapshot: string,
@@ -364,7 +364,7 @@ async function createWorkingTreeSnapshot(
   return head.stdout.trim()
 }
 
-async function requireReadmeSteps(snapshot: string) {
+export async function requireReadmeSteps(snapshot: string) {
   const steps = await readJourney(snapshot)
   const required = [
     'bootstrap',
@@ -380,7 +380,7 @@ async function requireReadmeSteps(snapshot: string) {
   }
 }
 
-async function requireSupportedNode(
+export async function requireSupportedNode(
   scenario: Scenario,
   version: string,
   snapshot: string,

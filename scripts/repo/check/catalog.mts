@@ -21,7 +21,7 @@ type WorkspaceConfiguration = {
   overrides?: Record<string, string>
 }
 
-function checkPackageManager(pkg: PackageConfiguration) {
+export function checkPackageManager(pkg: PackageConfiguration) {
   const managers = pkg.devEngines.packageManager
   if (pkg.packageManager !== undefined || managers.length !== 2) {
     throw new Error(
@@ -49,13 +49,13 @@ export function checkCatalog(root = REPO_ROOT) {
   checkAgentShieldLock(root)
 }
 
-function readWorkspace(root: string): WorkspaceConfiguration {
+export function readWorkspace(root: string): WorkspaceConfiguration {
   return parse(
     readFileSync(path.join(root, 'pnpm-workspace.yaml'), 'utf8'),
   ) as WorkspaceConfiguration
 }
 
-function checkPackageCatalog(
+export function checkPackageCatalog(
   pkg: PackageConfiguration,
   workspace: WorkspaceConfiguration,
 ) {
@@ -77,7 +77,7 @@ function checkPackageCatalog(
   }
 }
 
-function checkInstallPolicies(
+export function checkInstallPolicies(
   pkg: PackageConfiguration,
   workspace: WorkspaceConfiguration,
 ) {
@@ -91,7 +91,7 @@ function checkInstallPolicies(
   checkPackageManager(pkg)
 }
 
-function checkPinnedToolVersions(
+export function checkPinnedToolVersions(
   root: string,
   workspace: WorkspaceConfiguration,
 ) {
@@ -126,7 +126,7 @@ function checkPinnedToolVersions(
   }
 }
 
-function checkAgentShieldLock(root: string) {
+export function checkAgentShieldLock(root: string) {
   const documents = parseAllDocuments(
     readFileSync(path.join(root, 'pnpm-lock.yaml'), 'utf8'),
   )

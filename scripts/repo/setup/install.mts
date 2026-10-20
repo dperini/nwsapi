@@ -36,7 +36,7 @@ export function stageTool(plan: ToolPlan, bytes: Buffer, staging: string) {
   rmSync(archive)
 }
 
-function normalizedExecutable(value: string, platform: string) {
+export function normalizedExecutable(value: string, platform: string) {
   let resolved = path.resolve(value)
   try {
     resolved = realpathSync(resolved)
@@ -61,7 +61,11 @@ export function isActiveToolExecutable(
   )
 }
 
-function executableMatches(target: string, staging: string, binary: string) {
+export function executableMatches(
+  target: string,
+  staging: string,
+  binary: string,
+) {
   const rootStat = lstatSync(target)
   if (rootStat.isSymbolicLink() || !rootStat.isDirectory()) {
     return false
@@ -94,7 +98,7 @@ function executableMatches(target: string, staging: string, binary: string) {
   return false
 }
 
-function activeExecutableDiffers(
+export function activeExecutableDiffers(
   plan: ToolPlan,
   target: string,
   staging: string,

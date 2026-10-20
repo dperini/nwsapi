@@ -58,7 +58,7 @@ export function toolReports() {
   })
 }
 
-function toolDetails(report: ReturnType<typeof toolReports>[number]) {
+export function toolDetails(report: ReturnType<typeof toolReports>[number]) {
   return [
     `  executable: ${report.executable ?? 'not found'}`,
     `  resolved: ${report.resolved ?? 'not found'}`,
@@ -73,7 +73,7 @@ function toolDetails(report: ReturnType<typeof toolReports>[number]) {
   ]
 }
 
-function toolStatus(
+export function toolStatus(
   report: ReturnType<typeof toolReports>[number],
   ready: boolean,
 ) {
@@ -151,7 +151,7 @@ export async function main(
 const DOCTOR_HELP =
   'Usage: node scripts/repo/setup/doctor.mts [--details] [--task guide|review]\nReports readiness without changing tools or shell settings. Default checks pinned tools and installed dependencies.'
 
-function parseDoctorArgs(args: string[]) {
+export function parseDoctorArgs(args: string[]) {
   return parseArgs({
     args: args[0] === '--' ? args.slice(1) : args,
     options: {
@@ -162,7 +162,7 @@ function parseDoctorArgs(args: string[]) {
   })
 }
 
-async function reportReadiness(
+export async function reportReadiness(
   taskId: 'guide' | 'review' | undefined,
   details: boolean | undefined,
   log: (message: string) => void,
@@ -203,7 +203,9 @@ if (isMainModule(import.meta.url)) {
   process.exitCode = await main()
 }
 
-function formatVoiceOverStatus(status: ReturnType<typeof preflightVoiceOver>) {
+export function formatVoiceOverStatus(
+  status: ReturnType<typeof preflightVoiceOver>,
+) {
   if (!status.supported) {
     return `Optional VoiceOver: unsupported on ${status.platform}.`
   }

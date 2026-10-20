@@ -40,12 +40,12 @@ export function verifyIntegrity(bytes: Uint8Array, integrity: string) {
   }
 }
 
-function safeDownloadLocation(value: string) {
+export function safeDownloadLocation(value: string) {
   const target = new URL(value)
   return `${target.origin}${target.pathname}`
 }
 
-function errorLabel(value: unknown) {
+export function errorLabel(value: unknown) {
   if (!(value instanceof Error)) {
     return typeof value
   }
@@ -61,7 +61,7 @@ export function downloadFailure(value: unknown) {
   return errorLabel(value)
 }
 
-function transportResetCode(value: unknown) {
+export function transportResetCode(value: unknown) {
   const visited = new Set<unknown>()
   let current = value
   let resetCode: string | undefined
@@ -86,17 +86,17 @@ export type DownloadDelay = (
   signal: AbortSignal,
 ) => Promise<void>
 
-function waitForRetry(milliseconds: number, signal: AbortSignal) {
+export function waitForRetry(milliseconds: number, signal: AbortSignal) {
   return timerDelay(milliseconds, undefined, { signal }).then(() => undefined)
 }
 
-function canRetry(error: unknown, attempt: number, signal: AbortSignal) {
+export function canRetry(error: unknown, attempt: number, signal: AbortSignal) {
   return (
     attempt < 3 && !signal.aborted && transportResetCode(error) !== undefined
   )
 }
 
-async function retryDownload(
+export async function retryDownload(
   error: unknown,
   stage: 'headers' | 'body',
   attempt: number,
@@ -116,13 +116,17 @@ async function retryDownload(
   return !signal.aborted
 }
 
-function requestFailure(location: string, error: unknown, stage: string) {
+export function requestFailure(
+  location: string,
+  error: unknown,
+  stage: string,
+) {
   return new Error(
     `Tool download ${stage} failed for ${location}: ${downloadFailure(error)}.`,
   )
 }
 
-async function fetchAttempt(
+export async function fetchAttempt(
   url: string,
   location: string,
   signal: AbortSignal,
@@ -199,7 +203,7 @@ export function cachedArchive(file: string, integrity: string) {
   }
 }
 
-function reusableArchive(file: string, integrity: string) {
+export function reusableArchive(file: string, integrity: string) {
   try {
     return cachedArchive(file, integrity)
   } catch (error) {

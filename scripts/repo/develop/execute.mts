@@ -5,7 +5,7 @@ import type { Task } from './actions.mts'
 import { runProcess } from './process.mts'
 import { taskReadiness } from '../setup/readiness.mts'
 
-async function taskCommand(task: Task) {
+export async function taskCommand(task: Task) {
   if (task.command) {
     return {
       command: process.execPath,

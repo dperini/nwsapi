@@ -10,7 +10,7 @@ const require = createRequire(import.meta.url)
 
 export type HybridCarrierExports = { libraryPath?: unknown }
 
-async function validatedLibraryPath(
+export async function validatedLibraryPath(
   exports: HybridCarrierExports,
   checkFile: typeof lstat,
 ) {
@@ -26,7 +26,7 @@ async function validatedLibraryPath(
   }
 }
 
-async function installLibraryPath(
+export async function installLibraryPath(
   libraryPath: string,
   setter: ((file: string) => void | Promise<void>) | undefined,
 ) {

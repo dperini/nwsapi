@@ -33,7 +33,7 @@ export interface NativeTypeCoverageResult {
   engine: 'tsrs'
 }
 
-function requireCoverageType(type: Type | undefined): Type {
+export function requireCoverageType(type: Type | undefined): Type {
   if (!type) {
     throw new Error(
       'Type coverage failed: the compiler returned a missing type.',
@@ -42,7 +42,7 @@ function requireCoverageType(type: Type | undefined): Type {
   return type
 }
 
-function resolveCoverageType(
+export function resolveCoverageType(
   node: Node,
   type: Type | undefined,
   checker: Checker,
@@ -85,7 +85,7 @@ function resolveCoverageType(
   )
 }
 
-function measureCoverageSource(
+export function measureCoverageSource(
   project: Project,
   source: SourceFile,
   report?: (file: string, identifiers: UntypedIdentifier[]) => void,

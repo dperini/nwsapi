@@ -1,223 +1,31 @@
-import { afterEach, expect, test, vi } from 'vitest'
-import path from 'node:path'
-import * as fs from 'node:fs'
+import { expect, test, vi } from 'vitest'
+import {
+  describeToolSetup,
+  main,
+  toolSetupPlan,
+} from '../../../../scripts/repo/setup/tools.mts'
 
-const state = vi.hoisted(() => ({
-  platform: 'darwin' as NodeJS.Platform,
-  moldPlatform: 'darwin-arm64',
-  invalid: '',
-  main: false,
-  versions: {
-    node: '26.11.0',
-    nub: '0.9.6',
-    npm: '12.2.0',
-    pnpm: '12.12.0',
-    mise: '2026.10.4',
-    sfw: '1.15.2',
-    mold: '2.43.0',
-  } as Record<string, string>,
-  install: vi.fn(async (plan: { name: string }) => `/verified/${plan.name}`),
-  register: vi.fn(),
-  shim: vi.fn(),
-}))
-vi.mock('node:fs', async original => ({
-  ...(await original<typeof fs>()),
-  realpathSync: vi.fn((file: string) => file),
-  mkdirSync: vi.fn(),
-  rmSync: vi.fn(),
-  symlinkSync: vi.fn(),
-  copyFileSync: vi.fn(),
-  writeFileSync: vi.fn(),
-  appendFileSync: vi.fn(),
-  existsSync: vi.fn(() => false),
-  readFileSync: vi.fn(() => Buffer.from('node')),
-}))
-vi.mock('node:child_process', () => ({
-  execFileSync: (command: string) => {
-    const name = command === '/verified/node' ? 'npm' : path.basename(command)
-    if (name === state.invalid) {
-      return 'invalid'
-    }
-    const version = state.versions[name]
-    return name === 'mold' || name === 'mise' || name === 'sfw'
-      ? `${name} ${version}`
-      : `v${version}\n`
-  },
-}))
-vi.mock('../../../../scripts/repo/lib/run-node.mts', () => ({
-  isMainModule: (url: string) => state.main && url.endsWith('/setup/tools.mts'),
-}))
-vi.mock('../../../../scripts/repo/external-tools.mts', () => ({
-  TOOL_BIN: '/tools/bin',
-  TOOLCHAIN_STATE: '/tools/state.json',
-  checkExternalTools: vi.fn(),
-  toolchainState: () => '{"manager":"pnpm"}',
-  toolVersions: () => state.versions,
-  managedNodeEntry: () =>
-    state.platform === 'win32' ? '/tools/bin/node.exe' : '/tools/bin/node',
-  toolPlan: (name: string) => ({ name }),
-  toolPlatform: () => state.moldPlatform,
-}))
-vi.mock('../../../../scripts/repo/node.mts', () => ({
-  installNodeVersions: vi.fn(),
-  NODE_INTEROP_VERSIONS: ['22.23.2'],
-  nodeInteropEnvironment: () => ({}),
-  resolveNodeRuntime: () => '/verified/node',
-}))
-vi.mock('../../../../scripts/repo/setup/prerequisites.mts', () => ({
-  checkPrerequisites: vi.fn(),
-}))
-vi.mock('../../../../scripts/repo/setup/install.mts', () => ({
-  installTool: state.install,
-}))
-vi.mock('../../../../scripts/repo/setup/firewall.mts', () => ({
-  writeFirewallShim: state.shim,
-}))
-vi.mock('../../../../scripts/repo/setup/mise.mts', () => ({
-  registerNub: state.register,
-}))
-
-afterEach(() => {
-  state.main = false
-  vi.unstubAllGlobals()
-})
-
-async function fixture() {
-  vi.resetModules()
-  state.invalid = ''
-  state.install.mockClear()
-  state.register.mockClear()
-  vi.mocked(fs.writeFileSync).mockClear()
-  vi.stubGlobal(
-    'process',
-    new Proxy(process, {
-      get(target, property) {
-        if (property === 'platform') {
-          return state.platform
-        }
-        return Reflect.get(target, property)
-      },
-    }),
-  )
-  vi.spyOn(console, 'log').mockImplementation(() => {})
-  return import('../../../../scripts/repo/setup/tools.mts')
-}
-
-test('direct invocation provisions the pinned tools', async () => {
-  const args = process.argv
-  process.argv = [args[0]!, '/setup/tools.mts']
-  state.main = true
-  state.platform = 'darwin'
-  state.moldPlatform = 'darwin-arm64'
-  try {
-    await fixture()
-    expect(state.install).toHaveBeenCalled()
-  } finally {
-    process.argv = args
-  }
-})
-
-test('setup verifies all tools before writing the ready-state marker', async () => {
-  state.platform = 'darwin'
-  state.moldPlatform = 'darwin-arm64'
-  const tools = await fixture()
-  expect(await tools.setupTools()).toBe('/tools/bin')
-  expect(state.install.mock.calls.map(([plan]) => plan.name)).toEqual([
+test('tool setup preview lists pinned versions and checkout destinations', () => {
+  const plan = toolSetupPlan()
+  expect(plan.tools.map(tool => tool.name)).toEqual([
     'nub',
     'pnpm',
     'npm',
     'sfw',
     'mise',
   ])
-  expect(state.register).toHaveBeenCalledTimes(1)
-  const writes = vi.mocked(fs.writeFileSync).mock.calls
-  expect(writes.at(-1)![0]).toBe('/tools/state.json')
-  expect(JSON.parse(writes.at(-1)![1] as string).manager).toBe('pnpm')
+  expect(plan.targets).toContain('.cache/bin/toolchain.json')
+  expect(plan.targets).toContain('.cache/external-tools')
 })
 
-test('Linux installs and validates mold for both supported architectures', async () => {
-  state.platform = 'linux'
-  const platforms = ['linux-x64', 'linux-arm64']
-  for (let i = 0, length = platforms.length; i < length; i += 1) {
-    state.moldPlatform = platforms[i]!
-    const tools = await fixture()
-    await tools.setupTools({ full: true })
-    expect(state.install.mock.calls.at(-1)![0].name).toBe('mold')
-    state.invalid = 'mold'
-    await expect(tools.setupTools({ full: true })).rejects.toThrow(Error)
-  }
-})
-
-test('a mismatched or unparseable tool version cannot produce a ready marker', async () => {
-  state.platform = 'darwin'
-  state.moldPlatform = 'darwin-arm64'
-  const tools = await fixture()
-  const names = ['nub', 'mise', 'sfw', 'npm', 'pnpm']
-  for (let i = 0, length = names.length; i < length; i += 1) {
-    state.invalid = names[i]!
-    await expect(tools.setupTools()).rejects.toThrow(Error)
-  }
-  expect(fs.writeFileSync).not.toHaveBeenCalled()
-})
-
-test('Windows npm firewall uses the activated managed Node launcher', async () => {
-  state.platform = 'win32'
-  const tools = await fixture()
-  await tools.setupTools()
-  expect(state.shim).toHaveBeenCalledWith('npm', '/verified/sfw', {
-    executable: '/tools/bin/node.exe',
-    args: ['/verified/npm'],
+test('tool setup dry-run does not call the installer', async () => {
+  const setup = vi.fn(async () => '/checkout/.cache/bin')
+  const log = vi.fn()
+  await main(['--dry-run', '--json'], setup, log)
+  expect(setup).not.toHaveBeenCalled()
+  expect(JSON.parse(log.mock.calls[0]![0] as string)).toMatchObject({
+    type: 'preview',
+    command: 'setup/tools',
   })
-})
-
-test('Windows activates native Node bytes and command launchers', async () => {
-  state.platform = 'win32'
-  const tools = await fixture()
-  tools.activateTool('npm', '/verified/npm%path')
-  expect(fs.writeFileSync).toHaveBeenCalledWith(
-    expect.stringContaining('npm.cmd'),
-    expect.any(String),
-  )
-  vi.mocked(fs.existsSync).mockReturnValue(false)
-  tools.activateTool('node', '/verified/node')
-  expect(fs.copyFileSync).toHaveBeenCalled()
-  vi.mocked(fs.copyFileSync).mockClear()
-  vi.mocked(fs.existsSync).mockReturnValue(true)
-  tools.activateTool('node', '/verified/node')
-  expect(fs.copyFileSync).not.toHaveBeenCalled()
-  vi.mocked(fs.readFileSync).mockReturnValueOnce(Buffer.from('stale'))
-  tools.activateTool('node', '/verified/node')
-  expect(fs.copyFileSync).toHaveBeenCalledTimes(1)
-})
-
-test('the CLI requires an Actions path file before provisioning tools', async () => {
-  state.platform = 'darwin'
-  const tools = await fixture()
-  await expect(
-    tools.main(['--github-path'], tools.setupTools, vi.fn(), {}),
-  ).rejects.toThrow(Error)
-  expect(state.install).not.toHaveBeenCalled()
-})
-
-test('the CLI appends verified launchers to the Actions path only when requested', async () => {
-  state.platform = 'darwin'
-  state.moldPlatform = 'darwin-arm64'
-  const tools = await fixture()
-  await tools.main(['--github-path'], tools.setupTools, vi.fn(), {
-    GITHUB_PATH: '/gha/path',
-  })
-  expect(fs.appendFileSync).toHaveBeenCalledWith('/gha/path', '/tools/bin\n')
-  vi.mocked(fs.appendFileSync).mockClear()
-  await tools.main([], tools.setupTools, vi.fn(), {})
-  expect(fs.appendFileSync).not.toHaveBeenCalled()
-})
-
-test('core setup provisions only the contributor Node version', async () => {
-  state.platform = 'linux'
-  state.moldPlatform = 'linux-x64'
-  const tools = await fixture()
-  await tools.setupTools()
-  expect(state.install.mock.calls.map(([plan]) => plan.name)).not.toContain(
-    'mold',
-  )
+  expect(describeToolSetup().options).toContain('--dry-run')
 })

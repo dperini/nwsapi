@@ -88,7 +88,7 @@ export function resolveManager(
   return invoked === 'pnpm' ? 'pnpm' : 'npm'
 }
 
-function projectLockfiles(root: string): {
+export function projectLockfiles(root: string): {
   npmLock: boolean
   pnpmLock: boolean
 } {
@@ -110,7 +110,7 @@ function projectLockfiles(root: string): {
   return { npmLock, pnpmLock }
 }
 
-function validateLockfiles(
+export function validateLockfiles(
   manager: JsdomPackageManager | undefined,
   npmLock: boolean,
   pnpmLock: boolean,
@@ -119,7 +119,7 @@ function validateLockfiles(
   validateManagerLock(manager, lockManager)
 }
 
-function validateManagerLock(
+export function validateManagerLock(
   manager: JsdomPackageManager | undefined,
   lockManager: JsdomPackageManager | undefined,
 ): void {
@@ -128,7 +128,9 @@ function validateManagerLock(
   }
 }
 
-function packageManagerName(value: unknown): JsdomPackageManager | undefined {
+export function packageManagerName(
+  value: unknown,
+): JsdomPackageManager | undefined {
   if (value === undefined) {
     return undefined
   }
@@ -145,7 +147,7 @@ function packageManagerName(value: unknown): JsdomPackageManager | undefined {
   return name
 }
 
-function nearestPackageRoot(cwd: string): string {
+export function nearestPackageRoot(cwd: string): string {
   let directory = cwd
   while (true) {
     const manifest = path.join(directory, 'package.json')
@@ -160,7 +162,7 @@ function nearestPackageRoot(cwd: string): string {
   }
 }
 
-function findOwningWorkspace(packageRoot: string): string | undefined {
+export function findOwningWorkspace(packageRoot: string): string | undefined {
   let directory = path.dirname(packageRoot)
   while (directory !== path.dirname(directory)) {
     const packageJsonPath = path.join(directory, 'package.json')
@@ -180,7 +182,7 @@ function findOwningWorkspace(packageRoot: string): string | undefined {
   return undefined
 }
 
-function workspacePatterns(
+export function workspacePatterns(
   root: string,
   pkg: PackageJson,
 ): string[] | undefined {
@@ -225,7 +227,7 @@ function workspacePatterns(
   return undefined
 }
 
-function readWorkspaceYaml(
+export function readWorkspaceYaml(
   root: string,
 ): Pick<
   JsdomProject,
@@ -247,7 +249,10 @@ function readWorkspaceYaml(
   }
 }
 
-function includesPackage(patterns: string[], relativePath: string): boolean {
+export function includesPackage(
+  patterns: string[],
+  relativePath: string,
+): boolean {
   const candidate = relativePath.split(path.sep).join('/')
   let included = false
   for (const pattern of patterns) {
@@ -262,7 +267,7 @@ function includesPackage(patterns: string[], relativePath: string): boolean {
   return included
 }
 
-function normalizeWorkspacePattern(pattern: string): string {
+export function normalizeWorkspacePattern(pattern: string): string {
   return pattern
     .replaceAll('\\', '/')
     .replace(/^(?:\.\/)+/, '')
@@ -270,7 +275,10 @@ function normalizeWorkspacePattern(pattern: string): string {
     .replace(/\/$/, '')
 }
 
-function stringArray(value: unknown, label: string): string[] | undefined {
+export function stringArray(
+  value: unknown,
+  label: string,
+): string[] | undefined {
   if (value === undefined) {
     return undefined
   }
@@ -280,7 +288,7 @@ function stringArray(value: unknown, label: string): string[] | undefined {
   return value as string[]
 }
 
-function rejectManagedDependencyDirectory(cwd: string): void {
+export function rejectManagedDependencyDirectory(cwd: string): void {
   const segments = cwd.split(path.sep).map(segment => segment.toLowerCase())
   if (
     segments.includes('node_modules') ||
@@ -294,7 +302,7 @@ function rejectManagedDependencyDirectory(cwd: string): void {
   }
 }
 
-function supportedPackageManagerName(
+export function supportedPackageManagerName(
   value: unknown,
 ): JsdomPackageManager | undefined {
   if (typeof value !== 'string') {
@@ -304,10 +312,10 @@ function supportedPackageManagerName(
   return name === 'npm' || name === 'pnpm' ? name : undefined
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-function errorMessage(error: unknown): string {
+export function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }

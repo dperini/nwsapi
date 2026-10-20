@@ -80,7 +80,7 @@ export function nativePins(
   }
 }
 
-function verifyReport(report: NativeReport, pins: NativePins) {
+export function verifyReport(report: NativeReport, pins: NativePins) {
   if (
     report.run_info.product !== 'chrome' ||
     report.run_info.browser_version !== pins.browser ||
@@ -95,7 +95,7 @@ function verifyReport(report: NativeReport, pins: NativePins) {
   }
 }
 
-function plannedTests(plan: NativePlan, pins: NativePins) {
+export function plannedTests(plan: NativePlan, pins: NativePins) {
   if (
     plan.scope !== 'selector-candidates' ||
     plan.experimental ||

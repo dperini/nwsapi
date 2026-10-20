@@ -12,7 +12,7 @@ export const PROFILE_PHASES = [
 
 export type ProfilePhase = (typeof PROFILE_PHASES)[number]
 
-function isProfilePhase(value: string): value is ProfilePhase {
+export function isProfilePhase(value: string): value is ProfilePhase {
   return PROFILE_PHASES.includes(value as ProfilePhase)
 }
 

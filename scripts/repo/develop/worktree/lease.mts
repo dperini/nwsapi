@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { open, readFile, writeFile, rm, mkdir, rename } from 'node:fs/promises'
 import { hostname } from 'node:os'
 import path from 'node:path'
@@ -16,6 +17,68 @@ export interface WorktreeMetadata {
   releasedToken?: string
   releasedAt?: number
   hostname?: string
+}
+
+export async function withCurrentWorktreeLease<T>(
+  repository: string,
+  action: () => Promise<T>,
+) {
+  const checkout = realpathSync(repository)
+  const metadataPath = path.join(
+    path.dirname(checkout),
+    '.nwsapi-worktree.json',
+  )
+  if (!existsSync(metadataPath)) {
+    return action()
+  }
+  const metadata = JSON.parse(
+    readFileSync(metadataPath, 'utf8'),
+  ) as WorktreeMetadata
+  if (metadata.path === checkout && metadata.hostname !== hostname()) {
+    throw new Error(
+      `Worktree metadata at ${metadataPath} belongs to another or unknown host. Preserve the checkout and inspect its owner before running tasks.`,
+    )
+  }
+  if (
+    metadata.path !== checkout ||
+    metadata.hostname !== hostname() ||
+    !['v2', 'v3'].includes(metadata.version)
+  ) {
+    return action()
+  }
+  const pulsePath = path.join(path.dirname(checkout), '.nwsapi-pulse.json')
+  const inheritedToken = process.env['NWSAPI_WORKTREE_LEASE_TOKEN']
+  const inheritedPath = process.env['NWSAPI_WORKTREE_PATH']
+  const pulse = await inspectPulse(pulsePath)
+  if (
+    inheritedToken &&
+    inheritedToken === metadata.leaseToken &&
+    inheritedToken === pulse.token &&
+    inheritedPath === checkout &&
+    pulse.active
+  ) {
+    return action()
+  }
+  const lease = await claimWorktree(metadata, pulsePath)
+  const previousToken = process.env['NWSAPI_WORKTREE_LEASE_TOKEN']
+  const previousPath = process.env['NWSAPI_WORKTREE_PATH']
+  process.env['NWSAPI_WORKTREE_LEASE_TOKEN'] = lease.token
+  process.env['NWSAPI_WORKTREE_PATH'] = checkout
+  try {
+    return await action()
+  } finally {
+    if (previousToken === undefined) {
+      delete process.env['NWSAPI_WORKTREE_LEASE_TOKEN']
+    } else {
+      process.env['NWSAPI_WORKTREE_LEASE_TOKEN'] = previousToken
+    }
+    if (previousPath === undefined) {
+      delete process.env['NWSAPI_WORKTREE_PATH']
+    } else {
+      process.env['NWSAPI_WORKTREE_PATH'] = previousPath
+    }
+    await lease.release()
+  }
 }
 
 export async function lockWorktree(parent: string) {
@@ -48,7 +111,7 @@ export async function lockWorktree(parent: string) {
   }
 }
 
-async function writeMetadata(file: string, value: WorktreeMetadata) {
+export async function writeMetadata(file: string, value: WorktreeMetadata) {
   const temporary = `${file}.${randomUUID()}.tmp`
   await writeFile(temporary, JSON.stringify(value))
   await rename(temporary, file)

@@ -30,7 +30,7 @@ if (!input || !output) {
     'Usage: planner/report.mts measurements-directory output.html [evaluation|confirmation|confirmation-repeat]',
   )
 }
-const load = (host: string, kind: string) =>
+export const load = (host: string, kind: string) =>
   JSON.parse(
     readFileSync(path.join(input, `${host}-${kind}.json`), 'utf8'),
   ) as Artifact

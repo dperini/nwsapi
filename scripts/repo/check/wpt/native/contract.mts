@@ -19,7 +19,7 @@ const artifactRoot = path.join(REPO_ROOT, 'assets/repo/bench')
 const summaryPath = path.join(artifactRoot, 'wpt-native-summary.json')
 const supportPath = path.join(artifactRoot, 'wpt-native-support.json')
 const categoriesPath = path.join(artifactRoot, 'wpt-native-categories.json')
-const digest = (value: string | Buffer) =>
+export const digest = (value: string | Buffer) =>
   createHash('sha256').update(value).digest('hex')
 
 export const INFERENCE_DEPENDENCIES = [

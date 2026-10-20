@@ -66,12 +66,12 @@ Options:
   --help              Show this help.
 `
 
-function fail(message: string): never {
+export function fail(message: string): never {
   console.error(message)
   process.exit(1)
 }
 
-function parseCli(argv: string[]) {
+export function parseCli(argv: string[]) {
   // pnpm forwards a literal "--" separator (e.g. `pnpm run bench -- --list`);
   // strip it so the flags after it stay flags instead of positionals
   const args = argv.filter(
@@ -97,7 +97,7 @@ function parseCli(argv: string[]) {
   }
 }
 
-function resolvePresetNames(rawValues: string[] | undefined): string[] {
+export function resolvePresetNames(rawValues: string[] | undefined): string[] {
   const available = Object.keys(presets)
   const requested = (rawValues ?? [])
     .flatMap(value => value.split(','))
@@ -117,7 +117,7 @@ function resolvePresetNames(rawValues: string[] | undefined): string[] {
   return [...new Set(requested)]
 }
 
-function buildSelectorMatcher(raw: string | undefined) {
+export function buildSelectorMatcher(raw: string | undefined) {
   if (raw === undefined) {
     return () => true
   }
@@ -136,7 +136,7 @@ function buildSelectorMatcher(raw: string | undefined) {
   return (selector: string) => selector.includes(raw)
 }
 
-function printList() {
+export function printList() {
   const names = Object.keys(presets)
   const width = Math.max(...names.map(name => name.length))
   let total = 0
@@ -150,13 +150,13 @@ function printList() {
   )
 }
 
-function describeProbe(count: number | null, error: unknown) {
+export function describeProbe(count: number | null, error: unknown) {
   return error
     ? `ERROR: ${error instanceof Error ? error.message : JSON.stringify(error)}`
     : `${count} found`
 }
 
-function printIssueTable(
+export function printIssueTable(
   issues: Array<{
     preset: string
     selector: string
@@ -192,7 +192,7 @@ function printIssueTable(
   }
 }
 
-function buildPlan(
+export function buildPlan(
   presetNames: string[],
   matchesSelector: (selector: string) => boolean,
   NW: NwsapiEngine,
@@ -267,7 +267,7 @@ function buildPlan(
   return { plan, issues }
 }
 
-function comparisonAgrees(
+export function comparisonAgrees(
   engine: NwsapiEngine,
   selector: string,
   document: Document,
@@ -280,7 +280,7 @@ function comparisonAgrees(
   }
 }
 
-async function main() {
+export async function main() {
   const values = parseCli(process.argv.slice(2))
 
   if (values.help) {

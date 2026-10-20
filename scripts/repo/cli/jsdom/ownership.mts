@@ -38,7 +38,7 @@ export function validateMetadata(value: JsdomOverrideMetadata): void {
   }
 }
 
-function isValidMetadataHeader(value: JsdomOverrideMetadata): boolean {
+export function isValidMetadataHeader(value: JsdomOverrideMetadata): boolean {
   return (
     value.schemaVersion === 1 &&
     (value.manager === 'npm' || value.manager === 'pnpm') &&
@@ -50,7 +50,9 @@ function isValidMetadataHeader(value: JsdomOverrideMetadata): boolean {
   )
 }
 
-function isValidMetadataCollections(value: JsdomOverrideMetadata): boolean {
+export function isValidMetadataCollections(
+  value: JsdomOverrideMetadata,
+): boolean {
   return (
     Array.isArray(value.createdMaps) &&
     !value.createdMaps.some(isInvalidCreatedMap) &&
@@ -59,7 +61,9 @@ function isValidMetadataCollections(value: JsdomOverrideMetadata): boolean {
   )
 }
 
-function isValidCreatedWorkspaceYaml(value: JsdomOverrideMetadata): boolean {
+export function isValidCreatedWorkspaceYaml(
+  value: JsdomOverrideMetadata,
+): boolean {
   return (
     value.createdWorkspaceYaml === undefined ||
     (typeof value.createdWorkspaceYaml === 'object' &&
@@ -141,11 +145,14 @@ export function removeCreatedNamespace(
   }
 }
 
-function createdMap(metadata: JsdomOverrideMetadata, mapPath: string): boolean {
+export function createdMap(
+  metadata: JsdomOverrideMetadata,
+  mapPath: string,
+): boolean {
   return metadata.createdMaps.some(created => created.path === mapPath)
 }
 
-function isInvalidCreatedMap(value: unknown): boolean {
+export function isInvalidCreatedMap(value: unknown): boolean {
   if (!value || typeof value !== 'object') {
     return true
   }
@@ -164,7 +171,7 @@ function isInvalidCreatedMap(value: unknown): boolean {
   )
 }
 
-function isInvalidDependency(value: unknown): boolean {
+export function isInvalidDependency(value: unknown): boolean {
   if (!value || typeof value !== 'object') {
     return true
   }

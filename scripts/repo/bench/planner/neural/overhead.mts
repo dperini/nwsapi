@@ -13,7 +13,7 @@ const baselineSource = `export function chooseRoute(a, w, attrs, dense, host) {
   return w <= a * 2 || (dense && a <= 192 && w <= a * 4);
 }`
 
-function inputs(): Input[] {
+export function inputs(): Input[] {
   return Array.from({ length: 256 }, (_, i) => [
     32 + ((i * 43) % 700),
     1 + ((i * 67) % 2300),
@@ -23,7 +23,7 @@ function inputs(): Input[] {
   ])
 }
 
-async function nodeOverhead(sources: string[], values: Input[]) {
+export async function nodeOverhead(sources: string[], values: Input[]) {
   const modules = await Promise.all(
     sources.map(
       source =>
@@ -54,7 +54,7 @@ async function nodeOverhead(sources: string[], values: Input[]) {
   )
 }
 
-async function browserOverhead(sources: string[], values: Input[]) {
+export async function browserOverhead(sources: string[], values: Input[]) {
   const browser = await chromium.launch(browserLaunchOptions())
   try {
     const page = await browser.newPage()

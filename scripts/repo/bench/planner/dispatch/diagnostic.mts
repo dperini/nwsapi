@@ -17,7 +17,7 @@ export function diagnosticFixtures(): Fixture[] {
   return entries
 }
 
-function makeFixture(
+export function makeFixture(
   depth: number,
   fraction: number,
   anchors: number,

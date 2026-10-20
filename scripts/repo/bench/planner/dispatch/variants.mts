@@ -53,7 +53,7 @@ function dispatchForward(fallback, anchors, witnesses, attributes, dense) {
   )
 }
 
-function cachedHelper(instrument: boolean) {
+export function cachedHelper(instrument: boolean) {
   const hit = instrument
     ? 'plannerTrace.cacheHits = (plannerTrace.cacheHits || 0) + 1;'
     : ''

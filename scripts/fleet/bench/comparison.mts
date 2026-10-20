@@ -26,7 +26,9 @@ export interface BenchmarkComparison {
   relativeChange: BenchmarkSummary
 }
 
-function summarizeBenchmarkValues(values: readonly number[]): BenchmarkSummary {
+export function summarizeBenchmarkValues(
+  values: readonly number[],
+): BenchmarkSummary {
   const sorted = values.toSorted((left, right) => left - right)
   const middle = Math.floor(sorted.length / 2)
   const upper = sorted[middle]!
@@ -47,7 +49,7 @@ function summarizeBenchmarkValues(values: readonly number[]): BenchmarkSummary {
   return summary
 }
 
-function indexBenchmarkRounds(
+export function indexBenchmarkRounds(
   rounds: readonly BenchmarkRound[],
   label: string,
 ): Map<string | number, number> {

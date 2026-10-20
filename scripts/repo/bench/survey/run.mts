@@ -33,7 +33,7 @@ if (values.help) {
   await run()
 }
 
-async function run() {
+export async function run() {
   const timestamp = new Date().toISOString().replaceAll(/[:.]/g, '-')
   const output = path.resolve(
     REPO_ROOT,

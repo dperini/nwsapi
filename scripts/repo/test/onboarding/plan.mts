@@ -40,7 +40,7 @@ export const ONBOARDING_INPUT_PATHS = [
   'scripts/repo/lib/package-manager.mts',
 ] as const
 
-function matchesOnboardingInput(file: string, input: string) {
+export function matchesOnboardingInput(file: string, input: string) {
   return input.endsWith('/**')
     ? file.startsWith(input.slice(0, -2))
     : file === input

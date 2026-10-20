@@ -134,7 +134,7 @@ for (const name of [
         ? path.resolve(root, entry)
         : dependencyRequire.resolve(name)
 }
-async function bundle(input: string, name: string) {
+export async function bundle(input: string, name: string) {
   const build = await rolldown({
     input,
     platform: 'browser',
@@ -182,9 +182,9 @@ const adapterBundle = await bundle(
   path.join(REPO_ROOT, 'dist/adapter/dom-selector.js'),
   '__adapter',
 )
-const sha256 = (value: string) =>
+export const sha256 = (value: string) =>
   createHash('sha256').update(value).digest('hex')
-const revision = (cwd: string) =>
+export const revision = (cwd: string) =>
   execFileSync('git', ['rev-parse', 'HEAD'], { cwd, encoding: 'utf8' }).trim()
 const browser = await chromium.launch({
   ...browserLaunchOptions([], values.browser),

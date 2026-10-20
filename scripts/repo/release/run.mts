@@ -70,7 +70,7 @@ export function parseReleaseArgs(args: string[]) {
   return { command, version, ...values }
 }
 
-function validateCommandOptions(
+export function validateCommandOptions(
   command: string,
   version: string | undefined,
   values: { apply: boolean; stage?: string | undefined },
@@ -115,7 +115,7 @@ export function resolveApprovalVersion(
   return validateVersion(manifest.version)
 }
 
-function approvalSession(env = process.env) {
+export function approvalSession(env = process.env) {
   if (env['CI'] || env['GITHUB_ACTIONS']) {
     throw new Error(
       'Approval must run in the maintainer session with npm proof of presence.',

@@ -75,7 +75,7 @@ try {
 } finally {
   window.close()
 }
-const hash = (data: string | Buffer) =>
+export const hash = (data: string | Buffer) =>
   crypto.createHash('sha256').update(data).digest('hex')
 const jsdomRequire = createRequire(require.resolve('jsdom'))
 const data = {

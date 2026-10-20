@@ -8,7 +8,10 @@ import { claimWorktree } from '../worktree/lease.mts'
 import { createVersionCheckout, resolveVersion } from './select.mts'
 import type { WorktreeMetadata } from '../worktree/lease.mts'
 
-function readCurrentMetadata(repository: string, commonDirectory: string) {
+export function readCurrentMetadata(
+  repository: string,
+  commonDirectory: string,
+) {
   const file = path.join(path.dirname(repository), '.nwsapi-worktree.json')
   try {
     const metadata = JSON.parse(readFileSync(file, 'utf8')) as WorktreeMetadata
@@ -58,7 +61,7 @@ interface CheckoutContext {
   helperMetadata?: WorktreeMetadata | undefined
 }
 
-function readCheckoutContext(repositoryInput: string): CheckoutContext {
+export function readCheckoutContext(repositoryInput: string): CheckoutContext {
   const repository = gitValue(repositoryInput, ['rev-parse', '--show-toplevel'])
   const commonDirectory = path.resolve(
     repository,
@@ -82,11 +85,11 @@ function readCheckoutContext(repositoryInput: string): CheckoutContext {
   }
 }
 
-function gitValue(repository: string, args: string[]) {
+export function gitValue(repository: string, args: string[]) {
   return execFileSync('git', args, { cwd: repository, encoding: 'utf8' }).trim()
 }
 
-function identifyCurrentVersion(
+export function identifyCurrentVersion(
   repository: string,
   sourceBranch: string,
   metadata?: WorktreeMetadata,
@@ -127,7 +130,7 @@ function identifyCurrentVersion(
   return version
 }
 
-async function prepareSelectedCheckout(
+export async function prepareSelectedCheckout(
   context: CheckoutContext,
   version: 'v2' | 'v3',
 ) {
@@ -161,7 +164,7 @@ async function prepareSelectedCheckout(
   return { checkout, lease }
 }
 
-async function launchVersionRunner(
+export async function launchVersionRunner(
   repository: string,
   checkout: string,
   version: 'v2' | 'v3',
@@ -208,7 +211,7 @@ async function launchVersionRunner(
     : (result.code ?? 1)
 }
 
-function selectedRunnerEnvironment(
+export function selectedRunnerEnvironment(
   repository: string,
   checkout: string,
   token: string,

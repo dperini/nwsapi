@@ -52,7 +52,7 @@ export function nativeAssetAvailable(
   return [carrier, library].some(file => file !== undefined && exists(file))
 }
 
-async function secureCacheRoot(
+export async function secureCacheRoot(
   root: string,
   platform: NodeJS.Platform,
   getuid: (() => number | undefined) | undefined,

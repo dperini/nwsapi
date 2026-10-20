@@ -76,7 +76,7 @@ interface AdapterFactory {
   ) => Adapter
 }
 
-function probe(mode: string) {
+export function probe(mode: string) {
   const load = createRequire(
     path.join(path.resolve(values.dependencies!), 'package.json'),
   )

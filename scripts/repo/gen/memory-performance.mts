@@ -38,7 +38,7 @@ const output = new URL(
 )
 const source = readFileSync(input, 'utf8')
 const observations: Observations = JSON.parse(source)
-function median(samples: number[]) {
+export function median(samples: number[]) {
   if (!samples.length || samples.some(value => !Number.isFinite(value))) {
     throw new Error('Expected finite measurement samples')
   }
@@ -48,7 +48,7 @@ function median(samples: number[]) {
     ? sorted[middle]!
     : (sorted[middle - 1]! + sorted[middle]!) / 2
 }
-function metric(before: number[], after: number[]) {
+export function metric(before: number[], after: number[]) {
   const baseline = median(before)
   const candidate = median(after)
   return {
@@ -57,7 +57,7 @@ function metric(before: number[], after: number[]) {
     reductionPercent: baseline > 0 ? (1 - candidate / baseline) * 100 : null,
   }
 }
-function heapMetrics(profile: Profile) {
+export function heapMetrics(profile: Profile) {
   const { measurements, count, queries } = profile
   if (!measurements || !count || !queries) {
     throw new Error('Missing heap workload')

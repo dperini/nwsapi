@@ -284,7 +284,7 @@ export async function runPlainSetup(
   })
 }
 
-function terminalCommand(
+export function terminalCommand(
   checkout: string,
   node: string,
   platform: NodeJS.Platform,
@@ -303,11 +303,11 @@ function terminalCommand(
   }
 }
 
-function shellQuote(value: string) {
+export function shellQuote(value: string) {
   return `'${value.replaceAll("'", "'\\''")}'`
 }
 
-function appendOutput(current: string, chunk: string, limit: number) {
+export function appendOutput(current: string, chunk: string, limit: number) {
   const remaining = Math.max(0, limit - Buffer.byteLength(current))
   if (Buffer.byteLength(chunk) <= remaining) {
     return current + chunk
@@ -315,7 +315,7 @@ function appendOutput(current: string, chunk: string, limit: number) {
   return current + Buffer.from(chunk).subarray(0, remaining).toString()
 }
 
-function terminate(
+export function terminate(
   child: TerminalChild,
   platform: NodeJS.Platform,
   killProcess: typeof process.kill,

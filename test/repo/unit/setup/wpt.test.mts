@@ -1,5 +1,9 @@
 import { expect, test, vi } from 'vitest'
-import { setupWpt } from '../../../../scripts/repo/setup/wpt.mts'
+import {
+  main,
+  setupWpt,
+  wptSetupPlan,
+} from '../../../../scripts/repo/setup/wpt.mts'
 
 test('CLI clones then verifies through the default runner', async () => {
   vi.resetModules()
@@ -29,4 +33,15 @@ test('an explicit runner observes exactly the two checkout operations', () => {
   expect(run.mock.calls.every(([, , options]) => options.externalGit)).toBe(
     true,
   )
+})
+
+test('WPT setup dry run reports the clone target without running git', () => {
+  const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+  main(['--dry-run', '--json'])
+  expect(JSON.parse(log.mock.calls[0]![0] as string)).toMatchObject({
+    type: 'preview',
+    command: 'setup/wpt',
+    targets: expect.arrayContaining([expect.stringContaining('upstream/wpt')]),
+  })
+  expect(wptSetupPlan('/checkout').targets).toEqual(['/checkout/upstream/wpt'])
 })

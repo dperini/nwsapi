@@ -184,7 +184,7 @@ export function createProofPaths(
   }
 }
 
-async function buildNativeAssets(
+export async function buildNativeAssets(
   paths: NativeProofPaths,
   run: NativeRun,
   carrierTemp: string,
@@ -245,7 +245,7 @@ async function buildNativeAssets(
   }
 }
 
-function assertTuiOutput(result: TuiResult) {
+export function assertTuiOutput(result: TuiResult) {
   if (result.exitCode !== 130 || result.terminalBytes === 0) {
     throw new Error(
       `OpenTUI PTY initialization failed: ${JSON.stringify(result)}`,
@@ -253,7 +253,7 @@ function assertTuiOutput(result: TuiResult) {
   }
 }
 
-function loadCarrier(
+export function loadCarrier(
   filename: string,
   paths: NativeProofPaths,
   run: NativeRun,
@@ -307,7 +307,7 @@ export function verifyCarrierCache(
   return nativeCacheSize(ownedCachePath)
 }
 
-function createOwnedTemp(parent: string, prefix: string) {
+export function createOwnedTemp(parent: string, prefix: string) {
   const temporaryDirectory = mkdtempSync(path.join(parent, prefix))
   chmodSync(temporaryDirectory, 0o700)
   return temporaryDirectory
@@ -359,7 +359,7 @@ export function validateOwnedCachePath(filename: string, cacheRoot: string) {
   return realFile
 }
 
-function measureRenderLib(libraryPath: string) {
+export function measureRenderLib(libraryPath: string) {
   return import('@opentui/core').then(opentuiCore => {
     opentuiCore.setRenderLibPath(libraryPath)
     const started = performance.now()
@@ -421,11 +421,11 @@ export function createProofReport(
   }
 }
 
-function sha512File(filename: string) {
+export function sha512File(filename: string) {
   return createHash('sha512').update(readFileSync(filename)).digest('hex')
 }
 
-async function resolveHostLibrary() {
+export async function resolveHostLibrary() {
   const { getNodeAssets } = await import('@opentui/core/node-assets')
   const assets = getNodeAssets({ platform: 'darwin', arch: 'arm64' })
   const nativeAsset = assets.find(({ key }) =>
@@ -437,7 +437,7 @@ async function resolveHostLibrary() {
   return nativeAsset.source
 }
 
-function defaultNativeRun(
+export function defaultNativeRun(
   command: string,
   args: string[],
   cwd: string,

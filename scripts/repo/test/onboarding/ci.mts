@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { parseArgs } from 'node:util'
 import { isMainModule } from '../../lib/run-node.mts'
 
 export type OnboardingManager = 'npm' | 'pnpm'
@@ -19,6 +20,47 @@ const TOOLS = JSON.parse(
 export interface OnboardingInvocation {
   command: string
   args: string[]
+}
+
+export function onboardingPhasePlan(
+  phase: string,
+  env = process.env,
+  node = process.execPath,
+  temporary = env['RUNNER_TEMP'] ?? os.tmpdir(),
+  root = REPO_ROOT,
+) {
+  const invocation = onboardingInvocation(
+    phase,
+    env['ENTRY_MANAGER'],
+    node,
+    temporary,
+    root,
+  )
+  return {
+    schemaVersion: 1,
+    type: 'preview',
+    command: `onboarding/${phase}`,
+    root,
+    invocation,
+    targets: [
+      path.join(temporary, 'onboarding-manager'),
+      path.join(temporary, 'nwsapi-onboarding-*'),
+      path.join(root, '.cache/onboarding'),
+    ],
+  }
+}
+
+export function describeOnboarding() {
+  return {
+    schemaVersion: 1,
+    type: 'command',
+    name: 'onboarding',
+    description:
+      'Run an isolated bootstrap, package-manager install, or contributor journey.',
+    phases: ['bootstrap', 'install-manager', 'journey'],
+    options: ['--json', '--describe', '--dry-run'],
+    mutates: true,
+  }
 }
 
 export type OnboardingExecutor = (
@@ -96,6 +138,7 @@ export function runOnboardingPhase(
   phase: string,
   env = process.env,
   execute = executeCommand,
+  json = false,
 ) {
   const invocation = onboardingInvocation(
     phase,
@@ -103,9 +146,28 @@ export function runOnboardingPhase(
     process.execPath,
     env['RUNNER_TEMP'],
   )
-  const result = execute(invocation.command, invocation.args)
-  if (result !== 0) {
-    process.exitCode = result ?? 1
+  const captured = json
+    ? executeCommandCaptured(invocation.command, invocation.args)
+    : undefined
+  const result = captured
+    ? undefined
+    : execute(invocation.command, invocation.args)
+  const status = captured?.status ?? result
+  if (captured) {
+    console.log(
+      JSON.stringify({
+        schemaVersion: 1,
+        type: 'result',
+        command: `onboarding/${phase}`,
+        status: status === 0 ? 'completed' : 'failed',
+        exitCode: status ?? 1,
+        stdout: captured.stdout,
+        stderr: captured.stderr,
+      }),
+    )
+  }
+  if (status !== 0) {
+    process.exitCode = status ?? 1
   }
 }
 
@@ -127,6 +189,24 @@ export function executeCommand(
   return result.status
 }
 
+export function executeCommandCaptured(command: string, args: string[]) {
+  const result = spawnSync(command, args, {
+    cwd: REPO_ROOT,
+    env: process.env,
+    shell: process.platform === 'win32' && command === 'npm',
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+  if (result.error) {
+    throw result.error
+  }
+  return {
+    status: result.status,
+    stdout: result.stdout ?? '',
+    stderr: result.stderr ?? '',
+  }
+}
+
 if (isMainModule(import.meta.url)) {
   const phase = process.argv[2] as OnboardingPhase | undefined
   if (
@@ -136,5 +216,35 @@ if (isMainModule(import.meta.url)) {
   ) {
     throw new Error('Choose bootstrap, install-manager, or journey.')
   }
-  runOnboardingPhase(phase)
+  const { values } = parseArgs({
+    args: process.argv.slice(3),
+    options: {
+      json: { type: 'boolean' },
+      describe: { type: 'boolean' },
+      'dry-run': { type: 'boolean' },
+    },
+  })
+  if (values.describe) {
+    console.log(
+      values.json
+        ? JSON.stringify(describeOnboarding())
+        : 'onboarding: Run an isolated bootstrap, package-manager install, or contributor journey. Use --dry-run to preview commands and temporary paths.',
+    )
+  } else if (values['dry-run']) {
+    const plan = onboardingPhasePlan(phase)
+    console.log(values.json ? JSON.stringify(plan) : formatOnboardingPlan(plan))
+  } else {
+    runOnboardingPhase(phase, process.env, executeCommand, values.json)
+  }
+}
+
+export function formatOnboardingPlan(
+  plan: ReturnType<typeof onboardingPhasePlan>,
+) {
+  return [
+    `Would run ${plan.command}:`,
+    `  ${plan.invocation.command} ${plan.invocation.args.join(' ')}`,
+    'Temporary and report paths:',
+    ...plan.targets.map(target => `  ${target}`),
+  ].join('\n')
 }

@@ -78,7 +78,7 @@ export function fixtures(): Fixture[] {
   return result
 }
 
-function fixture(
+export function fixture(
   family: string,
   split: 'train' | 'holdout',
   anchors: number,
@@ -122,7 +122,7 @@ function fixture(
   }
 }
 
-function layout(family: string, cards: string[]) {
+export function layout(family: string, cards: string[]) {
   let html = ''
   for (let index = 0; index < cards.length;) {
     let depth = 1

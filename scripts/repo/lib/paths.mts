@@ -135,7 +135,7 @@ export function toForwardSlashes(name: string): string {
   return name.replaceAll('\\', '/')
 }
 
-function appendNormalizedPathSegment(
+export function appendNormalizedPathSegment(
   state: NormalizedPathState,
   segment: string,
   prefix: string,
@@ -157,7 +157,10 @@ interface NormalizedPathState {
   leadingDotDots: number
 }
 
-function collapsePathParent(state: NormalizedPathState, prefix: string): void {
+export function collapsePathParent(
+  state: NormalizedPathState,
+  prefix: string,
+): void {
   if (state.segmentCount > 0) {
     const lastSeparatorIndex = state.collapsed.lastIndexOf('/')
     if (lastSeparatorIndex === -1) {
@@ -185,7 +188,7 @@ function collapsePathParent(state: NormalizedPathState, prefix: string): void {
   }
 }
 
-function hasUncPathPrefix(filepath: string): boolean {
+export function hasUncPathPrefix(filepath: string): boolean {
   const first = filepath.charCodeAt(0)
   return (
     filepath.length > 2 &&
@@ -195,7 +198,7 @@ function hasUncPathPrefix(filepath: string): boolean {
   )
 }
 
-function hasUncPathShare(filepath: string): boolean {
+export function hasUncPathShare(filepath: string): boolean {
   const serverStart = skipPathSeparators(filepath, 2)
   const serverEnd = indexOfPathSeparator(filepath, serverStart)
   return (
@@ -203,7 +206,10 @@ function hasUncPathShare(filepath: string): boolean {
   )
 }
 
-function indexOfPathSeparator(filepath: string, fromIndex: number): number {
+export function indexOfPathSeparator(
+  filepath: string,
+  fromIndex: number,
+): number {
   const { length } = filepath
   for (let i = fromIndex; i < length; i += 1) {
     const code = filepath.charCodeAt(i)
@@ -214,11 +220,11 @@ function indexOfPathSeparator(filepath: string, fromIndex: number): number {
   return -1
 }
 
-function isPathSeparatorCode(code: number): boolean {
+export function isPathSeparatorCode(code: number): boolean {
   return code === 47 || code === 92
 }
 
-function msysDriveToNative(normalized: string): string {
+export function msysDriveToNative(normalized: string): string {
   if (WIN32) {
     return normalized.replace(
       msysDriveRegExp,
@@ -228,7 +234,7 @@ function msysDriveToNative(normalized: string): string {
   return normalized
 }
 
-function normalizedPathPrefix(filepath: string) {
+export function normalizedPathPrefix(filepath: string) {
   const namespaceKind = filepath.charCodeAt(2)
   if (
     filepath.length > 4 &&
@@ -287,7 +293,10 @@ export function normalizePath(pathLike: string | Buffer | URL): string {
   return msysDriveToNative(prefix + collapsed)
 }
 
-function normalizeSinglePathSegment(segment: string, prefix: string): string {
+export function normalizeSinglePathSegment(
+  segment: string,
+  prefix: string,
+): string {
   if (segment === '.' || segment.length === 0) {
     return prefix || '.'
   }
@@ -315,7 +324,7 @@ export function isPathWithinRoot(candidate: string, root: string): boolean {
   )
 }
 
-function pathLikeToString(
+export function pathLikeToString(
   pathLike: string | Buffer | URL | null | undefined,
 ): string {
   if (pathLike === null || pathLike === undefined) {
@@ -358,7 +367,7 @@ function pathLikeToString(
   return String(pathLike)
 }
 
-function skipPathSeparators(filepath: string, start: number): number {
+export function skipPathSeparators(filepath: string, start: number): number {
   while (isPathSeparatorCode(filepath.charCodeAt(start))) {
     start += 1
   }

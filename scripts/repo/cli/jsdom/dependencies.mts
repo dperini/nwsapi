@@ -129,7 +129,7 @@ export function removeOwnedDependencies(
   }
 }
 
-function requireCompatibleDependency(
+export function requireCompatibleDependency(
   entries: Array<{ section: DependencySection; value: string }>,
   requiredRange: string,
 ): void {

@@ -21,7 +21,7 @@ const selectors = [
   'main > section:nth-child(3)',
 ]
 
-function factory(source: string, disablePlanner: boolean): Factory {
+export function factory(source: string, disablePlanner: boolean): Factory {
   const module = { exports: {} }
   compileFunction(source, ['module', 'exports', 'require'])(
     module,
@@ -38,11 +38,11 @@ function factory(source: string, disablePlanner: boolean): Factory {
   }
 }
 
-function median(values: number[]) {
+export function median(values: number[]) {
   return values.toSorted((a, b) => a - b)[values.length >> 1]!
 }
 
-function fixture() {
+export function fixture() {
   const html =
     '<main>' +
     Array.from(
@@ -54,7 +54,11 @@ function fixture() {
   return new JSDOM(html).window
 }
 
-function assertMatches(engine: NwsapiEngine, selector: string, doc: Document) {
+export function assertMatches(
+  engine: NwsapiEngine,
+  selector: string,
+  doc: Document,
+) {
   assert.deepEqual(
     Array.from(engine.select(selector, doc)),
     Array.from(doc.querySelectorAll(selector)),

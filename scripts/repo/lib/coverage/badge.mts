@@ -224,7 +224,7 @@ export const badgeColor = percentBadgeColor
 // Approximate rendered width of a badge string in Verdana 11px. Exactness is
 // not required: every <text> carries textLength, which forces the glyph run to
 // the computed width, so a near-miss stretches invisibly instead of clipping.
-function textWidth(text: string): number {
+export function textWidth(text: string): number {
   let w = 0
   for (let i = 0, { length } = text; i < length; i += 1) {
     const c = text[i]!

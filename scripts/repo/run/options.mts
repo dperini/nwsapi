@@ -26,5 +26,29 @@ export function parseRunArgs(args: string[]) {
       `Expected <entry> before ${JSON.stringify(entry)}. Put runner flags after the entry to forward them.`,
     )
   }
-  return { args: forwarded, entry, help: false as const }
+  const controls = new Set(['--json', '--describe', '--dry-run'])
+  const options = new Set<string>()
+  const scriptArgs: string[] = []
+  let endOfOptions = false
+  for (const argument of forwarded) {
+    if (!endOfOptions && argument === '--') {
+      endOfOptions = true
+      scriptArgs.push(argument)
+    } else if (!endOfOptions && controls.has(argument)) {
+      options.add(argument)
+    } else {
+      scriptArgs.push(argument)
+    }
+  }
+  if (options.has('--describe') && options.has('--dry-run')) {
+    throw new Error('Choose --describe or --dry-run.')
+  }
+  return {
+    args: scriptArgs,
+    entry,
+    help: false as const,
+    json: options.has('--json'),
+    describe: options.has('--describe'),
+    dryRun: options.has('--dry-run'),
+  }
 }

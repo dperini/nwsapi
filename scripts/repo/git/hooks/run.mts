@@ -63,7 +63,7 @@ export function parsePushRefs(input: string): PushRef[] {
   return refs
 }
 
-function defaultDependencies(): PushHookDependencies {
+export function defaultDependencies(): PushHookDependencies {
   return {
     runGit(args) {
       try {
@@ -90,7 +90,7 @@ function defaultDependencies(): PushHookDependencies {
   }
 }
 
-function gitOutput(
+export function gitOutput(
   dependencies: PushHookDependencies,
   args: string[],
 ): string | undefined {
@@ -134,7 +134,7 @@ export function parseChangedPaths(output: string): ChangedPaths {
   return { files, deleted }
 }
 
-function rawGitOutput(
+export function rawGitOutput(
   dependencies: PushHookDependencies,
   args: string[],
 ): string | undefined {
@@ -142,7 +142,7 @@ function rawGitOutput(
   return result.status === 0 ? result.stdout : undefined
 }
 
-function currentExitStatus() {
+export function currentExitStatus() {
   return typeof process.exitCode === 'number'
     ? process.exitCode
     : process.exitCode
@@ -150,7 +150,7 @@ function currentExitStatus() {
       : 0
 }
 
-function validatePush(
+export function validatePush(
   updates: PushRef[],
   dependencies: PushHookDependencies,
 ): string | undefined {
@@ -188,19 +188,19 @@ function validatePush(
   return head
 }
 
-function addPaths(target: Set<string>, files: string[]) {
+export function addPaths(target: Set<string>, files: string[]) {
   for (const file of files) {
     target.add(file)
   }
 }
 
-function containsDeletedTest(paths: Set<string>) {
+export function containsDeletedTest(paths: Set<string>) {
   return [...paths].some(file =>
     /^test\/repo\/(unit|integration)\/.*\.test\.mts$/.test(file),
   )
 }
 
-function collectRemoteChanges(
+export function collectRemoteChanges(
   remoteBases: string[],
   head: string,
   dependencies: PushHookDependencies,
@@ -235,7 +235,7 @@ function collectRemoteChanges(
   return { files: [...files], deleted: [...deleted] }
 }
 
-async function planPush(
+export async function planPush(
   remoteBases: string[],
   head: string,
   dependencies: PushHookDependencies,
@@ -320,7 +320,7 @@ export async function runPrePush(
   return validatePush(updates, dependencies) === head ? 0 : 1
 }
 
-function runPreCommit() {
+export function runPreCommit() {
   const result = spawnSync(
     process.execPath,
     [path.join(REPO_ROOT, 'scripts/repo/git/staged-check.mts')],

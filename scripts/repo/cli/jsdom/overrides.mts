@@ -109,7 +109,7 @@ export function deleteActiveOverride(
   yamlFile?.document.deleteIn(['overrides', SELECTOR_PACKAGE])
 }
 
-function checkAlternateMap(
+export function checkAlternateMap(
   map: Record<string, unknown> | undefined,
   location: string,
   alias: string,
@@ -131,7 +131,7 @@ export function rejectScopedOverrideConflicts(
   visitOverrideMap(map, true)
 }
 
-function visitOverrideMap(
+export function visitOverrideMap(
   map: Record<string, unknown> | undefined,
   root: boolean,
 ): void {
@@ -157,7 +157,7 @@ function visitOverrideMap(
   }
 }
 
-function matchesTargetOverride(key: string): boolean {
+export function matchesTargetOverride(key: string): boolean {
   return key.split('>').some(part => {
     const normalized = part.trim()
     return (
@@ -167,7 +167,7 @@ function matchesTargetOverride(key: string): boolean {
   })
 }
 
-function findTargetKeys(
+export function findTargetKeys(
   map: Record<string, unknown> | undefined,
   prefix = '',
 ): string[] {
@@ -188,7 +188,7 @@ function findTargetKeys(
   return matches
 }
 
-function yamlOverrideMap(
+export function yamlOverrideMap(
   yamlFile: WorkspaceYaml | undefined,
 ): Record<string, unknown> | undefined {
   if (!yamlFile) {

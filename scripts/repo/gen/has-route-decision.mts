@@ -24,7 +24,7 @@ type AstNode = {
   [key: string]: unknown
 }
 
-function walk(node: AstNode, visit: (node: AstNode) => void) {
+export function walk(node: AstNode, visit: (node: AstNode) => void) {
   visit(node)
   const values = Object.values(node)
   const valueCount = values.length
@@ -44,7 +44,10 @@ function walk(node: AstNode, visit: (node: AstNode) => void) {
   }
 }
 
-function modelSource(modelDirectory: string, host: 'chromium' | 'jsdom') {
+export function modelSource(
+  modelDirectory: string,
+  host: 'chromium' | 'jsdom',
+) {
   const file = path.join(modelDirectory, `${host}.generated.mjs`)
   const source = readFileSync(file, 'utf8').trim()
   const ast = parse(source, {

@@ -4,7 +4,7 @@ import { homedir } from 'node:os'
 import path from 'node:path'
 import { REPO_ROOT } from '../lib/paths.mts'
 
-function supportsVideo(executable: string) {
+export function supportsVideo(executable: string) {
   const result = spawnSync(executable, ['--version'], {
     cwd: REPO_ROOT,
     encoding: 'utf8',
@@ -13,7 +13,7 @@ function supportsVideo(executable: string) {
   return result.status === 0 && match && (+match[1]! > 1 || +match[2]! >= 98)
 }
 
-function rustupCargo() {
+export function rustupCargo() {
   const suffix = process.platform === 'win32' ? '.exe' : ''
   const local = path.join(homedir(), '.cargo', 'bin', `rustup${suffix}`)
   const result = spawnSync(
@@ -24,7 +24,7 @@ function rustupCargo() {
   return result.status === 0 ? result.stdout.trim() : undefined
 }
 
-function nativeEnvironment() {
+export function nativeEnvironment() {
   if (process.platform !== 'darwin' || process.env['SDKROOT']) {
     return {}
   }

@@ -2,6 +2,8 @@ import path from 'node:path'
 import { expect, test, vi } from 'vitest'
 import manifest from '../../../../../.config/external-tools.json' with { type: 'json' }
 import {
+  describeOnboarding,
+  onboardingPhasePlan,
   onboardingInvocation,
   runOnboardingPhase,
   executeCommand,
@@ -134,6 +136,23 @@ test('runs package manager provisioning through the injected process runner', ()
     'npm',
     expect.arrayContaining(['pnpm@12.12.0']),
   )
+})
+
+test('journey dry-run lists isolated paths and invokes no external command', () => {
+  const plan = onboardingPhasePlan(
+    'journey',
+    { ENTRY_MANAGER: 'pnpm', RUNNER_TEMP: '/tmp/onboarding' },
+    '/tools/node',
+    '/tmp/onboarding',
+    '/checkout',
+  )
+  expect(plan.invocation.command).toBe('/tools/node')
+  expect(plan.targets).toEqual([
+    '/tmp/onboarding/onboarding-manager',
+    '/tmp/onboarding/nwsapi-onboarding-*',
+    '/checkout/.cache/onboarding',
+  ])
+  expect(describeOnboarding().options).toContain('--dry-run')
 })
 
 test('rejects an unknown entry package manager', () => {

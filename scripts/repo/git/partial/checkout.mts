@@ -101,7 +101,7 @@ export function parseGitmodules(filePath: PathOrFileDescriptor) {
  * escape the repository root. Called for every entry before any value is
  * used; a violation throws, which prints the message and exits 1.
  */
-function validateEntry(entry: Entry) {
+export function validateEntry(entry: Entry) {
   const fail = (message: string) => {
     throw new Error(`.gitmodules entry "${entry.name}": ${message}`)
   }
@@ -264,7 +264,7 @@ export function applySparse(dir: string, entry: Entry) {
   )
 }
 
-function fetchAndDetach(dir: string, entry: Entry) {
+export function fetchAndDetach(dir: string, entry: Entry) {
   const fetchArgs = ['-C', dir, 'fetch']
   if (entry.shallow) {
     fetchArgs.push('--depth', '1')

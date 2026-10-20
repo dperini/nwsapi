@@ -32,7 +32,7 @@ export function readEngineSources(): ApiSource[] {
   return readSourceDirectory(CORE_SOURCE_DIR)
 }
 
-function readSourceDirectory(directory: string): ApiSource[] {
+export function readSourceDirectory(directory: string): ApiSource[] {
   const sources: ApiSource[] = []
   for (const entry of readdirSync(directory, { withFileTypes: true }).toSorted(
     (left, right) => left.name.localeCompare(right.name, 'en'),
@@ -158,7 +158,7 @@ export function engineSignature(name: string, definition: ApiDefinition) {
   return `${name}(${params.map(param => text.slice(param.start, param.end).replace(/\s+/g, ' ')).join(', ')})`
 }
 
-function ownsDeclaration(
+export function ownsDeclaration(
   assignments: Map<string, ApiDefinition>,
   name: string,
   file: string,

@@ -82,7 +82,7 @@ export async function retainFailedReviewReports({
   return files
 }
 
-async function matchingDirectories(root: string, pattern: RegExp) {
+export async function matchingDirectories(root: string, pattern: RegExp) {
   let directory
   try {
     directory = await opendir(root)
@@ -103,7 +103,7 @@ async function matchingDirectories(root: string, pattern: RegExp) {
   return matches.toSorted()
 }
 
-async function readShardReports(
+export async function readShardReports(
   directory: string,
   redact: (value: string) => string,
   maxBytes: number,
@@ -133,7 +133,7 @@ async function readShardReports(
   return reports.map(report => ({ ...report, failed: failed || report.failed }))
 }
 
-async function readReport(
+export async function readReport(
   file: string,
   name: string,
   redact: (value: string) => string,
@@ -165,7 +165,7 @@ async function readReport(
   }
 }
 
-function hasFailedTests(value: Record<string, unknown>) {
+export function hasFailedTests(value: Record<string, unknown>) {
   const report = isRecord(value['report']) ? value['report'] : value
   const rejectedCounts = [
     report['numFailedTestSuites'],
@@ -194,7 +194,7 @@ function hasFailedTests(value: Record<string, unknown>) {
   )
 }
 
-function redactValue(
+export function redactValue(
   value: unknown,
   redact: (value: string) => string,
 ): unknown {
@@ -215,7 +215,7 @@ function redactValue(
   return value
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
@@ -230,7 +230,7 @@ export function reviewFailures(value: unknown): string[] {
   return report['testResults'].flatMap(suiteFailures).slice(0, 100)
 }
 
-function suiteFailures(suite: unknown): string[] {
+export function suiteFailures(suite: unknown): string[] {
   if (!isRecord(suite)) {
     return []
   }
@@ -251,7 +251,7 @@ function suiteFailures(suite: unknown): string[] {
   })
 }
 
-function failureLine(title: string, message: unknown): string {
+export function failureLine(title: string, message: unknown): string {
   const detail = typeof message === 'string' ? message.split(/\r?\n/)[0] : ''
   return `${title}: ${detail || 'failed'}`.replace(/[\r\n]/g, ' ').slice(0, 500)
 }

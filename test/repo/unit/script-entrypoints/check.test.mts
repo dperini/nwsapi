@@ -13,6 +13,7 @@ import {
   discoverScriptEntrypoints,
   inspectEntrypointSource,
   runnerTargets,
+  unexportedTopLevelFunctions,
 } from '../../../../scripts/repo/script-entrypoints/check.mts'
 
 const directories: string[] = []
@@ -47,6 +48,21 @@ test('AST inspection distinguishes structural help and guarded execution', () =>
       "const obj={};obj.other('--help'); args.includes(name); (()=>0)(); obj[()=>0]();",
     ),
   ).toEqual({ guarded: false, help: false })
+})
+
+test('script helpers must be exported for direct tests', () => {
+  expect(unexportedTopLevelFunctions('function privateHelper() {}')).toEqual([
+    'privateHelper',
+  ])
+  expect(
+    unexportedTopLevelFunctions('export function publicHelper() {}'),
+  ).toEqual([])
+  expect(unexportedTopLevelFunctions('const helper = () => 42')).toEqual([
+    'helper',
+  ])
+  expect(unexportedTopLevelFunctions('export const helper = () => 42')).toEqual(
+    [],
+  )
 })
 test('shell command tokenization preserves quoting and detects unfinished quotes', () => {
   expect(

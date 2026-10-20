@@ -1,6 +1,7 @@
 import { parseArgs } from 'node:util'
 import { TASKS } from './actions.mts'
 import type { TaskResult } from './execute.mts'
+import { bootstrapPlan } from '../setup/bootstrap.mts'
 
 export function parseOptions(args: string[]) {
   const values = readOptions(args)
@@ -9,7 +10,17 @@ export function parseOptions(args: string[]) {
   return values
 }
 
-function validateOptionCombinations(values: ReturnType<typeof readOptions>) {
+export function validateOptionCombinations(
+  values: ReturnType<typeof readOptions>,
+) {
+  validatePlainOptions(values)
+  validateTaskListOptions(values)
+  validateSweepOptions(values)
+  validateDescribeOptions(values)
+  validateDryRunOptions(values)
+}
+
+export function validatePlainOptions(values: ReturnType<typeof readOptions>) {
   if (
     values.plain &&
     (values.json || values.list || values.task !== undefined)
@@ -18,9 +29,17 @@ function validateOptionCombinations(values: ReturnType<typeof readOptions>) {
       '--plain cannot be combined with --json, --list, or --task.',
     )
   }
+}
+
+export function validateTaskListOptions(
+  values: ReturnType<typeof readOptions>,
+) {
   if (values.list && values.task !== undefined) {
     throw new Error('Choose --list or --task, not both.')
   }
+}
+
+export function validateSweepOptions(values: ReturnType<typeof readOptions>) {
   if (values.apply && !values.sweep) {
     throw new Error('--apply requires --sweep.')
   }
@@ -30,9 +49,28 @@ function validateOptionCombinations(values: ReturnType<typeof readOptions>) {
   if (values.sweep && (values.version !== undefined || values.plain)) {
     throw new Error('--sweep cannot be combined with --version or --plain.')
   }
+  validateDescribeOptions(values)
+  validateDryRunOptions(values)
 }
 
-function readOptions(args: string[]) {
+export function validateDescribeOptions(
+  values: ReturnType<typeof readOptions>,
+) {
+  if (values.describe && (values.task !== undefined || values.list)) {
+    throw new Error('--describe cannot be combined with --task or --list.')
+  }
+  if (values.describe && values['dry-run']) {
+    throw new Error('Choose --describe or --dry-run.')
+  }
+}
+
+export function validateDryRunOptions(values: ReturnType<typeof readOptions>) {
+  if (values['dry-run'] && values.task !== 'setup') {
+    throw new Error('--dry-run currently requires --task setup.')
+  }
+}
+
+export function readOptions(args: string[]) {
   return parseArgs({
     args,
     options: {
@@ -44,11 +82,54 @@ function readOptions(args: string[]) {
       version: { type: 'string' },
       sweep: { type: 'boolean' },
       apply: { type: 'boolean' },
+      describe: { type: 'boolean' },
+      'dry-run': { type: 'boolean' },
     },
   }).values
 }
 
-function validateVersionTask(values: ReturnType<typeof readOptions>) {
+export function developerDescription() {
+  return {
+    schemaVersion: 1,
+    type: 'command',
+    name: 'dev',
+    description:
+      'Guide checkout setup, documentation, review, and diagnostics.',
+    options: ['--json', '--describe', '--dry-run'],
+    tasks: TASKS.map(task => ({
+      id: task.script,
+      name: task.name,
+      description: task.description,
+      changes: task.script === 'setup' ? 'declared' : 'not-declared',
+    })),
+  }
+}
+
+export function handleContractOptions(
+  options: ReturnType<typeof parseOptions>,
+) {
+  if (options.describe) {
+    const description = developerDescription()
+    console.log(
+      options.json
+        ? JSON.stringify(description)
+        : `${description.name}: ${description.description}\n${description.tasks.map(task => `${task.id}: ${task.description}`).join('\n')}\nUse --dry-run --task setup to preview setup paths.`,
+    )
+    return true
+  }
+  if (options['dry-run']) {
+    const plan = bootstrapPlan()
+    console.log(
+      options.json
+        ? JSON.stringify(plan)
+        : `Would prepare setup in ${plan.root}:\n${plan.steps.map(step => `  ${step}`).join('\n')}\nTargets:\n${plan.targets.map(target => `  ${target}`).join('\n')}`,
+    )
+    return true
+  }
+  return false
+}
+
+export function validateVersionTask(values: ReturnType<typeof readOptions>) {
   if (values.version !== undefined && !['v2', 'v3'].includes(values.version)) {
     throw new Error('Unknown version. Choose --version v2 or --version v3.')
   }
@@ -61,7 +142,7 @@ function validateVersionTask(values: ReturnType<typeof readOptions>) {
   }
 }
 
-function writeJson(value: object) {
+export function writeJson(value: object) {
   console.log(JSON.stringify({ schemaVersion: 1, ...value }))
 }
 

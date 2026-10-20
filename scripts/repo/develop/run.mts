@@ -1,17 +1,14 @@
 import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
-import { existsSync, readFileSync, realpathSync } from 'node:fs'
-import { hostname } from 'node:os'
+import { existsSync, realpathSync } from 'node:fs'
 import path from 'node:path'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
-import { TASKS } from './actions.mts'
+import { TASKS, type MenuState } from './actions.mts'
 import { menuHelp } from './keys.mts'
 import { runVersion } from './version/run.mts'
 import { sweepWorktrees } from './worktree/sweep.mts'
-import { claimWorktree, inspectPulse } from './worktree/lease.mts'
-import type { WorktreeMetadata } from './worktree/lease.mts'
-import type { MenuState } from './actions.mts'
+import { withCurrentWorktreeLease } from './worktree/lease.mts'
 import type { TaskResult } from './execute.mts'
 import { runProcess } from './process.mts'
 import { menuReadiness } from '../setup/readiness.mts'
@@ -19,6 +16,7 @@ import { readDeveloperState, writeDeveloperState } from './state.mts'
 import { choosePlain, printTasks, returnToMenu } from './plain.mts'
 import {
   parseOptions,
+  handleContractOptions,
   printJsonTasks,
   reportError,
   runTask,
@@ -32,24 +30,22 @@ ${menuHelp(TASKS.length)}
 --list   Print commands without running anything.
 --task   Run one task by ID without menu prompts, then exit.
 --json   Print JSON discovery or results. Task logs go to stderr.
+--describe  Describe tasks and supported options.
+--dry-run  Preview the setup task without changing this checkout.
 --version v2|v3  Select the 2.x or 3.x product checkout.
 --sweep [--apply]  Preview or perform conservative helper-owned cleanup.
 -h, --help  Show this help.
 
-For machine output: pnpm --silent run dev --list --json
-Or: node scripts/repo/develop/run.mts --task setup:check --json
-JSON without --task lists tasks. A persistent task runs until stopped.
+For machine output: pnpm --silent run dev --list --json. JSON without --task lists tasks.
 
-The visual menu uses @opentui/core with Node.js 26.4+.
-Older runtimes and terminals without native support use text prompts.
-Direct commands remain available: pnpm go, pnpm run guide, pnpm run review, pnpm run setup:check.`
+The visual menu uses @opentui/core with Node.js 26.4+. Older runtimes use text prompts.`
 
-function supportsNative() {
+export function supportsNative() {
   const [major, minor] = process.versions.node.split('.').map(Number)
   return major! > 26 || (major === 26 && minor! >= 4)
 }
 
-async function launchNative(args: string[]) {
+export async function launchNative(args: string[]) {
   const result = await runProcess(
     {
       command: process.execPath,
@@ -67,7 +63,7 @@ async function launchNative(args: string[]) {
   process.exitCode = result.code ?? (result.signal === 'SIGTERM' ? 143 : 130)
 }
 
-async function menuLoop(plain: boolean) {
+export async function menuLoop(plain: boolean) {
   const { identity, state } = await createMenuContext()
   while (true) {
     let selected: number | undefined
@@ -96,7 +92,7 @@ async function menuLoop(plain: boolean) {
   }
 }
 
-async function createMenuContext() {
+export async function createMenuContext() {
   const identity = checkoutIdentity()
   const saved = readDeveloperState(
     REPO_ROOT,
@@ -117,7 +113,7 @@ async function createMenuContext() {
   }
 }
 
-async function executeSelectedTask(
+export async function executeSelectedTask(
   selected: number,
   state: MenuState,
   identity: ReturnType<typeof checkoutIdentity>,
@@ -149,14 +145,14 @@ async function executeSelectedTask(
   return false
 }
 
-function taskOutcome(task: (typeof TASKS)[number], outcome: TaskResult) {
+export function taskOutcome(task: (typeof TASKS)[number], outcome: TaskResult) {
   if (task.persistent && outcome.signal === 'SIGINT') {
     return 'Docs server stopped. When your change is ready, choose Review.'
   }
   return outcome.status === 'completed' ? `Done. ${task.next}` : outcome.message
 }
 
-function checkoutIdentity() {
+export function checkoutIdentity() {
   let revision = 'unknown'
   try {
     revision = execFileSync('git', ['rev-parse', 'HEAD'], {
@@ -170,7 +166,7 @@ function checkoutIdentity() {
   return { checkout: realpathSync(REPO_ROOT), revision }
 }
 
-function restoredResult(
+export function restoredResult(
   state: ReturnType<typeof readDeveloperState>,
   currentRevision: string,
 ) {
@@ -192,7 +188,7 @@ function restoredResult(
   return `Historical result (${state.updatedAt.slice(0, 16)}, ${revision}): ${label} ${status} (exit ${state.exitCode ?? 'unknown'}). This does not validate the current checkout.`
 }
 
-function saveTaskState(
+export function saveTaskState(
   identity: ReturnType<typeof checkoutIdentity>,
   taskId: string,
   status: 'running' | 'completed' | 'failed' | 'stopped',
@@ -228,7 +224,7 @@ export async function main(
   await dispatchOptions(options, args, repository)
 }
 
-function isVersionDiscovery(options: ReturnType<typeof parseOptions>) {
+export function isVersionDiscovery(options: ReturnType<typeof parseOptions>) {
   return Boolean(
     options.version &&
     options.task === undefined &&
@@ -236,13 +232,16 @@ function isVersionDiscovery(options: ReturnType<typeof parseOptions>) {
   )
 }
 
-async function dispatchOptions(
+export async function dispatchOptions(
   options: ReturnType<typeof parseOptions>,
   args: string[],
   repository: string,
 ) {
   if (options.help) {
     console.log(HELP)
+    return
+  }
+  if (handleContractOptions(options)) {
     return
   }
   if (options.sweep) {
@@ -276,11 +275,11 @@ async function dispatchOptions(
   }
 }
 
-function isTaskList(options: ReturnType<typeof parseOptions>) {
+export function isTaskList(options: ReturnType<typeof parseOptions>) {
   return options.task === undefined && (options.json || options.list)
 }
 
-function printTaskList(json: boolean) {
+export function printTaskList(json: boolean) {
   if (json) {
     printJsonTasks()
   } else {
@@ -288,14 +287,16 @@ function printTaskList(json: boolean) {
   }
 }
 
-function isNonInteractiveDiscovery(options: ReturnType<typeof parseOptions>) {
+export function isNonInteractiveDiscovery(
+  options: ReturnType<typeof parseOptions>,
+) {
   return (
     options.task === undefined &&
     (options.list || !process.stdin.isTTY || !process.stdout.isTTY)
   )
 }
 
-async function dispatchVersion(
+export async function dispatchVersion(
   options: ReturnType<typeof parseOptions>,
   args: string[],
   repository: string,
@@ -316,7 +317,7 @@ async function dispatchVersion(
   }
 }
 
-function printVersionDiscovery(
+export function printVersionDiscovery(
   version: 'v2' | 'v3',
   json: boolean,
   repository: string,
@@ -379,7 +380,7 @@ function printVersionDiscovery(
   }
 }
 
-async function runStandard(
+export async function runStandard(
   options: ReturnType<typeof parseOptions>,
   args: string[],
 ) {
@@ -404,7 +405,7 @@ async function runStandard(
   await menuLoop(plain)
 }
 
-async function runSweep(options: ReturnType<typeof parseOptions>) {
+export async function runSweep(options: ReturnType<typeof parseOptions>) {
   try {
     const results = await sweepWorktrees(REPO_ROOT, options.apply ?? false)
     if (options.json) {
@@ -427,68 +428,6 @@ async function runSweep(options: ReturnType<typeof parseOptions>) {
     }
   } catch (error) {
     reportError(error, options.json ?? false)
-  }
-}
-
-async function withCurrentWorktreeLease<T>(
-  repository: string,
-  action: () => Promise<T>,
-) {
-  const checkout = realpathSync(repository)
-  const metadataPath = path.join(
-    path.dirname(checkout),
-    '.nwsapi-worktree.json',
-  )
-  if (!existsSync(metadataPath)) {
-    return action()
-  }
-  const metadata = JSON.parse(
-    readFileSync(metadataPath, 'utf8'),
-  ) as WorktreeMetadata
-  if (metadata.path === checkout && metadata.hostname !== hostname()) {
-    throw new Error(
-      `Worktree metadata at ${metadataPath} belongs to another or unknown host. Preserve the checkout and inspect its owner before running tasks.`,
-    )
-  }
-  if (
-    metadata.path !== checkout ||
-    metadata.hostname !== hostname() ||
-    !['v2', 'v3'].includes(metadata.version)
-  ) {
-    return action()
-  }
-  const pulsePath = path.join(path.dirname(checkout), '.nwsapi-pulse.json')
-  const inheritedToken = process.env['NWSAPI_WORKTREE_LEASE_TOKEN']
-  const inheritedPath = process.env['NWSAPI_WORKTREE_PATH']
-  const pulse = await inspectPulse(pulsePath)
-  if (
-    inheritedToken &&
-    inheritedToken === metadata.leaseToken &&
-    inheritedToken === pulse.token &&
-    inheritedPath === checkout &&
-    pulse.active
-  ) {
-    return action()
-  }
-  const lease = await claimWorktree(metadata, pulsePath)
-  const previousToken = process.env['NWSAPI_WORKTREE_LEASE_TOKEN']
-  const previousPath = process.env['NWSAPI_WORKTREE_PATH']
-  process.env['NWSAPI_WORKTREE_LEASE_TOKEN'] = lease.token
-  process.env['NWSAPI_WORKTREE_PATH'] = checkout
-  try {
-    return await action()
-  } finally {
-    if (previousToken === undefined) {
-      delete process.env['NWSAPI_WORKTREE_LEASE_TOKEN']
-    } else {
-      process.env['NWSAPI_WORKTREE_LEASE_TOKEN'] = previousToken
-    }
-    if (previousPath === undefined) {
-      delete process.env['NWSAPI_WORKTREE_PATH']
-    } else {
-      process.env['NWSAPI_WORKTREE_PATH'] = previousPath
-    }
-    await lease.release()
   }
 }
 

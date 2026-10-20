@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process'
+import { parseArgs } from 'node:util'
 import {
   closeSync,
   lstatSync,
@@ -29,6 +30,7 @@ export interface HookSetupDependencies {
 
 export type HookSetupResult =
   | { status: 'installed'; directory: string; hooks: string[] }
+  | { status: 'preview'; directory: string; hooks: string[] }
   | { status: 'skipped'; reason: string }
 
 const hookNames = ['pre-commit', 'pre-push'] as const
@@ -38,7 +40,7 @@ export function hookBody(platform: NodeJS.Platform) {
   return `#!/bin/sh\nset -eu\nroot=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0\nrunner="$root/scripts/repo/git/hooks/run.mts"\nif ! git -C "$root" cat-file -e HEAD:scripts/repo/git/hooks/run.mts 2>/dev/null; then\n  printf '%s\\n' '[hooks] Skipping: this commit does not contain the hook runner.' >&2\n  exit 0\nfi\nif [ ! -f "$runner" ]; then\n  printf '%s\\n' '[hooks] Hook runner is missing from this checkout.' >&2\n  exit 1\nfi\nnode="$root/.cache/bin/${nodeName}"\nif [ ! -x "$node" ]; then\n  printf '%s\\n' '[hooks] Managed Node is missing. Run node scripts/repo/setup/tools.mts, then retry.' >&2\n  exit 1\nfi\nexec "$node" "$runner" \${0##*/} "$@"\n`
 }
 
-function defaultDependencies(): HookSetupDependencies {
+export function defaultDependencies(): HookSetupDependencies {
   return {
     runGit(args) {
       try {
@@ -73,37 +75,14 @@ function defaultDependencies(): HookSetupDependencies {
 
 export function installGitHooks(
   dependencies = defaultDependencies(),
+  dryRun = false,
 ): HookSetupResult {
+  const resolved = resolveHooksDirectory(dependencies)
+  if (typeof resolved !== 'string') {
+    return resolved
+  }
+  const directory = resolved
   const paths = dependencies.pathOps ?? path
-  const rootResult = dependencies.runGit(['rev-parse', '--show-toplevel'])
-  if (rootResult.status !== 0 || !rootResult.stdout.trim()) {
-    const reason = 'Not inside a Git checkout; no hooks were installed.'
-    dependencies.log(`[hooks] ${reason}`)
-    return { status: 'skipped', reason }
-  }
-
-  const root = paths.resolve(rootResult.stdout.trim())
-  const customPath = dependencies.runGit([
-    'config',
-    '--path',
-    '--get',
-    'core.hooksPath',
-  ])
-  if (customPath.status === 0) {
-    const reason = `core.hooksPath is configured${customPath.stdout.trim() ? ` (${customPath.stdout.trim()})` : ''}; preserving it.`
-    dependencies.log(`[hooks] Skipping: ${reason}`)
-    return { status: 'skipped', reason }
-  }
-
-  const hooksResult = dependencies.runGit(['rev-parse', '--git-path', 'hooks'])
-  if (hooksResult.status !== 0 || !hooksResult.stdout.trim()) {
-    const reason = 'Git could not resolve its hooks directory.'
-    dependencies.log(`[hooks] Skipping: ${reason}`)
-    return { status: 'skipped', reason }
-  }
-
-  const directory = paths.resolve(root, hooksResult.stdout.trim())
-  dependencies.files.mkdirSync(directory, { recursive: true })
   const body = hookBody(dependencies.platform)
   const states = hookNames.map(name => ({
     name,
@@ -123,9 +102,15 @@ export function installGitHooks(
     return { status: 'skipped', reason }
   }
 
+  const missing = states.filter(entry => entry.state === 'missing')
+  if (dryRun) {
+    return previewHooks(dependencies, directory, missing)
+  }
+
+  dependencies.files.mkdirSync(directory, { recursive: true })
   const installed: string[] = []
   const raced: string[] = []
-  for (const item of states.filter(entry => entry.state === 'missing')) {
+  for (const item of missing) {
     const result = writeHook(item.destination, body, dependencies.files)
     if (result === 'installed') {
       installed.push(item.name)
@@ -146,7 +131,104 @@ export function installGitHooks(
   return { status: 'installed', directory, hooks: [...hookNames] }
 }
 
-function inspectHook(
+export function resolveHooksDirectory(
+  dependencies: HookSetupDependencies,
+): string | Extract<HookSetupResult, { status: 'skipped' }> {
+  const paths = dependencies.pathOps ?? path
+  const rootResult = dependencies.runGit(['rev-parse', '--show-toplevel'])
+  if (rootResult.status !== 0 || !rootResult.stdout.trim()) {
+    return skipHooks(
+      dependencies,
+      'Not inside a Git checkout; no hooks were installed.',
+    )
+  }
+  const root = paths.resolve(rootResult.stdout.trim())
+  const customPath = dependencies.runGit([
+    'config',
+    '--path',
+    '--get',
+    'core.hooksPath',
+  ])
+  if (customPath.status === 0) {
+    const value = customPath.stdout.trim()
+    const detail = value ? ` (${value})` : ''
+    return skipHooks(
+      dependencies,
+      `core.hooksPath is configured${detail}; preserving it.`,
+    )
+  }
+  const hooksResult = dependencies.runGit(['rev-parse', '--git-path', 'hooks'])
+  if (hooksResult.status !== 0 || !hooksResult.stdout.trim()) {
+    return skipHooks(dependencies, 'Git could not resolve its hooks directory.')
+  }
+  return paths.resolve(root, hooksResult.stdout.trim())
+}
+
+export function skipHooks(
+  dependencies: HookSetupDependencies,
+  reason: string,
+): Extract<HookSetupResult, { status: 'skipped' }> {
+  dependencies.log(`[hooks] Skipping: ${reason}`)
+  return { status: 'skipped', reason }
+}
+
+export function previewHooks(
+  dependencies: HookSetupDependencies,
+  directory: string,
+  missing: Array<{ name: string }>,
+): HookSetupResult {
+  const hooks = missing.map(item => item.name)
+  const message = hooks.length
+    ? `[hooks] Would install ${hooks.join(' and ')} in ${directory}.`
+    : `[hooks] Git hooks are already installed in ${directory}.`
+  dependencies.log(message)
+  return { status: 'preview', directory, hooks }
+}
+
+export function describeGitHooks() {
+  return {
+    schemaVersion: 1,
+    type: 'command',
+    name: 'setup/hooks',
+    description: 'Install the repository pre-commit and pre-push hooks.',
+    options: ['--json', '--describe', '--dry-run'],
+    mutates: true,
+  }
+}
+
+export function main(
+  args = process.argv.slice(2),
+  dependencies = defaultDependencies(),
+) {
+  const { values } = parseArgs({
+    args: args[0] === '--' ? args.slice(1) : args,
+    options: {
+      json: { type: 'boolean' },
+      describe: { type: 'boolean' },
+      'dry-run': { type: 'boolean' },
+    },
+  })
+  if (values.describe) {
+    const description = describeGitHooks()
+    dependencies.log(
+      values.json
+        ? JSON.stringify(description)
+        : `${description.name}: ${description.description}\nUse --dry-run to preview hook paths.`,
+    )
+    return
+  }
+  const operationDependencies = values.json
+    ? { ...dependencies, log: () => {} }
+    : dependencies
+  const result = installGitHooks(operationDependencies, values['dry-run'])
+  if (values.json) {
+    dependencies.log(
+      JSON.stringify({ schemaVersion: 1, type: 'result', ...result }),
+    )
+  }
+}
+
+export function inspectHook(
   destination: string,
   body: string,
   files: HookFileSystem,
@@ -168,7 +250,7 @@ function inspectHook(
   }
 }
 
-function writeHook(
+export function writeHook(
   destination: string,
   body: string,
   files: HookFileSystem,
@@ -191,7 +273,7 @@ function writeHook(
 
 if (isMainModule(import.meta.url)) {
   try {
-    installGitHooks()
+    main()
   } catch (error) {
     console.error(
       `[hooks] Installation failed: ${error instanceof Error ? error.message : String(error)}`,

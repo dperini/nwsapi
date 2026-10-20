@@ -24,7 +24,7 @@ const labels = [
   'Cached model',
 ]
 
-function profile(source: string, host: string, disabled = false) {
+export function profile(source: string, host: string, disabled = false) {
   return (
     source +
     `\nvar originalFactory = module.exports;
@@ -36,7 +36,7 @@ module.exports = function (window) {
   )
 }
 
-function summarize(rows: Row[]) {
+export function summarize(rows: Row[]) {
   return labels.map((label, index) => ({
     label,
     cases: rows.length,
@@ -51,7 +51,7 @@ function summarize(rows: Row[]) {
   }))
 }
 
-function verifyRoutes(row: Evidence, mask: number, choose: Override) {
+export function verifyRoutes(row: Evidence, mask: number, choose: Override) {
   for (const [index, trace] of row.traces.entries()) {
     assert.ok(trace.facts, row.id)
     let expected = referenceRoute(trace.facts)
@@ -78,7 +78,7 @@ function verifyRoutes(row: Evidence, mask: number, choose: Override) {
   )
 }
 
-function readBuild(file: string) {
+export function readBuild(file: string) {
   const bytes = readFileSync(file)
   return (file.endsWith('.gz') ? gunzipSync(bytes) : bytes).toString()
 }

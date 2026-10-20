@@ -112,13 +112,13 @@ export function assetManifestKeys() {
   ]
 }
 
-async function copyAsset(root: string, key: string, source: string) {
+export async function copyAsset(root: string, key: string, source: string) {
   const target = path.join(root, 'dist/bin/assets', key)
   await mkdir(path.dirname(target), { recursive: true })
   await copyAssetIfChanged(source, target)
 }
 
-async function copyNoticeSet(
+export async function copyNoticeSet(
   root: string,
   packageName: string,
   sourceRoot: string,
@@ -128,7 +128,7 @@ async function copyNoticeSet(
   }
 }
 
-async function copyNotice(
+export async function copyNotice(
   root: string,
   packageName: string,
   sourceRoot: string,
@@ -140,7 +140,7 @@ async function copyNotice(
   await copyAssetIfChanged(source, target)
 }
 
-function findPackageRoot(packageName: string, coreRoot: string) {
+export function findPackageRoot(packageName: string, coreRoot: string) {
   let directory = coreRoot
   for (let depth = 0; depth < 10; depth += 1) {
     const candidate = path.join(directory, 'node_modules', packageName)
@@ -158,7 +158,7 @@ function findPackageRoot(packageName: string, coreRoot: string) {
   throw new Error(`Could not locate the ${packageName} package root.`)
 }
 
-function assertSharedNoticeCoverage(coreRoot: string) {
+export function assertSharedNoticeCoverage(coreRoot: string) {
   const noticed = new Set<string>(
     sharedNoticePackages.map(({ packageName }) => packageName),
   )
@@ -206,7 +206,7 @@ export async function copyAssetIfChanged(source: string, target: string) {
   }
 }
 
-async function writeIfChanged(target: string, content: string) {
+export async function writeIfChanged(target: string, content: string) {
   try {
     if ((await readFile(target, 'utf8')) === content) {
       return

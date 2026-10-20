@@ -32,7 +32,7 @@ const proxyKeys = new Set([
   'pip_proxy',
 ])
 
-function proxyEndpointKey(host: unknown, port: unknown) {
+export function proxyEndpointKey(host: unknown, port: unknown) {
   const normalized = String(host)
     .toLowerCase()
     .replace(/^\[|\]$/g, '')
@@ -80,7 +80,7 @@ export function isLoopbackHost(host: unknown) {
   return net.isIP(address) === 4 && address.startsWith('127.')
 }
 
-function socketConnectOptions(args: unknown[]): ConnectOptions {
+export function socketConnectOptions(args: unknown[]): ConnectOptions {
   const first = args[0]
   if (typeof first === 'object' && first !== null) {
     return first as ConnectOptions
@@ -94,7 +94,7 @@ function socketConnectOptions(args: unknown[]): ConnectOptions {
   }
 }
 
-function normalizedSocketConnectOptions(options: ConnectOptions) {
+export function normalizedSocketConnectOptions(options: ConnectOptions) {
   const connectOptions = { ...options }
   if (
     !connectOptions.path &&
@@ -129,7 +129,7 @@ net.Socket.prototype.connect = function (this: net.Socket, ...args: unknown[]) {
   return Reflect.apply(originalConnect, this, [connectOptions, callback])
 } as typeof originalConnect
 
-function blockedNetworkError(boundary: string) {
+export function blockedNetworkError(boundary: string) {
   return Object.assign(
     new Error(
       `External test network blocked. Where: ${boundary}. Saw: network resolution or non-loopback address; wanted a local fixture. Fix: mock the external service.`,
@@ -138,7 +138,7 @@ function blockedNetworkError(boundary: string) {
   )
 }
 
-function guardDnsApi(target: object, promises: boolean) {
+export function guardDnsApi(target: object, promises: boolean) {
   const api = target as Record<string, unknown>
   for (const name of Object.getOwnPropertyNames(api)) {
     if (

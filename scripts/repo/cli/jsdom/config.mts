@@ -188,7 +188,7 @@ export function planRemove(project: JsdomProject): ConfigPlan {
   return plan
 }
 
-function planRepeatAdd(
+export function planRepeatAdd(
   project: JsdomProject,
   packageJson: PackageJson,
   metadata: JsdomOverrideMetadata,

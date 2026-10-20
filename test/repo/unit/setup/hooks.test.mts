@@ -102,6 +102,18 @@ test('installs immutable hooks and leaves exact managed shims unchanged on repea
   expect(harness.dependencies.files.openSync).toHaveBeenCalledTimes(2)
 })
 
+test('dry-run reports missing hooks without creating the hooks directory or files', () => {
+  const harness = setupHarness()
+  const result = installGitHooks(harness.dependencies, true)
+  expect(result).toMatchObject({
+    status: 'preview',
+    directory: '/checkout/.git/hooks',
+    hooks: ['pre-commit', 'pre-push'],
+  })
+  expect(harness.dependencies.files.mkdirSync).not.toHaveBeenCalled()
+  expect(harness.dependencies.files.openSync).not.toHaveBeenCalled()
+})
+
 test('accepts exact managed shims on Windows without POSIX execute bits', () => {
   const existing = new Map<string, FileEntry>([
     [

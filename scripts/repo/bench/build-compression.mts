@@ -31,7 +31,7 @@ if (process.argv.includes('--help') || process.argv.includes('-h')) {
   process.exit(0)
 }
 
-async function measureFormatting(file: string) {
+export async function measureFormatting(file: string) {
   const source = readFileSync(file, 'utf8')
   const variants = [
     { name: 'selected', options: {} },
@@ -61,7 +61,7 @@ async function measureFormatting(file: string) {
   }
 }
 
-function measureInitialization(script: vm.Script, count: number) {
+export function measureInitialization(script: vm.Script, count: number) {
   const contexts = Array.from({ length: count }, () => {
     const module = { exports: {} }
     return vm.createContext({ module, exports: module.exports })
@@ -87,7 +87,7 @@ function measureInitialization(script: vm.Script, count: number) {
   return { milliseconds, retainedBytes }
 }
 
-async function measurePackage(root: string, destination: string) {
+export async function measurePackage(root: string, destination: string) {
   mkdirSync(destination)
   const staging = path.join(root, 'scripts/repo/build/package.mts')
   let packed
@@ -137,7 +137,7 @@ async function measurePackage(root: string, destination: string) {
 // A temporary checkout resolves the shared node_modules symlink differently.
 // Normalize generated region comments so that directory names do not count as
 // byte savings. Parsed comment ranges leave code and string literals untouched.
-function normalizeBundleComments(file: string) {
+export function normalizeBundleComments(file: string) {
   const source = readFileSync(file, 'utf8')
   const comments: Comment[] = []
   parse(source, {

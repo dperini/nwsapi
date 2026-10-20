@@ -68,15 +68,18 @@ export async function controlVoiceOver(
   }
 }
 
-function runAction(action: VoiceOverAction, run: VoiceOverCommand) {
+export function runAction(action: VoiceOverAction, run: VoiceOverCommand) {
   return action === 'start' ? startVoiceOver(run) : stopVoiceOver(run)
 }
 
-function successMessage(action: VoiceOverAction) {
+export function successMessage(action: VoiceOverAction) {
   return action === 'start' ? 'VoiceOver started.' : 'VoiceOver stopped.'
 }
 
-function unavailableMessage(state: VoiceOverState, platform: NodeJS.Platform) {
+export function unavailableMessage(
+  state: VoiceOverState,
+  platform: NodeJS.Platform,
+) {
   if (platform !== 'darwin') {
     return {
       status: 1,
@@ -92,7 +95,10 @@ function unavailableMessage(state: VoiceOverState, platform: NodeJS.Platform) {
   return undefined
 }
 
-function unchangedMessage(action: VoiceOverAction, state: VoiceOverState) {
+export function unchangedMessage(
+  action: VoiceOverAction,
+  state: VoiceOverState,
+) {
   if (action === 'start' && state === 'running') {
     return 'VoiceOver is already running.'
   }
@@ -102,7 +108,7 @@ function unchangedMessage(action: VoiceOverAction, state: VoiceOverState) {
   return undefined
 }
 
-async function waitForState(
+export async function waitForState(
   expected: VoiceOverState,
   run: VoiceOverCommand,
   platform: NodeJS.Platform,
@@ -121,7 +127,7 @@ async function waitForState(
   return false
 }
 
-function commandFailure(action: VoiceOverAction) {
+export function commandFailure(action: VoiceOverAction) {
   const instruction =
     action === 'stop' ? ' Command-F5 is the macOS emergency toggle.' : ''
   return {
@@ -130,21 +136,21 @@ function commandFailure(action: VoiceOverAction) {
   }
 }
 
-function startVoiceOver(run: VoiceOverCommand) {
+export function startVoiceOver(run: VoiceOverCommand) {
   return run('/usr/bin/open', [
     '-a',
     '/System/Library/CoreServices/VoiceOver.app',
   ])
 }
 
-function stopVoiceOver(run: VoiceOverCommand) {
+export function stopVoiceOver(run: VoiceOverCommand) {
   return run('/usr/bin/osascript', [
     '-e',
     'if application "VoiceOver" is running then tell application "VoiceOver" to quit',
   ])
 }
 
-function runCommand(command: string, args: string[]): CommandResult {
+export function runCommand(command: string, args: string[]): CommandResult {
   const probe = command === '/usr/bin/pgrep'
   const result = spawnSync(command, args, {
     stdio: probe ? 'ignore' : 'inherit',
@@ -154,6 +160,6 @@ function runCommand(command: string, args: string[]): CommandResult {
   return { status: result.status, error: result.error }
 }
 
-function wait(milliseconds: number) {
+export function wait(milliseconds: number) {
   return new Promise<void>(resolve => setTimeout(resolve, milliseconds))
 }

@@ -18,7 +18,7 @@ import { fixtures, split } from './fixtures.mts'
 import { crossedFixtures } from './crossed.mts'
 import { expandedFixtures } from './expanded.mts'
 
-async function nodeEvidence(entries: ReturnType<typeof fixtures>) {
+export async function nodeEvidence(entries: ReturnType<typeof fixtures>) {
   const evidence = []
   const sources = instrumentedVariants()
   for (let index = 0; index < entries.length; index += 8) {
@@ -28,14 +28,14 @@ async function nodeEvidence(entries: ReturnType<typeof fixtures>) {
   return evidence
 }
 
-function collectionFixtures(expanded: boolean, crossed: boolean) {
+export function collectionFixtures(expanded: boolean, crossed: boolean) {
   if (crossed) {
     return crossedFixtures()
   }
   return expanded ? expandedFixtures() : fixtures()
 }
 
-function collectionScope(expanded: boolean, crossed: boolean) {
+export function collectionScope(expanded: boolean, crossed: boolean) {
   if (crossed) {
     return 'Every filter combination in each fresh layout, including 32 anchors. Whole layouts define training, validation and evaluation splits. Older fixtures are safety controls.'
   }

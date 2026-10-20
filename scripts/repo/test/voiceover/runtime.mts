@@ -107,7 +107,7 @@ export function createRuntime(): SessionRuntime {
   }
 }
 
-function startWorkerProcess(
+export function startWorkerProcess(
   workerScript: string,
   url: string,
   _snapshot: PreferenceSnapshot,
@@ -232,7 +232,7 @@ function startWorkerProcess(
   }
 }
 
-function parseMessages(
+export function parseMessages(
   buffer: string,
   receive: (message: {
     event?: string
@@ -258,7 +258,10 @@ function parseMessages(
   return remainder
 }
 
-function killWorker(child: ReturnType<typeof spawn>, signal: NodeJS.Signals) {
+export function killWorker(
+  child: ReturnType<typeof spawn>,
+  signal: NodeJS.Signals,
+) {
   if (process.platform !== 'win32' && child.pid) {
     killProcess(-child.pid, signal)
     return
@@ -266,7 +269,7 @@ function killWorker(child: ReturnType<typeof spawn>, signal: NodeJS.Signals) {
   child.kill(signal)
 }
 
-function killProcess(pid: number, signal: NodeJS.Signals) {
+export function killProcess(pid: number, signal: NodeJS.Signals) {
   try {
     process.kill(pid, signal)
   } catch (error) {
@@ -276,7 +279,7 @@ function killProcess(pid: number, signal: NodeJS.Signals) {
   }
 }
 
-function readGuidepupVolume(): string | undefined {
+export function readGuidepupVolume(): string | undefined {
   const xml = execFileSync('/usr/bin/hdiutil', ['info', '-plist'], {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -327,7 +330,7 @@ function readGuidepupVolume(): string | undefined {
   return undefined
 }
 
-function expectedVoiceOverImage() {
+export function expectedVoiceOverImage() {
   const manifestPath = path.resolve(
     path.dirname(require.resolve('@guidepup/guidepup')),
     '../manifest.json',
@@ -361,7 +364,7 @@ function expectedVoiceOverImage() {
   )
 }
 
-async function detachMountedVolume() {
+export async function detachMountedVolume() {
   const device = readGuidepupVolume()
   if (!device) {
     return true
@@ -374,7 +377,7 @@ async function detachMountedVolume() {
   return readGuidepupVolume() === undefined
 }
 
-async function saveEvidenceArtifact(
+export async function saveEvidenceArtifact(
   snapshot: PreferenceSnapshot,
   evidence: NarrationEvidence,
 ) {
@@ -395,11 +398,11 @@ async function saveEvidenceArtifact(
   return file
 }
 
-async function removeSnapshotDirectory(snapshot: PreferenceSnapshot) {
+export async function removeSnapshotDirectory(snapshot: PreferenceSnapshot) {
   await rm(snapshot.root, { recursive: true, force: false })
 }
 
-function subscribeSignals(handler: (signal: string) => void) {
+export function subscribeSignals(handler: (signal: string) => void) {
   const interrupt = () => handler('SIGINT')
   const terminate = () => handler('SIGTERM')
   process.on('SIGINT', interrupt)

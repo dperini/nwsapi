@@ -131,7 +131,7 @@ export function guideShutdownExpected(
         (alreadyStopped && exit.code === 0 && hasOutput)
 }
 
-function assertGuideShutdown(
+export function assertGuideShutdown(
   stdout: string,
   exit: { code: number | null; signal: NodeJS.Signals | null },
   forced: boolean,
@@ -155,7 +155,7 @@ function assertGuideShutdown(
   }
 }
 
-async function waitForGuide(
+export async function waitForGuide(
   url: string,
   child: ReturnType<typeof spawn>,
   getSpawnFailure: () => Error | undefined,
@@ -178,7 +178,7 @@ async function waitForGuide(
   )
 }
 
-async function verifyGuidePage(page: Response, url: string) {
+export async function verifyGuidePage(page: Response, url: string) {
   const contentType = page.headers.get('content-type') ?? ''
   const html = await page.text()
   if (
@@ -197,7 +197,7 @@ async function verifyGuidePage(page: Response, url: string) {
   return fetchGuideModules(modulePaths, url)
 }
 
-async function assertGuideStopped(url: string) {
+export async function assertGuideStopped(url: string) {
   try {
     await fetch(url, { signal: AbortSignal.timeout(1000) })
   } catch {
@@ -208,7 +208,10 @@ async function assertGuideStopped(url: string) {
   )
 }
 
-async function fetchGuideModules(modulePaths: string[], baseUrl: string) {
+export async function fetchGuideModules(
+  modulePaths: string[],
+  baseUrl: string,
+) {
   const statuses: number[] = []
   for (const modulePath of modulePaths) {
     const response = await fetch(new URL(modulePath, baseUrl), {
@@ -227,7 +230,7 @@ async function fetchGuideModules(modulePaths: string[], baseUrl: string) {
   return statuses
 }
 
-async function stopBounded(
+export async function stopBounded(
   child: ReturnType<typeof spawn>,
   closed: Promise<{ code: number | null; signal: NodeJS.Signals | null }>,
 ) {
@@ -245,7 +248,7 @@ async function stopBounded(
   ]).finally(() => clearTimeout(timer))
 }
 
-function terminateTree(
+export function terminateTree(
   child: ReturnType<typeof spawn>,
   signal: NodeJS.Signals,
 ): boolean | 'already-stopped' {
@@ -279,11 +282,11 @@ function terminateTree(
   return false
 }
 
-function delay(milliseconds: number) {
+export function delay(milliseconds: number) {
   return new Promise<void>(resolve => setTimeout(resolve, milliseconds))
 }
 
-async function unusedPort() {
+export async function unusedPort() {
   const server = createServer()
   await new Promise<void>((resolve, reject) => {
     server.once('error', reject)

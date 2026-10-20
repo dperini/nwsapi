@@ -11,7 +11,7 @@ import {
   normalizeCoverageLocations,
 } from '../../lib/coverage/normalize.mts'
 
-function uniqueEntries<T>(
+export function uniqueEntries<T>(
   entries: Record<string, T>,
   identity: (item: T) => string,
 ) {
@@ -25,7 +25,7 @@ function uniqueEntries<T>(
   return unique
 }
 
-function alignEntries<T>(
+export function alignEntries<T>(
   reference: Record<string, T>,
   incoming: Record<string, T>,
   identity: (item: T) => string,
@@ -43,11 +43,11 @@ function alignEntries<T>(
   }
 }
 
-const statementIdentity = (location: Range) =>
+export const statementIdentity = (location: Range) =>
   coverageLocationKey(location.start)
-const functionIdentity = (fn: FunctionMapping) =>
+export const functionIdentity = (fn: FunctionMapping) =>
   coverageLocationKey(fn.loc.start)
-const branchIdentity = (branch: BranchMapping) =>
+export const branchIdentity = (branch: BranchMapping) =>
   coverageLocationKey({
     type: branch.type,
     paths: branch.locations.map(location => location.start),

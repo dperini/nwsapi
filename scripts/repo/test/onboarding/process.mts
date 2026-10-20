@@ -119,7 +119,7 @@ export async function runBounded(
   }
 }
 
-function processError(
+export function processError(
   error: Error | undefined,
   timedOut: boolean,
   signal: NodeJS.Signals | null,
@@ -141,7 +141,7 @@ function processError(
   return undefined
 }
 
-function killWindowsTree(child: ReturnType<typeof spawn>) {
+export function killWindowsTree(child: ReturnType<typeof spawn>) {
   if (!child.pid) {
     return
   }

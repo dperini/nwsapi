@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
+import { parseArgs } from 'node:util'
 import manifest from '../../../.config/external-tools.json' with { type: 'json' }
 import {
   TOOL_BIN,
@@ -169,15 +170,83 @@ export async function setupSecurity(
   return TOOL_BIN
 }
 
+export function securitySetupPlan(all = false, root = REPO_ROOT) {
+  const wheel = scannerWheel()
+  const project = path.join(root, manifest.tools.skillspector.project)
+  return {
+    schemaVersion: 1,
+    type: 'preview',
+    command: 'setup/security',
+    steps: [
+      ...securityTools(all).map(name => `Install and verify ${name}.`),
+      `Install Skill Scanner ${manifest.tools['skill-scanner'].version}.`,
+      ...(all ? ['Prepare the locked SkillSpector environment.'] : []),
+    ],
+    targets: [
+      path.join(root, '.cache/bin'),
+      path.join(root, '.cache/external-tools'),
+      path.join(root, '.cache/security/python'),
+      path.join(root, '.cache/security/python/cisco-ai-skill-scanner'),
+      path.join(root, '.cache/external-tools/wheels', wheel.filename),
+      ...(all
+        ? [path.join(root, '.cache/security/skillspector'), project]
+        : []),
+    ],
+  }
+}
+
+export function describeSecuritySetup() {
+  return {
+    schemaVersion: 1,
+    type: 'command',
+    name: 'setup/security',
+    description: 'Install pinned security scanners and isolated environments.',
+    options: ['--json', '--describe', '--dry-run', '--all'],
+    mutates: true,
+  }
+}
+
 export async function main(args = process.argv.slice(2)) {
-  if (args.includes('--help') || args.includes('-h')) {
-    console.log('Usage: pnpm run setup:security [--all]')
+  const { values } = parseArgs({
+    args: args[0] === '--' ? args.slice(1) : args,
+    options: {
+      help: { type: 'boolean', short: 'h' },
+      all: { type: 'boolean' },
+      json: { type: 'boolean' },
+      describe: { type: 'boolean' },
+      'dry-run': { type: 'boolean' },
+    },
+  })
+  if (values.help) {
+    console.log('Usage: pnpm run setup:security [--all] [--dry-run]')
     return
   }
-  if (args.some(arg => arg !== '--all')) {
-    throw new Error('Usage: pnpm run setup:security [--all]')
+  if (values.describe) {
+    const description = describeSecuritySetup()
+    console.log(
+      values.json ? JSON.stringify(description) : description.description,
+    )
+    return
   }
-  await setupSecurity(args.includes('--all'))
+  if (values['dry-run']) {
+    const plan = securitySetupPlan(values.all)
+    console.log(
+      values.json ? JSON.stringify(plan) : formatSecuritySetupPlan(plan),
+    )
+    return
+  }
+  await setupSecurity(values.all)
+}
+
+export function formatSecuritySetupPlan(
+  plan: ReturnType<typeof securitySetupPlan>,
+) {
+  return [
+    'Would prepare security tools:',
+    ...plan.steps.map(step => `  ${step}`),
+    'Targets:',
+    ...plan.targets.map(target => `  ${target}`),
+  ].join('\n')
 }
 
 if (isMainModule(import.meta.url)) {

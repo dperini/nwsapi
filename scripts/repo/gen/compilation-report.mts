@@ -29,12 +29,13 @@ const preparation = JSON.parse(
     'utf8',
   ),
 ) as typeof report
-const escape = (value: string) =>
+export const escape = (value: string) =>
   value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
-const time = (value: number) => value.toFixed(value < 0.01 ? 6 : 4) + 'ms'
-const ratio = (name: string) =>
+export const time = (value: number) =>
+  value.toFixed(value < 0.01 ? 6 : 4) + 'ms'
+export const ratio = (name: string) =>
   report.rows.find(row => row.name === name)!.ratio.toFixed(2)
-function renderRows(entries: Row[]) {
+export function renderRows(entries: Row[]) {
   return entries
     .map(row => {
       const rounds = row.samples[1]!.map(sample => sample.p50Ns / 1e6)
@@ -45,7 +46,7 @@ function renderRows(entries: Row[]) {
 }
 const rows = renderRows(report.rows)
 const preparationRows = renderRows(preparation.rows)
-const preparationRatio = (name: string) =>
+export const preparationRatio = (name: string) =>
   preparation.rows.find(row => row.name === name)!.ratio.toFixed(2)
 const highlights = [
   ['first nth miss', 'Missing positional match', '512 siblings · first()'],

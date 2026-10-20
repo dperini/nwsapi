@@ -13,7 +13,7 @@ interface Node {
   [key: string]: unknown
 }
 
-function falseGuard(node: Node) {
+export function falseGuard(node: Node) {
   const block = node['consequent'] as Node | undefined
   const body = block?.['body'] as Node[] | undefined
   return (
@@ -25,7 +25,11 @@ function falseGuard(node: Node) {
   )
 }
 
-function category(node: Node, attributes: number, dense: number): boolean {
+export function category(
+  node: Node,
+  attributes: number,
+  dense: number,
+): boolean {
   if (node.type === 'LogicalExpression') {
     const left = category(node['left'] as Node, attributes, dense)
     const right = category(node['right'] as Node, attributes, dense)
@@ -42,14 +46,14 @@ function category(node: Node, attributes: number, dense: number): boolean {
   return (left['name'] === 'attributes' ? attributes : dense) === right['value']
 }
 
-function terms(node: Node): Node[] {
+export function terms(node: Node): Node[] {
   if (node.type === 'LogicalExpression' && node['operator'] === '||') {
     return [...terms(node['left'] as Node), ...terms(node['right'] as Node)]
   }
   return [node]
 }
 
-function numericBound(node: Node) {
+export function numericBound(node: Node) {
   const left = node['left'] as Node | undefined
   const right = node['right'] as Node | undefined
   return (
@@ -62,7 +66,7 @@ function numericBound(node: Node) {
   )
 }
 
-function finiteCallee(node: Node | undefined) {
+export function finiteCallee(node: Node | undefined) {
   return (
     node?.type === 'MemberExpression' &&
     !node['computed'] &&
@@ -71,7 +75,7 @@ function finiteCallee(node: Node | undefined) {
   )
 }
 
-function finiteGuard(node: Node) {
+export function finiteGuard(node: Node) {
   const call = node['argument'] as Node | undefined
   const argumentsList = call?.['arguments'] as Node[] | undefined
   return (
@@ -84,11 +88,11 @@ function finiteGuard(node: Node) {
   )
 }
 
-function boundTerm(node: Node) {
+export function boundTerm(node: Node) {
   return numericBound(node) || finiteGuard(node)
 }
 
-function upperBound(guards: Node[], name: string) {
+export function upperBound(guards: Node[], name: string) {
   const limits = guards
     .map(guard => terms(guard['test'] as Node))
     .filter(items => items.every(boundTerm))
@@ -148,7 +152,7 @@ export function unfilteredCertificate(model: string) {
   }
 }
 
-function baselineCertificate(source: string) {
+export function baselineCertificate(source: string) {
   const expected = parse(
     'witnesses > anchors * 2 && (!plan.denseInverse || anchors > 192 || witnesses > anchors * 4)',
     {

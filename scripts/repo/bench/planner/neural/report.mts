@@ -63,14 +63,14 @@ const inference = JSON.parse(
   >
 }
 
-function escapeHtml(value: string) {
+export function escapeHtml(value: string) {
   return value
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
 }
 
-function powerSummary(value: string | undefined) {
+export function powerSummary(value: string | undefined) {
   const source = value || ''
   const supply =
     source.match(/Now drawing from '([^']+)'/)?.[1] || 'Power unknown'
@@ -78,11 +78,11 @@ function powerSummary(value: string | undefined) {
   return `${supply}${state ? ` · battery ${state[1]} ${state[2]}` : ''}`
 }
 
-function percent(value: number) {
+export function percent(value: number) {
   return `${((1 / value) * 100).toFixed(2)}%`
 }
 
-function geometricMean(values: number[]) {
+export function geometricMean(values: number[]) {
   return Math.exp(
     values.reduce((sum, value) => sum + Math.log(value), 0) / values.length,
   )
@@ -94,7 +94,7 @@ const inferenceOverheadNs = Math.max(
     inference.results['in-domain']!.rule.medianNsPerCall,
 )
 
-function adjustedSpeedup(result: HostResult) {
+export function adjustedSpeedup(result: HostResult) {
   return geometricMean(
     result.routeCostSummary.selectedRouteCostsNs.map(
       (cost, index) =>
@@ -107,13 +107,13 @@ function adjustedSpeedup(result: HostResult) {
   )
 }
 
-function timeChange(speedup: number) {
+export function timeChange(speedup: number) {
   return speedup >= 1
     ? `${((1 - 1 / speedup) * 100).toFixed(2)}% less query time`
     : `${((1 / speedup - 1) * 100).toFixed(2)}% more query time`
 }
 
-function hostCard(host: string, label: string, result: HostResult) {
+export function hostCard(host: string, label: string, result: HostResult) {
   const neuralCost = 1 / result.speedupVsProductionRule
   const simpleCost = 1 / result.simpleRatioRule.speedupVsProductionRule
   const adjustedCost = 1 / adjustedSpeedup(result)

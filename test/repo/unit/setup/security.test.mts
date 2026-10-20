@@ -16,6 +16,7 @@ import {
   scannerExecutable,
   scannerWheel,
   securityEnvironment,
+  securitySetupPlan,
   securityTools,
   setupSecurity,
   SECURITY_OPERATIONS,
@@ -166,6 +167,21 @@ test('CLI handles help and rejects unknown options', async () => {
   vi.spyOn(console, 'log').mockImplementation(() => {})
   await expect(main(['--help'])).resolves.toBeUndefined()
   await expect(main(['unknown'])).rejects.toThrow()
+})
+test('security dry run reports install scope without downloading tools', async () => {
+  const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+  await main(['--all', '--dry-run', '--json'])
+  expect(JSON.parse(log.mock.calls[0]![0] as string)).toMatchObject({
+    type: 'preview',
+    command: 'setup/security',
+    targets: expect.arrayContaining([
+      expect.stringContaining('.cache/security'),
+      expect.stringContaining('skill-scanner'),
+    ]),
+  })
+  expect(securitySetupPlan(false, '/checkout').targets).toContain(
+    '/checkout/.cache/security/python',
+  )
 })
 test('CLI installs through mocked verified tool operations', async t => {
   const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-security-setup-cli-'))

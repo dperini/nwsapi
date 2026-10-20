@@ -34,7 +34,7 @@ if (isolateCleanCheckout && tier !== 'integration') {
   throw new Error('--ci-isolate-clean-checkout requires the integration tier.')
 }
 
-async function runLane(
+export async function runLane(
   lane: string,
   runner: string[],
   runnerArgs: string[],

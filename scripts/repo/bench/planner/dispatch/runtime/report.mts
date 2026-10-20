@@ -16,18 +16,23 @@ interface Measurement {
   summaries: Record<string, Metric[]>
 }
 
-function escape(value: string) {
+export function escape(value: string) {
   return value
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
 }
-function load(directory: string, host: string): Measurement {
+export function load(directory: string, host: string): Measurement {
   return JSON.parse(
     readFileSync(path.join(directory, `${host}.json`), 'utf8'),
   ) as Measurement
 }
-function panel(host: string, group: string, first: Metric[], repeat: Metric[]) {
+export function panel(
+  host: string,
+  group: string,
+  first: Metric[],
+  repeat: Metric[],
+) {
   const titles: Record<string, string> = {
     all: 'All measured queries',
     older: 'Older controls',
@@ -74,7 +79,7 @@ function panel(host: string, group: string, first: Metric[], repeat: Metric[]) {
   return `<section><h2>${host} · ${titles[group]}</h2><p class="direction">↓ Lower is faster. Before integration = 100%.</p>${rows}<p>${context[group]} Bars show the geometric average of relative complete-query time.</p><p>${comparison}.</p><p>Worst retained-planner query: ${(100 * first[2]!.worstTimeRatio).toFixed(1)}% of its baseline time first, ${(100 * repeat[2]!.worstTimeRatio).toFixed(1)}% in the repeat.</p><p>Worst cache-trial query: ${(100 * first[3]!.worstTimeRatio).toFixed(1)}% of its baseline time first, ${(100 * repeat[3]!.worstTimeRatio).toFixed(1)}% in the repeat. Check slower cases even when the average improves.</p></section>`
 }
 
-function outliers(directory: string) {
+export function outliers(directory: string) {
   const hosts = ['chromium', 'jsdom']
     .map(host => {
       const data = load(directory, host)

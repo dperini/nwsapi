@@ -54,7 +54,7 @@ if (typeof globalThis.gc !== 'function') {
   process.exit(1)
 }
 
-function settle() {
+export function settle() {
   // A single collection leaves recently-dead objects behind; several passes
   // with a turn of the event loop between them give finalizers a chance to
   // run, so the reading reflects what is genuinely retained.
@@ -66,7 +66,7 @@ function settle() {
 
 // Retained bytes per item, for a factory that produces one item per call. The
 // items stay in an array so nothing is collected before the reading is taken.
-function retainedPer(count: number, make: (index: number) => unknown) {
+export function retainedPer(count: number, make: (index: number) => unknown) {
   const kept = Array.from({ length: count })
   const before = settle()
   for (let i = 0; i < count; ++i) {
@@ -78,7 +78,7 @@ function retainedPer(count: number, make: (index: number) => unknown) {
   return (after - before) / count
 }
 
-function bytes(value: number) {
+export function bytes(value: number) {
   const abs = Math.abs(value)
   if (abs >= 1024 * 1024) {
     return `${(value / (1024 * 1024)).toFixed(2)} mb`
@@ -98,7 +98,7 @@ const HTML =
   '</body></html>'
 
 // Distinct selectors, so every one of them takes a fresh cache slot.
-function selectorList(n: number) {
+export function selectorList(n: number) {
   const list = []
   for (let i = 0; i < n; ++i) {
     list.push(
@@ -108,7 +108,11 @@ function selectorList(n: number) {
   return list
 }
 
-function measure(label: string, factory: typeof nwsapiFactory, count: number) {
+export function measure(
+  label: string,
+  factory: typeof nwsapiFactory,
+  count: number,
+) {
   const results = {
     engine: label,
     instance: 0,
@@ -199,7 +203,7 @@ function measure(label: string, factory: typeof nwsapiFactory, count: number) {
   return results
 }
 
-function main() {
+export function main() {
   const args = process.argv
     .slice(2)
     .filter((arg, i, all) => !(arg === '--' && all.indexOf('--') === i))

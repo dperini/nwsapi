@@ -51,7 +51,7 @@ export function resolveReadmeBootstrapRepairCommand(
   )
 }
 
-function resolveManagedPnpmCommand(
+export function resolveManagedPnpmCommand(
   checkout: string,
   args: string[],
   env: NodeJS.ProcessEnv,

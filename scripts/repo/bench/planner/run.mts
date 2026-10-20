@@ -35,7 +35,7 @@ const metadata = {
     readFileSync(new URL('./fixtures.mts', import.meta.url)),
   ),
 }
-const write = (name: string, value: unknown) =>
+export const write = (name: string, value: unknown) =>
   writeFileSync(path.join(output, name), JSON.stringify(value, null, 2) + '\n')
 const fixtureFile = path.join(output, 'fixtures.json.gz')
 const entries: Fixture[] =
@@ -108,7 +108,7 @@ if (phase === 'collect') {
   fit(output)
 }
 
-function predict(rows: Row[], model: Tree) {
+export function predict(rows: Row[], model: Tree) {
   return rows.map(row => {
     const broad = decide(model, row.features)
     return {

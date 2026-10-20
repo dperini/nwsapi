@@ -103,7 +103,7 @@ export interface TreeMismatch {
   actual?: string
 }
 
-function entryKind(stat: Stats) {
+export function entryKind(stat: Stats) {
   if (stat.isSymbolicLink()) {
     return 'link'
   }
@@ -116,16 +116,16 @@ function entryKind(stat: Stats) {
   return 'special'
 }
 
-function fileSummary(file: string) {
+export function fileSummary(file: string) {
   const bytes = readFileSync(file)
   return `${bytes.length}B sha256:${createHash('sha256').update(bytes).digest('hex')}`
 }
 
-function modeSummary(stat: Stats) {
+export function modeSummary(stat: Stats) {
   return (stat.mode & 0o7777).toString(8)
 }
 
-function compareEntry(
+export function compareEntry(
   current: string,
   wanted: string,
   itemPath: string,
@@ -264,7 +264,7 @@ export function formatTreeMismatches(mismatches: TreeMismatch[], limit = 5) {
   return details.join('\n')
 }
 
-function replaceFile(source: string, destination: string) {
+export function replaceFile(source: string, destination: string) {
   const staging = mkdtempSync(path.join(path.dirname(destination), '.repair-'))
   try {
     const stagedFile = path.join(staging, 'entry')
@@ -276,7 +276,7 @@ function replaceFile(source: string, destination: string) {
   }
 }
 
-function reconcileDirectoryEntry(
+export function reconcileDirectoryEntry(
   actual: string,
   expected: string,
   wantedStat: Stats,
@@ -304,7 +304,7 @@ function reconcileDirectoryEntry(
   }
 }
 
-function reconcileFileEntry(
+export function reconcileFileEntry(
   actual: string,
   expected: string,
   wantedStat: Stats,
@@ -330,7 +330,7 @@ function reconcileFileEntry(
   }
 }
 
-function reconcileLinkEntry(
+export function reconcileLinkEntry(
   actual: string,
   expected: string,
   wantedStat: Stats,
@@ -350,7 +350,7 @@ function reconcileLinkEntry(
   }
 }
 
-function reconcileEntry(
+export function reconcileEntry(
   actual: string,
   expected: string,
   itemPath: string,

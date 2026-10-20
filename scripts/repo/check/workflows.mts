@@ -18,7 +18,7 @@ export function actionReferences(value: unknown): string[] {
   )
 }
 
-function checkReusableWorkflow(
+export function checkReusableWorkflow(
   root: string,
   source: string,
   reference: string,
