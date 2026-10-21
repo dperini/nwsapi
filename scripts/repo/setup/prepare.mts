@@ -5,6 +5,7 @@ import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
 import { ensureManagedTools, managedEnvironment } from './manager.mts'
 import { buildRequiredFiles } from './build.mts'
+import { editorFiles } from './editor.mts'
 
 type Run = (
   command: string,
@@ -29,6 +30,7 @@ export async function prepareCheckout(
     )
     for (const script of [
       'scripts/repo/setup/agents.mts',
+      'scripts/repo/setup/editor.mts',
       'scripts/repo/setup/hooks.mts',
       'scripts/repo/video/prepare.mts',
       'scripts/repo/build/run.mts',
@@ -54,13 +56,14 @@ export async function prepareCheckout(
 }
 
 export function preparePlan(root = REPO_ROOT) {
+  const editor = editorFiles(process.platform, process.arch)
   return {
     schemaVersion: 1,
     type: 'preview',
     command: 'setup/prepare',
     steps: [
       'Verify or install managed checkout tools.',
-      'Refresh agent aliases and Git hooks.',
+      'Configure the pinned TypeScript editor service and refresh agent aliases and Git hooks.',
       'Verify the pinned fframes source.',
       'Build missing package outputs.',
     ],
@@ -68,6 +71,8 @@ export function preparePlan(root = REPO_ROOT) {
       path.join(root, '.cache/bin'),
       path.join(root, '.cache/external-tools'),
       path.join(root, '.agents/skills'),
+      ...editor.files.map(file => path.join(root, file.relative)),
+      ...editor.launchers.map(file => path.join(root, file.relative)),
       gitHooksTarget(root),
       path.join(root, '.cache/fframes'),
       ...buildRequiredFiles().map(file => path.join(root, file.output)),

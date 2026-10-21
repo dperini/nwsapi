@@ -31,6 +31,7 @@ function writeFile(root: string, file: string, content: string) {
 function copyLintContext(root: string) {
   const files = [
     'scripts/repo/lint.mts',
+    'scripts/repo/lint/config.mts',
     'scripts/repo/lint/files.mts',
     'scripts/repo/lib/is-agent.mts',
     'scripts/repo/lib/paths.mts',
@@ -50,6 +51,7 @@ function copyLintContext(root: string) {
     'scripts/fleet/bench/comparison.mts',
     '.config/oxfmt.json',
     '.config/oxlint.json',
+    '.config/oxlint.ci.json',
     '.config/tsconfig.check.json',
     '.config/fleet/oxlint/complexity.json',
     ...globSync('.config/repo/oxlint-plugin/**/*.mts', { cwd: REPO_ROOT }),

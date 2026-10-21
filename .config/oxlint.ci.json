@@ -1,0 +1,6 @@
+{
+  "extends": ["./oxlint.json"],
+  "options": {
+    "denyWarnings": false
+  }
+}

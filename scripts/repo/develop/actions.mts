@@ -14,7 +14,8 @@ export const TASKS: readonly Task[] = [
     script: 'setup',
     command: ['node', 'scripts/repo/setup/bootstrap.mts'],
     name: 'Set up this checkout',
-    description: 'Prepare tools, dependencies, and build outputs.',
+    description:
+      'Prepare tools, dependencies, editor setup, and build outputs.',
     detail:
       'Downloads missing tools and dependencies, then builds the project.\nNeeds network access on first use. Existing downloads are reused.',
     next: 'Next: open the documentation and choose a change.',
