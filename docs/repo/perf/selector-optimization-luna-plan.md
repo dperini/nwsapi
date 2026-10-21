@@ -2,9 +2,13 @@
 
 ## Status and instruction
 
-**Status: implementation is in progress.** The user resumed this plan and
-asked to continue implementation. The type-union experiment is under
-qualification. The later tasks remain open until their evidence is recorded.
+**Status: implementation is in progress.** The October 20 follow-up retains
+terminal-type deduplication and guarded shared-prefix traversal on the current
+v3 baseline. See the [measured outcome](journal.md#share-descendant-work-across-terminal-type-alternatives).
+This qualifies warm queries and mutation correctness for the existing simple
+tag-chain grammar. It does not complete the older cold-query, retention, or
+broader routing proposals below. The October 5 checkout paths and partial
+experiment notes describe historical state.
 
 Written October 5, 2026. The plan targets query time across more selector
 families, including cases where `nwsapi` has only a small lead over the
@@ -1103,5 +1107,7 @@ declared completion criteria. Do not force-push or delete another worktree.
 - [ ] F: collect and train only on useful remaining multi-family decisions.
 - [ ] G: publish the complete gap report and final qualification results.
 
-**Next action:** repeat the refined candidate in `jsdom` on AC power. Record
-the task A decision before starting task B.
+**Current follow-up:** measure first-query cost and mutation throughput for
+the retained October 20 route before broadening its grammar. Keep learned
+routing outside this implementation. Earlier unchecked items need their own
+evidence and are not completed by this follow-up.

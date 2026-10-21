@@ -68,6 +68,11 @@ export interface CollectionSnapshotState extends CollectionState<Element[]> {
   document: WeakRef<Document>
 }
 
+export interface CollectionSnapshotRoots {
+  tags?: CollectionSnapshotState | undefined
+  classes?: CollectionSnapshotState | undefined
+}
+
 export interface PrefixSnapshot {
   nodes: Element[]
   classes: PlanCache<Element[]>

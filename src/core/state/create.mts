@@ -263,4 +263,5 @@ export const initializeState = function (
   this.hasPlans = undefined
   this.Snapshot = undefined
   this.Dom = undefined
+  this.nativeCollections = undefined
 }

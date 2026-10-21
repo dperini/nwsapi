@@ -40,6 +40,7 @@ export const expandedCases = {
     'documentation coverage': [
       'ul li :is(a, code)',
       'dl dd :where(a, code)',
+      'dl dd :is(a, a, a, a)',
       'div.example :is(p, pre)',
       'table tr :is(td, th)',
     ],

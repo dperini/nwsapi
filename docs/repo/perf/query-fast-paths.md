@@ -45,7 +45,10 @@ Large collections can reuse these internal lists to avoid repeated DOM property 
 Simple tag and class queries return a fresh copy of the list.
 More complex queries still test their attributes and relationships on every call.
 
-The engine discards affected snapshots when elements are added or removed, or when class attributes change.
+The engine discards affected snapshots when elements are added or removed.
+Snapshots created by tag copies and wildcard candidate searches can survive class edits.
+Class collections and other lookup routes still observe class changes.
+The two observer states are created lazily per root.
 Before reuse, `MutationObserver.takeRecords()` checks for pending changes immediately.
 The engine does not wait for an observer callback to make results correct.
 The callback also discards old snapshots when no further query runs.

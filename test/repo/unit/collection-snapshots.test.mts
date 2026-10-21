@@ -28,6 +28,7 @@ test('wildcard snapshots survive replacement collections while predicates stay l
   expect(engine.select('[data-hit]', context)).toHaveLength(32)
   reads = 0
   context.setAttribute('data-unrelated', 'changed')
+  context.className = 'changed'
   context.firstElementChild!.removeAttribute('data-hit')
   expect(engine.select('[data-hit]', context)).toHaveLength(31)
   expect(reads).toBe(0)

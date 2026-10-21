@@ -31,7 +31,7 @@ test('expanded survey retains established workload cases and adds valid neighbor
       count += 1
     }
   }
-  assert.equal(count, 147)
+  assert.equal(count, 148)
   const scoped = Object.values(expandedScopedCases)
     .flatMap(Object.values)
     .flat()
@@ -41,7 +41,7 @@ test('expanded survey retains established workload cases and adds valid neighbor
       'SelectorList',
     )
   }
-  assert.equal(count + scoped.length, 152)
+  assert.equal(count + scoped.length, 153)
 })
 
 test('mixed diagnostic roots resolve scoped selectors including outside ancestors', () => {

@@ -94,6 +94,40 @@ It calls the user's callback once, after choosing that result.
 Tests cover XML, document fragments, older DOM implementations, and document changes.
 They also cover callbacks that start another query.
 
+### Share a prefix across terminal type alternatives
+
+For simple HTML document queries such as `dl dd :is(a, code)`, the engine
+removes repeated types and can resolve the prefix once. It skips nested
+prefix roots already covered by an outer root, fetches each type within the
+remaining roots, and merges the results in document order. Disjoint roots
+are processed in document order and need no cross-root comparisons.
+
+When two distinct terminal types span several roots, each root's ordered
+type runs merge directly into the final result array. The two lookup
+descriptors are prepared once per query. This avoids copying an intermediate
+merged array for each root. Single-root queries and larger type unions keep
+the general merge path.
+
+The existing descent budget limits this route. Cached counts can decline an
+expensive traversal, but never supply an answer. Each accepted query reads
+fresh descendants. Callbacks, legacy mode, extensions, foreign types, and
+unsupported contexts use the existing routes. See the
+[measurements and tradeoffs](journal.md#share-descendant-work-across-terminal-type-alternatives).
+
+### Read small native collections directly
+
+Unfiltered chain levels with fewer than 16 elements use direct indexed
+reads when the host provides a native `HTMLCollection` length getter.
+The length observed for this decision is reused by the copy loop, then
+discarded. Every query observes the current collection again.
+Larger levels, tag-filtered class lookups, and JavaScript DOM implementations
+retain snapshots. The capability is checked again when switching documents.
+
+Native collection copying and cached-array copying use separate loops.
+This keeps the different indexed-access implementations from slowing one
+another down. Both paths copy into query-local results and observe DOM
+changes on the next query. See the [measurements and rejected prototype](journal.md#avoid-polling-small-collections-and-merging-separate-subtrees).
+
 ### Stop early when the first candidate matches
 
 The common collection path reads index zero without copying the collection or reading its length.
@@ -294,6 +328,8 @@ Simple queries return a fresh copy of that list.
 More complex queries still test their attributes and relationships.
 
 Before reusing a snapshot, the engine checks for document changes that could make the list outdated.
+Tag copies and wildcard candidate searches can reuse snapshots across class edits.
+Structural edits still invalidate those snapshots, and class collections still observe class changes.
 Weak references allow unused state to be collected.
 Observer cleanup prevents discarded engines from keeping candidate arrays alive.
 

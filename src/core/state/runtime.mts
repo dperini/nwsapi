@@ -8,6 +8,7 @@ import type {
   EngineGlobal,
   ForeignTypeState,
   CollectionSnapshotState,
+  CollectionSnapshotRoots,
   SelectorExtension,
   PlanCache,
   AttributeOperator,
@@ -60,6 +61,7 @@ export interface RuntimeState {
   NAMESPACE: string | null
   QUIRKS_MODE: boolean
   HTML_DOCUMENT: boolean
+  nativeCollections: boolean
   ATTR_STD_OPS: Record<string, number>
   HTML_TABLE: Record<string, number>
   Combinators: Record<string, (match: RegExpMatchArray) => string>
@@ -116,7 +118,7 @@ export interface RuntimeState {
     names: string,
     context: EngineContext,
   ) => Element[] | NodeListOf<Element>
-  collectionRoots: WeakMap<Node, CollectionSnapshotState> | null | undefined
+  collectionRoots: WeakMap<Node, CollectionSnapshotRoots> | null | undefined
   collectionStates: WeakMap<object, CollectionSnapshotState> | null | undefined
   collectionSnapshot: (
     nodes: ArrayLike<Element>,
@@ -124,12 +126,14 @@ export interface RuntimeState {
     length?: number | undefined,
     small?: boolean | undefined,
     identity?: object | undefined,
+    tagOnly?: boolean | undefined,
   ) => ArrayLike<Element>
   collectionCopy: (
     nodes: ArrayLike<Element>,
     context: EngineContext,
     snapshot?: ArrayLike<Element>,
     identity?: object | undefined,
+    tagOnly?: boolean | undefined,
   ) => Element[]
   asciiLower: (name: string) => string
   matchesTag: (element: Element, name: string) => boolean

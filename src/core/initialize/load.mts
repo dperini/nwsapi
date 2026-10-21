@@ -323,6 +323,7 @@ type Primordials = import('../state/types.mts').Primordials
       root: Node,
       view: Pick<typeof globalThis, 'MutationObserver'>,
       state: CollectionState<Value> | ForeignTypeState,
+      attributes = true,
     ) {
       var reference = new primordials.WeakRefCtor!(state)
       var observer = new view.MutationObserver(function (
@@ -357,7 +358,7 @@ type Primordials = import('../state/types.mts').Primordials
       }
       observer.observe(
         root,
-        'dirty' in state
+        'dirty' in state || !attributes
           ? { childList: true, subtree: true }
           : {
               childList: true,

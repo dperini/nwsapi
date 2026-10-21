@@ -190,7 +190,19 @@ describe('a descendant chain of tags answered by descending', () => {
       return original(tag)
     }
     NW.select('dl dd :where(a, code)', document)
-    assert.deepEqual(reads, ['dl', 'dl'])
+    assert.deepEqual(reads, ['dl'])
+    reads.length = 0
+    assert.deepEqual(
+      Array.from(NW.select('dl dd :is(a, a)', document)).map(
+        element => element.id,
+      ),
+      ['a', 'nested'],
+    )
+    assert.deepEqual(
+      reads,
+      ['dl'],
+      'duplicate terminal types should run the shared prefix query once',
+    )
     reads.length = 0
     NW.select('dl dd :where(a, code)', document, () => {})
     assert.ok(

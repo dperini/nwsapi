@@ -1,4 +1,5 @@
 import type { EngineState, EngineContext } from '../state/types.mts'
+import { MIN_COLLECTION_SNAPSHOT_LENGTH } from '../collection/snapshot/skip.mts'
 
 export function fetchLevel(
   engine: EngineState,
@@ -6,45 +7,61 @@ export function fetchLevel(
   root: EngineContext,
   out: Element[],
 ) {
-  var found: ArrayLike<Element>, i: number, l: number
-
-  if (part.cls !== undefined) {
-    found = engine.collectionSnapshot(
-      root.getElementsByClassName!(part.cls),
-      root,
-      undefined,
-      true,
-    )
-    l = found.length
-    if (part.tag === undefined) {
-      for (i = 0; l > i; ++i) {
-        out[out.length] = found[i]!
-      }
-    } else {
-      for (i = 0; l > i; ++i) {
-        if (
-          found[i]!.localName == part.tag ||
-          (engine.HTML_DOCUMENT &&
-            found[i]!.namespaceURI == engine.NAMESPACE &&
-            found[i]!.localName == part.tag.toLowerCase())
-        ) {
-          out[out.length] = found[i]!
-        }
-      }
-    }
-  } else {
-    found = engine.collectionSnapshot(
-      root.getElementsByTagName!(part.tag!),
-      root,
-      undefined,
-      true,
-    )
-    l = found.length
-    for (i = 0; l > i; ++i) {
-      out[out.length] = found[i]!
+  const byClass = part.cls !== undefined
+  const found = byClass
+    ? root.getElementsByClassName!(part.cls!)
+    : root.getElementsByTagName!(part.tag!)
+  if (engine.nativeCollections && (!byClass || part.tag === undefined)) {
+    const length = found.length
+    if (length < MIN_COLLECTION_SNAPSHOT_LENGTH) {
+      return appendNativeLevel(found, out, length)
     }
   }
+  const snapshot = engine.collectionSnapshot(found, root, undefined, true)
+  if (byClass && part.tag !== undefined) {
+    return appendTaggedLevel(engine, snapshot, part.tag, out)
+  }
+  return appendSnapshotLevel(snapshot, out)
+}
 
+// Separate indexed reads keep native collections out of the cached-array loop.
+export function appendNativeLevel(
+  nodes: ArrayLike<Element>,
+  out: Element[],
+  length = nodes.length,
+) {
+  for (let index = 0; index < length; ++index) {
+    out[out.length] = nodes[index]!
+  }
+  return out
+}
+
+export function appendSnapshotLevel(nodes: ArrayLike<Element>, out: Element[]) {
+  for (let index = 0, length = nodes.length; index < length; ++index) {
+    out[out.length] = nodes[index]!
+  }
+  return out
+}
+
+export function appendTaggedLevel(
+  engine: EngineState,
+  nodes: ArrayLike<Element>,
+  tag: string,
+  out: Element[],
+) {
+  const lowerTag = tag.toLowerCase()
+  for (let index = 0, length = nodes.length; index < length; ++index) {
+    const node = nodes[index]!
+    const name = node.localName
+    if (
+      name === tag ||
+      (engine.HTML_DOCUMENT &&
+        node.namespaceURI === engine.NAMESPACE &&
+        name === lowerTag)
+    ) {
+      out[out.length] = node
+    }
+  }
   return out
 }
 

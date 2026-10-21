@@ -13,6 +13,7 @@ export function collectionSnapshot(
   length?: number | undefined,
   small?: boolean | undefined,
   identity?: object | undefined,
+  tagOnly?: boolean | undefined,
 ): ArrayLike<Element> {
   var state: CollectionSnapshotState | undefined,
     root: Node,
@@ -42,7 +43,7 @@ export function collectionSnapshot(
   if (!engine.collectionRoots) {
     return nodes
   }
-  state = prepareCollectionState(engine, context, root, view)
+  state = prepareCollectionState(engine, context, root, view, tagOnly)
   engine.collectionStates || (engine.collectionStates = engine.createWeakMap())
   engine.collectionStates!.set(identity, state)
   // oxlint-disable-next-line unicorn/no-new-array -- dense native collection
@@ -54,13 +55,20 @@ export function collectionSnapshot(
   return result
 }
 
-function prepareCollectionState(
+export function prepareCollectionState(
   engine: EngineState,
   context: EngineContext,
   root: Node,
   view: Window & typeof globalThis,
+  tagOnly?: boolean | undefined,
 ) {
-  let state = engine.collectionRoots!.get(root)
+  let states = engine.collectionRoots!.get(root)
+  if (!states) {
+    states = {}
+    engine.collectionRoots!.set(root, states)
+  }
+  const key = tagOnly ? 'tags' : 'classes'
+  let state = states[key]
   if (!state) {
     state = {
       copies: engine.createWeakMap()!,
@@ -75,10 +83,11 @@ function prepareCollectionState(
           root: Node,
           view: Pick<typeof globalThis, 'MutationObserver'>,
           state: CollectionState<Value>,
+          attributes?: boolean,
         ): MutationObserver
       }
-    )['_observeCollections'](root, view, state)
-    engine.collectionRoots!.set(root, state)
+    )['_observeCollections'](root, view, state, !tagOnly)
+    states[key] = state
   } else if (
     state.observer!.takeRecords().length ||
     state.document.deref() !== (context.ownerDocument || context)
@@ -92,7 +101,7 @@ function prepareCollectionState(
   return state
 }
 
-function reuseCollectionSnapshot(
+export function reuseCollectionSnapshot(
   engine: EngineState,
   context: EngineContext,
   identity: object,

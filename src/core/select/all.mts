@@ -8,6 +8,7 @@ import type {
 import { selectCandidates } from './candidates.mts'
 import { groupSelectors } from './group.mts'
 import { prepareBulkHas, selectBulkHas } from './has/match.mts'
+import { selectScopedTypeUnion, splitUnionTypes } from './scoped-union.mts'
 
 export function select(
   engine: EngineState,
@@ -281,6 +282,8 @@ export function selectTypeUnion(
   callback: ElementCallback,
 ) {
   if (
+    (typeof selectors === 'string' &&
+      selectors.charCodeAt(selectors.length - 1) !== 41) ||
     callback !== undefined ||
     engine.Config.LEGACY ||
     !engine.HTML_DOCUMENT ||
@@ -296,20 +299,32 @@ export function selectTypeUnion(
     return undefined
   }
   const prefix = match[1]!.replace(/[\t\n\f\r ]+$/, '')
-  const tags = match[2]!.split(',')
+  const tags = splitUnionTypes(match[2]!)
   if (
     prefix.charAt(0) == '.' ||
-    !engine.reTagChain.test(prefix + ' ' + tags[0]!.trim()) ||
+    !engine.reTagChain.test(prefix + ' ' + tags[0]!) ||
     engine.hasForeignTypes(context)
   ) {
     return undefined
   }
+  const results =
+    selectScopedTypeUnion(engine, selectors, prefix, tags, context) ||
+    selectTypeUnionBranches(engine, prefix, tags, context)
+  return engine.Config.NODE_LIST ? engine.toNodeList(results) : results
+}
+
+export function selectTypeUnionBranches(
+  engine: EngineState,
+  prefix: string,
+  tags: string[],
+  context: EngineContext,
+) {
   // Split only simple HTML tag unions so each branch can use the chain route.
   const results: Element[] = [],
     ends = [0],
     tagsLength = tags.length
   for (let index = 0; index < tagsLength; ++index) {
-    const selector = prefix + ' ' + tags[index]!.trim()
+    const selector = prefix + ' ' + tags[index]!
     const selected = select(engine, selector, context)
     for (
       let offset = 0, selectedLength = selected.length;
@@ -324,10 +339,9 @@ export function selectTypeUnion(
   }
   if (results.length > 1) {
     engine.hasDupes = false
-    const merged = engine.mergeResults(results, ends)
-    return engine.Config.NODE_LIST ? engine.toNodeList(merged) : merged
+    return engine.mergeResults(results, ends)
   }
-  return engine.Config.NODE_LIST ? engine.toNodeList(results) : results
+  return results
 }
 
 function chainByParts(

@@ -13,6 +13,249 @@ Follow the [shared performance practices](../../fleet/perf/practices.md) when de
 
 Each entry identifies the measured phase, the result, whether the change was retained, the behavior protected by verification, and any remaining work. Entries record their measurement dates. Older measurements without a separate date were recorded on September 8, 2026. Revision pairs identify comparable builds. Percentages from different comparisons must not be added together.
 
+## Retain tag snapshots across class edits
+
+**Measured October 20, 2026. Retained in v3.** Tag copies and wildcard candidate searches now use structural mutation observation. Class collections retain class observation. The shared copy path reuses cached snapshots directly and reads uncached collection lengths once. Each root creates its observer states lazily. A root using both kinds can have one additional observer.
+
+One AC-powered pass against `c1dddcd3` measured warm, complete queries in five alternating rounds on an Apple M1 Max, Chromium 154.0.8037.0, Node.js 26.10.0, and `jsdom` 30.1.3. The geometric mean query time decreased by 1.1% in Chromium and 0.3% in `jsdom`. Individual cases slowed by up to 8.1% and 5.6%, respectively. These are single-pass results, with regressions remaining for follow-up. They do not measure mutation cycles, first-query cost, rendering, or application speed.
+
+The [recorded inputs and rounds](../../../assets/repo/bench/snapshot-class/2026-10-20/completion/) archive the exact bundles and fixtures. [Generated summaries](../../../assets/repo/bench/snapshot-class/2026-10-20/summary.json) preserve medians and round variation. The lifecycle benchmark harness separately supports warm, mutation, and first-query measurements. Its final-build lifecycle comparison remains pending.
+
+## Reuse native lengths and append two-type merges directly
+
+**Measured October 20, 2026. Retained in v3.** Small native chain lookups now
+reuse the length already read for route selection. Two-type unions across
+multiple disjoint roots merge each root's ordered runs directly into the
+final array, with lookup descriptors prepared once per query. Single-root
+queries and larger unions retain the general merge path.
+
+Complete warm `select()` queries were compared with `73990a6c` on an
+AC-powered Apple M1 Max, Chromium 154.0.8037.0, Node.js 26.10.0, and `jsdom`
+30.1.3. Each broad run alternates variants over five rounds at 24ms per
+variant, in batches of 16 calls. The repeat reverses fixture and variant
+order. Ordered element identity is checked before and after timing. No
+build, test, or translation work runs alongside the measurements.
+
+| Documentation query       | Chromium speedup | `jsdom` speedup |
+| ------------------------- | ---------------: | --------------: |
+| `dl dd a`                 |            1.07× |      1.02–1.03× |
+| `dl dd :where(a, code)`   |       1.13–1.24× |      0.98–1.04× |
+| `div.example :is(p, pre)` |       1.21–1.28× |      1.08–1.10× |
+| `table tr :is(td, th)`    |       1.10–1.13× |      0.99–1.03× |
+
+These are warm query costs on the documentation fixture. Ranges show the
+two runs, not confidence intervals. Across all measured shapes, the
+geometric mean of per-case speedups is 1.005–1.019× in Chromium and
+1.000–1.003× in `jsdom`. The targeted Chromium gains repeat, while overall
+`jsdom` performance is near baseline.
+
+Some individual measurements are slower. The largest single-run slowdowns
+are 9.5% in Chromium and 6.8% in `jsdom`. No slowdown above 3% repeats for
+the same case in both runs on either host. This does not establish that
+every selector is faster or that these ratios predict application speed.
+
+Focused nine-round experiments isolate the length change and then the
+direct merge. Their gains must not be added together. The broad comparison
+measures both changes in the final build against the committed baseline.
+
+The readable bundle grows by 1,395 bytes and gzip at level 9 by 280 bytes.
+Tests cover reused length observations, both tag orders, empty and
+interleaved runs, appending to existing results, mutations, document
+switches, and fallback paths. Cold-query time, mutation throughput, and
+retained heap were not measured in this round.
+
+<details>
+<summary>Recorded inputs and reproduction</summary>
+
+- [First broad run](../../../assets/repo/bench/union-copy/2026-10-20/final-r1/)
+  and [reversed repeat](../../../assets/repo/bench/union-copy/2026-10-20/final-r2/)
+  contain the exact bundles, fixtures, raw rounds, hashes, and power readings.
+- [Generated summaries](../../../assets/repo/bench/union-copy/2026-10-20/summary.json)
+  preserve per-case medians and round variation.
+- [Length reuse](../../../assets/repo/bench/union-copy/2026-10-20/length-r1/)
+  compares with `73990a6c`. [Direct pair merging](../../../assets/repo/bench/union-copy/2026-10-20/pair-r1/)
+  compares with length reuse alone.
+
+```sh
+NWSAPI_REQUIRE_AC=1 node scripts/repo/run.mts scripts/repo/bench/survey/type-union.mts \
+  --baseline assets/repo/bench/union-copy/2026-10-20/final-r1/baseline.cjs.gz \
+  --candidate assets/repo/bench/union-copy/2026-10-20/final-r1/candidate.cjs.gz \
+  --output .cache/union-copy-confirmation --expanded --rounds 5
+```
+
+Add `--repeat` and use a new output directory to reverse both orders.
+The summary command is `node scripts/repo/run.mts scripts/repo/bench/survey/summary.mts`
+followed by measurement JSON paths. Speedups divide baseline by candidate
+median round cost. Ranges are descriptive, not confidence intervals.
+
+</details>
+
+## Avoid polling small collections and merging separate subtrees
+
+**Measured October 20, 2026. Retained in v3.** CPU profiles identified
+observer polling in small descendant collections and document-position
+comparisons between disjoint roots. The engine now reads small native
+collections directly and merges terminal type alternatives within each root.
+Native collections and cached arrays use separate copy loops. Tag-filtered
+copying computes the lowercase tag once, and a cheap string check rejects
+queries that cannot use the terminal-union route.
+
+Complete warm `select()` queries were compared with `2c053fb9` on an
+AC-powered Apple M1 Max, Chromium 154.0.8037.0, Node.js 26.10.0, and `jsdom`
+30.1.3. Five alternating rounds per run cover documentation, component,
+utility-class, mixed, and synthetic DOM shapes. The second run reverses
+fixture and variant order. Ordered element identity is checked against the
+host before and after timing. Builds, tests, and profiling run separately
+from timings.
+
+| Documentation query       | Chromium speedup | `jsdom` speedup |
+| ------------------------- | ---------------: | --------------: |
+| `dl dd a`                 |       1.50–1.59× |           1.01× |
+| `ul li a`                 |       1.54–1.59× |      0.98–1.01× |
+| `dl dd :where(a, code)`   |       2.10–2.12× |      1.12–1.14× |
+| `div.example :is(p, pre)` |       3.38–3.43× |      1.13–1.15× |
+| `table tr :is(td, th)`    |       1.44–1.58× |      0.96–1.06× |
+
+These are warm query costs on the documentation fixture. Ranges show the
+two runs, not confidence intervals. Across all measured shapes, the
+geometric mean of per-case speedups is 1.083–1.090× in Chromium and
+1.008–1.011× in `jsdom`. This is not an estimate of whole-application speed.
+
+The previously regressed Chromium `dl dd a` control is also 1.57× faster
+than the earlier `b45c8c34` build in a separate nine-round comparison:
+16.99µs becomes 10.81µs. This directly verifies recovery of the earlier
+regression without combining percentages from different experiments.
+
+Not every observation improves. The largest single-run slowdowns are 5.7%
+in Chromium and 11.2% in `jsdom`. No Chromium slowdown above 3% repeats in
+both runs. Two `jsdom` controls, `button.btn` and `.row.active + .row`, are
+3%–5% slower in both broad runs. Focused nine-round repeats with an identical
+baseline control put `button.btn` about 3% faster and the sibling query
+within 1% of baseline. Identical baseline copies differ by up to 3.5% on
+these controls. Those results show workload-sensitive variation and do not
+establish an improvement for every selector.
+
+The earlier prototype shared indexed reads between native collections and
+cached arrays. It doubled Chromium time for `.content .surface` and slowed
+`ol li` by about 29%. Separate loops removed those regressions. Experimental
+cached-plan shortcuts were dropped to keep this change focused on collection
+and merge costs.
+
+The readable bundle grows by 2,173 bytes and gzip at level 9 by 433 bytes.
+Unit and browser checks cover empty and boundary-sized collections, nested
+and disjoint roots, fresh results after mutations, document switches,
+returned-array isolation, and HTML versus foreign tag matching. Cold-query
+time, mutation throughput, and retained heap were not measured here.
+
+The final CPU profiles put native indexed copying, tag collection lookup,
+containment checks, and per-root result assembly among the remaining hot
+operations. Further work should target those measured costs and include
+mutation-heavy and first-query workloads. These profiles do not establish
+a universal performance ceiling.
+
+<details>
+<summary>Recorded inputs and reproduction</summary>
+
+- [First run](../../../assets/repo/bench/collection-routing/2026-10-20/final-r1/)
+  and [reversed repeat](../../../assets/repo/bench/collection-routing/2026-10-20/final-r2/)
+  retain raw samples, power readings, source hashes, fixtures, and exact bundles.
+- [Summaries](../../../assets/repo/bench/collection-routing/2026-10-20/summary.json)
+  are generated from those samples. Ranges describe the observations and are
+  not confidence intervals.
+- The [earlier-build comparison](../../../assets/repo/bench/collection-routing/2026-10-20/original-reference/)
+  uses `b45c8c34` as its baseline. Omit `--expanded` and use `--rounds 9`
+  with those archived bundles to reproduce its focused workload.
+- The [first focused control run](../../../assets/repo/bench/collection-routing/2026-10-20/control-r1/)
+  and [reversed control run](../../../assets/repo/bench/collection-routing/2026-10-20/control-r2/)
+  include an identical baseline copy under the `baseline-control` label.
+  Their archived fixtures identify the focused cases, with nine rounds,
+  24ms per variant, and batches of 16 calls.
+- [CPU profiles and sampling settings](../../../assets/repo/bench/collection-routing/2026-10-20/profiles/)
+  preserve separate baseline and candidate captures.
+- The [rejected shared-loop prototype](../../../assets/repo/bench/collection-routing/2026-10-20/shared-loop-prototype/)
+  retains its inputs and measurements. The [loop-isolation comparison](../../../assets/repo/bench/collection-routing/2026-10-20/loop-isolation/)
+  records the separate-loop variants.
+
+```sh
+NWSAPI_REQUIRE_AC=1 node scripts/repo/run.mts scripts/repo/bench/survey/type-union.mts \
+  --baseline assets/repo/bench/collection-routing/2026-10-20/final-r1/baseline.cjs.gz \
+  --candidate assets/repo/bench/collection-routing/2026-10-20/final-r1/candidate.cjs.gz \
+  --output .cache/collection-routing-confirmation --expanded --rounds 5
+```
+
+Add `--repeat` and use a new output directory to reverse both orders. Generate
+summaries with `node scripts/repo/run.mts scripts/repo/bench/survey/summary.mts`
+followed by the measurement JSON paths. Costs are nanoseconds. Chromium
+rounds report mean query cost, and `jsdom` rounds report median query cost.
+Reported speedups divide baseline by candidate median round cost.
+
+</details>
+
+## Share descendant work across terminal type alternatives
+
+**Measured October 20, 2026. Retained in v3.** Simple descendant queries such
+as `dl dd :is(a, code)` can find the prefix once and search its non-overlapping
+roots. Duplicate alternatives are removed before execution. The two-type
+case avoids allocating a set when the types already differ.
+
+Complete warm `select()` queries were measured against `b45c8c34` on an
+AC-powered Apple M1 Max, Chromium 154.0.8037.0, Node.js 26.10.0, and `jsdom`
+30.1.3. Each run alternates variants over nine rounds. The repeat reverses
+both fixture and variant order. Ordered element identity is checked before
+and after timing.
+
+| Case                                    | Chromium speedup | `jsdom` speedup |
+| --------------------------------------- | ---------------: | --------------: |
+| Narrow prefix, distinct terminal types  |       1.78–1.80× |      2.07–2.18× |
+| Documentation: `dl dd :where(a, code)`  |       1.12–1.19× |      1.28–1.33× |
+| Documentation: `table tr :is(td, th)`   |       1.08–1.14× |           1.33× |
+| Documentation: repeated `a` alternative |       6.55–6.81× |      5.39–5.47× |
+
+Ranges show the two recorded runs, not confidence intervals. These are
+focused synthetic and documentation-shaped warm queries. The largest
+observed slowdown was 5.5% in Chromium and 1.6% in `jsdom`. The Chromium
+plain-chain control took 4.9–5.5% more time in both runs. Wide and no-match
+union controls remain near baseline. Cold-query time, mutation throughput,
+and retained heap were not measured in this experiment.
+
+An unguarded prototype regressed wide and no-match documents. The retained
+route uses the existing descent budget and cached counts to decline those
+shapes. Counts choose execution strategy only. Fresh traversal determines
+every result, including after mutations. Callbacks, legacy mode, extensions,
+foreign types, and unsupported contexts retain their existing paths.
+
+The readable bundle grows by 2,167 bytes and gzip at level 9 by 387 bytes.
+Focused tests cover nested-root deduplication, ordered merges, DOM growth,
+cached declines, empty branches, callbacks, first results, and NodeList output.
+
+<details>
+<summary>Recorded inputs and reproduction</summary>
+
+- [First confirmation](../../../assets/repo/bench/type-union/2026-10-20/confirmation-r1/) and
+  [reversed repeat](../../../assets/repo/bench/type-union/2026-10-20/confirmation-r2/)
+  contain raw samples, power readings, hashes, fixtures, and both built bundles.
+- [Deduplication only](../../../assets/repo/bench/type-union/2026-10-20/deduplicate-r1/)
+  has a [repeat](../../../assets/repo/bench/type-union/2026-10-20/deduplicate-r2/).
+- The [unguarded prototype](../../../assets/repo/bench/type-union/2026-10-20/scoped-r1/)
+  compares against deduplication alone. The intermediate guard has
+  [first](../../../assets/repo/bench/type-union/2026-10-20/guarded-r1/) and
+  [repeat](../../../assets/repo/bench/type-union/2026-10-20/guarded-r2/) runs.
+
+```sh
+NWSAPI_REQUIRE_AC=1 node scripts/repo/run.mts scripts/repo/bench/survey/type-union.mts \
+  --baseline assets/repo/bench/type-union/2026-10-20/confirmation-r1/baseline.cjs.gz \
+  --candidate assets/repo/bench/type-union/2026-10-20/confirmation-r1/candidate.cjs.gz \
+  --output .cache/type-union-confirmation
+```
+
+Add `--repeat` and choose a new output directory for the reverse-order run.
+Use each file's `metadata.labels` to map `rows[].costs` to variants. Costs are
+nanoseconds. Divide baseline cost by candidate cost to reproduce speedups.
+Chromium costs are medians of round means. `jsdom` costs are medians of the
+timing harness's round medians.
+
+</details>
+
 ## Retain compiled plans during oversized scans
 
 **Measured October 8, 2026. Retained in v3.** LRU ordering with sampled admission

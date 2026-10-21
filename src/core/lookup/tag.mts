@@ -259,6 +259,7 @@ export function byTag(
           context,
           undefined,
           tag == '*' ? context : undefined,
+          true,
         )
         fetchTagCollectionDone = true
         return

@@ -1,0 +1,685 @@
+{
+  "methodology": "Chromium CDP CPU sampling, separate from timings. Documentation fixture. Warm up with 5000 complete select() calls, then sample 1200ms of batches of 100 calls at a 100us interval. Consume result lengths. Samples locate work, not unprofiled query timing.",
+  "host": "Chromium 154.0.8037.0",
+  "cpu": "Apple M1 Max",
+  "selectors": [
+    "dl dd a",
+    "ul li a",
+    "dl dd :where(a, code)",
+    "table tr :is(td, th)"
+  ],
+  "observations": [
+    {
+      "variant": "baseline",
+      "profile": "baseline-dl-dd-a.cpuprofile.gz",
+      "profileSha256": "768af6214e5b7711c3a08f473826490c8d08db77806c741f70d3d6895d462a42",
+      "bundleSha256": "989591ea45c7b7b091d1d29a7dcecf64d333db0921e21668642f8ae8e9caffdd",
+      "sampleCount": 9271,
+      "top": [
+        {
+          "function": "takeRecords",
+          "line": 0,
+          "samples": 2357
+        },
+        {
+          "function": "reuseCollectionSnapshot",
+          "line": 5943,
+          "samples": 1953
+        },
+        {
+          "function": "chainByParts",
+          "line": 4849,
+          "samples": 1523
+        },
+        {
+          "function": "fetchLevel",
+          "line": 4323,
+          "samples": 976
+        },
+        {
+          "function": "getElementsByTagName",
+          "line": 0,
+          "samples": 898
+        },
+        {
+          "function": "contains",
+          "line": 0,
+          "samples": 729
+        },
+        {
+          "function": "descendChain",
+          "line": 4352,
+          "samples": 428
+        },
+        {
+          "function": "(program)",
+          "line": 0,
+          "samples": 85
+        },
+        {
+          "function": "hasForeignTypes",
+          "line": 5806,
+          "samples": 52
+        },
+        {
+          "function": "collectionSnapshot",
+          "line": 5907,
+          "samples": 44
+        },
+        {
+          "function": "(garbage collector)",
+          "line": 0,
+          "samples": 42
+        },
+        {
+          "function": "select",
+          "line": 4684,
+          "samples": 23
+        },
+        {
+          "function": "takeRecords",
+          "line": 0,
+          "samples": 23
+        },
+        {
+          "function": "selectByDescent",
+          "line": 4715,
+          "samples": 19
+        },
+        {
+          "function": "selectTypeUnion",
+          "line": 4824,
+          "samples": 19
+        }
+      ]
+    },
+    {
+      "variant": "baseline",
+      "profile": "baseline-dl-dd-where-a-code-.cpuprofile.gz",
+      "profileSha256": "954a148a0dc7f6dad096278865daf895b06e08173a1865169c1e78826e7e0283",
+      "bundleSha256": "989591ea45c7b7b091d1d29a7dcecf64d333db0921e21668642f8ae8e9caffdd",
+      "sampleCount": 9190,
+      "top": [
+        {
+          "function": "compareDocumentPosition",
+          "line": 0,
+          "samples": 2431
+        },
+        {
+          "function": "takeRecords",
+          "line": 0,
+          "samples": 1663
+        },
+        {
+          "function": "selectScopedTypeUnion",
+          "line": 4629,
+          "samples": 1269
+        },
+        {
+          "function": "reuseCollectionSnapshot",
+          "line": 5943,
+          "samples": 1231
+        },
+        {
+          "function": "getElementsByTagName",
+          "line": 0,
+          "samples": 643
+        },
+        {
+          "function": "fetchLevel",
+          "line": 4323,
+          "samples": 492
+        },
+        {
+          "function": "contains",
+          "line": 0,
+          "samples": 199
+        },
+        {
+          "function": "prepareCollectionState",
+          "line": 5927,
+          "samples": 166
+        },
+        {
+          "function": "takeRecords",
+          "line": 0,
+          "samples": 160
+        },
+        {
+          "function": "mergeSortedGroups",
+          "line": 6182,
+          "samples": 155
+        },
+        {
+          "function": "reuseCollectionSnapshot",
+          "line": 5943,
+          "samples": 120
+        },
+        {
+          "function": "descendChain",
+          "line": 4352,
+          "samples": 111
+        },
+        {
+          "function": "selectTypeUnion",
+          "line": 4824,
+          "samples": 76
+        },
+        {
+          "function": "(program)",
+          "line": 0,
+          "samples": 65
+        },
+        {
+          "function": "prepareCollectionState",
+          "line": 5927,
+          "samples": 61
+        }
+      ]
+    },
+    {
+      "variant": "baseline",
+      "profile": "baseline-table-tr-is-td-th-.cpuprofile.gz",
+      "profileSha256": "960c63f1d7c71d646b44676f30a1d8440383a4f79767b4a2cfc7a72c659edc49",
+      "bundleSha256": "989591ea45c7b7b091d1d29a7dcecf64d333db0921e21668642f8ae8e9caffdd",
+      "sampleCount": 9128,
+      "top": [
+        {
+          "function": "selectScopedTypeUnion",
+          "line": 4629,
+          "samples": 2197
+        },
+        {
+          "function": "takeRecords",
+          "line": 0,
+          "samples": 1918
+        },
+        {
+          "function": "reuseCollectionSnapshot",
+          "line": 5943,
+          "samples": 1772
+        },
+        {
+          "function": "getElementsByTagName",
+          "line": 0,
+          "samples": 826
+        },
+        {
+          "function": "fetchLevel",
+          "line": 4323,
+          "samples": 681
+        },
+        {
+          "function": "contains",
+          "line": 0,
+          "samples": 367
+        },
+        {
+          "function": "prepareCollectionState",
+          "line": 5927,
+          "samples": 238
+        },
+        {
+          "function": "mergeSortedGroups",
+          "line": 6182,
+          "samples": 214
+        },
+        {
+          "function": "outerRoots",
+          "line": 4671,
+          "samples": 160
+        },
+        {
+          "function": "mergeResults",
+          "line": 6157,
+          "samples": 123
+        },
+        {
+          "function": "selectTypeUnion",
+          "line": 4824,
+          "samples": 80
+        },
+        {
+          "function": "(program)",
+          "line": 0,
+          "samples": 72
+        },
+        {
+          "function": "compareDocumentPosition",
+          "line": 0,
+          "samples": 60
+        },
+        {
+          "function": "(garbage collector)",
+          "line": 0,
+          "samples": 54
+        },
+        {
+          "function": "compareDocumentPosition",
+          "line": 0,
+          "samples": 43
+        }
+      ]
+    },
+    {
+      "variant": "baseline",
+      "profile": "baseline-ul-li-a.cpuprofile.gz",
+      "profileSha256": "7d250ae203f3a6a271165088ed7466d51dd03529c75b65da457ab2d9e31b2a25",
+      "bundleSha256": "989591ea45c7b7b091d1d29a7dcecf64d333db0921e21668642f8ae8e9caffdd",
+      "sampleCount": 9178,
+      "top": [
+        {
+          "function": "takeRecords",
+          "line": 0,
+          "samples": 2320
+        },
+        {
+          "function": "descendChain",
+          "line": 4352,
+          "samples": 2023
+        },
+        {
+          "function": "reuseCollectionSnapshot",
+          "line": 5943,
+          "samples": 1671
+        },
+        {
+          "function": "getElementsByTagName",
+          "line": 0,
+          "samples": 898
+        },
+        {
+          "function": "contains",
+          "line": 0,
+          "samples": 775
+        },
+        {
+          "function": "fetchLevel",
+          "line": 4323,
+          "samples": 696
+        },
+        {
+          "function": "prepareCollectionState",
+          "line": 5927,
+          "samples": 494
+        },
+        {
+          "function": "(program)",
+          "line": 0,
+          "samples": 85
+        },
+        {
+          "function": "(garbage collector)",
+          "line": 0,
+          "samples": 69
+        },
+        {
+          "function": "selectByDescent",
+          "line": 4715,
+          "samples": 38
+        },
+        {
+          "function": "(idle)",
+          "line": 0,
+          "samples": 16
+        },
+        {
+          "function": "prepareCollectionState",
+          "line": 5927,
+          "samples": 14
+        },
+        {
+          "function": "collectionSnapshot",
+          "line": 5907,
+          "samples": 13
+        },
+        {
+          "function": "hasForeignTypes",
+          "line": 5806,
+          "samples": 11
+        },
+        {
+          "function": "getRootNode",
+          "line": 0,
+          "samples": 9
+        }
+      ]
+    },
+    {
+      "variant": "candidate",
+      "profile": "candidate-dl-dd-a.cpuprofile.gz",
+      "profileSha256": "f907ea330a19c7c786d5fa2f7f70c39e052892fcffac91b487a8af20b2492240",
+      "bundleSha256": "025d8106a33a39f8fb9baa9e5b04698101666834b227d9c0bbe9e5a08048f06a",
+      "sampleCount": 7720,
+      "top": [
+        {
+          "function": "appendNativeLevel",
+          "line": 4335,
+          "samples": 2138
+        },
+        {
+          "function": "getElementsByTagName",
+          "line": 0,
+          "samples": 1122
+        },
+        {
+          "function": "fetchLevel",
+          "line": 4327,
+          "samples": 1060
+        },
+        {
+          "function": "contains",
+          "line": 0,
+          "samples": 842
+        },
+        {
+          "function": "chainByParts",
+          "line": 4877,
+          "samples": 770
+        },
+        {
+          "function": "descendChain",
+          "line": 4361,
+          "samples": 528
+        },
+        {
+          "function": "get length",
+          "line": 0,
+          "samples": 382
+        },
+        {
+          "function": "get length",
+          "line": 0,
+          "samples": 213
+        },
+        {
+          "function": "appendSnapshotLevel",
+          "line": 4339,
+          "samples": 139
+        },
+        {
+          "function": "(program)",
+          "line": 0,
+          "samples": 122
+        },
+        {
+          "function": "reuseCollectionSnapshot",
+          "line": 5966,
+          "samples": 75
+        },
+        {
+          "function": "takeRecords",
+          "line": 0,
+          "samples": 73
+        },
+        {
+          "function": "hasForeignTypes",
+          "line": 5834,
+          "samples": 48
+        },
+        {
+          "function": "takeRecords",
+          "line": 0,
+          "samples": 34
+        },
+        {
+          "function": "getRootNode",
+          "line": 0,
+          "samples": 26
+        }
+      ]
+    },
+    {
+      "variant": "candidate",
+      "profile": "candidate-dl-dd-where-a-code-.cpuprofile.gz",
+      "profileSha256": "62084142380968919800ac9e0722713ee3aaa966988a335b55b0f70025c993fe",
+      "bundleSha256": "025d8106a33a39f8fb9baa9e5b04698101666834b227d9c0bbe9e5a08048f06a",
+      "sampleCount": 7720,
+      "top": [
+        {
+          "function": "selectUnionRoots",
+          "line": 4666,
+          "samples": 2786
+        },
+        {
+          "function": "getElementsByTagName",
+          "line": 0,
+          "samples": 1050
+        },
+        {
+          "function": "selectScopedTypeUnion",
+          "line": 4638,
+          "samples": 946
+        },
+        {
+          "function": "get length",
+          "line": 0,
+          "samples": 691
+        },
+        {
+          "function": "appendNativeLevel",
+          "line": 4335,
+          "samples": 356
+        },
+        {
+          "function": "contains",
+          "line": 0,
+          "samples": 285
+        },
+        {
+          "function": "compareDocumentPosition",
+          "line": 0,
+          "samples": 231
+        },
+        {
+          "function": "outerRoots",
+          "line": 4692,
+          "samples": 197
+        },
+        {
+          "function": "(program)",
+          "line": 0,
+          "samples": 116
+        },
+        {
+          "function": "fetchLevel",
+          "line": 4327,
+          "samples": 100
+        },
+        {
+          "function": "getElementsByTagName",
+          "line": 0,
+          "samples": 92
+        },
+        {
+          "function": "(garbage collector)",
+          "line": 0,
+          "samples": 85
+        },
+        {
+          "function": "compareDocumentPosition",
+          "line": 0,
+          "samples": 79
+        },
+        {
+          "function": "selectTypeUnion",
+          "line": 4845,
+          "samples": 73
+        },
+        {
+          "function": "contains",
+          "line": 0,
+          "samples": 66
+        }
+      ]
+    },
+    {
+      "variant": "candidate",
+      "profile": "candidate-table-tr-is-td-th-.cpuprofile.gz",
+      "profileSha256": "555886b627127824a8f5fe6798eca201b563d89eae6fb3e9a28beaea57d520f2",
+      "bundleSha256": "025d8106a33a39f8fb9baa9e5b04698101666834b227d9c0bbe9e5a08048f06a",
+      "sampleCount": 7724,
+      "top": [
+        {
+          "function": "appendNativeLevel",
+          "line": 4335,
+          "samples": 2252
+        },
+        {
+          "function": "fetchLevel",
+          "line": 4327,
+          "samples": 1105
+        },
+        {
+          "function": "selectScopedTypeUnion",
+          "line": 4638,
+          "samples": 1018
+        },
+        {
+          "function": "getElementsByTagName",
+          "line": 0,
+          "samples": 962
+        },
+        {
+          "function": "get length",
+          "line": 0,
+          "samples": 614
+        },
+        {
+          "function": "contains",
+          "line": 0,
+          "samples": 321
+        },
+        {
+          "function": "mergeResults",
+          "line": 6180,
+          "samples": 207
+        },
+        {
+          "function": "outerRoots",
+          "line": 4692,
+          "samples": 200
+        },
+        {
+          "function": "get length",
+          "line": 0,
+          "samples": 173
+        },
+        {
+          "function": "(program)",
+          "line": 0,
+          "samples": 120
+        },
+        {
+          "function": "collectionSnapshot",
+          "line": 5930,
+          "samples": 108
+        },
+        {
+          "function": "contains",
+          "line": 0,
+          "samples": 77
+        },
+        {
+          "function": "(garbage collector)",
+          "line": 0,
+          "samples": 67
+        },
+        {
+          "function": "selectTypeUnion",
+          "line": 4845,
+          "samples": 58
+        },
+        {
+          "function": "selectByDescent",
+          "line": 4736,
+          "samples": 47
+        }
+      ]
+    },
+    {
+      "variant": "candidate",
+      "profile": "candidate-ul-li-a.cpuprofile.gz",
+      "profileSha256": "c6dd4e887bd89c7a086feaeb768b01eb6ebc57141bfaf2fec8b096c90c4c72bc",
+      "bundleSha256": "025d8106a33a39f8fb9baa9e5b04698101666834b227d9c0bbe9e5a08048f06a",
+      "sampleCount": 7708,
+      "top": [
+        {
+          "function": "appendNativeLevel",
+          "line": 4335,
+          "samples": 2067
+        },
+        {
+          "function": "getElementsByTagName",
+          "line": 0,
+          "samples": 1020
+        },
+        {
+          "function": "contains",
+          "line": 0,
+          "samples": 942
+        },
+        {
+          "function": "fetchLevel",
+          "line": 4327,
+          "samples": 918
+        },
+        {
+          "function": "selectByDescent",
+          "line": 4736,
+          "samples": 819
+        },
+        {
+          "function": "descendChain",
+          "line": 4361,
+          "samples": 595
+        },
+        {
+          "function": "get length",
+          "line": 0,
+          "samples": 417
+        },
+        {
+          "function": "collectionSnapshot",
+          "line": 5930,
+          "samples": 242
+        },
+        {
+          "function": "get length",
+          "line": 0,
+          "samples": 184
+        },
+        {
+          "function": "(program)",
+          "line": 0,
+          "samples": 109
+        },
+        {
+          "function": "appendNativeLevel",
+          "line": 4335,
+          "samples": 83
+        },
+        {
+          "function": "(garbage collector)",
+          "line": 0,
+          "samples": 49
+        },
+        {
+          "function": "fetchLevel",
+          "line": 4327,
+          "samples": 35
+        },
+        {
+          "function": "getElementsByTagName",
+          "line": 0,
+          "samples": 33
+        },
+        {
+          "function": "appendSnapshotLevel",
+          "line": 4339,
+          "samples": 25
+        }
+      ]
+    }
+  ]
+}

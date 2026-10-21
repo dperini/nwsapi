@@ -26,7 +26,7 @@ Select descendants, test a match, or find the nearest matching ancestor.
 | [`closest(selectors, element, callback)`](../../../src/core/ancestor/closest.mts#L3) | Returns the nearest match, starting with the element, or `null`. |
 | [`first(selectors, context, callback)`](../../../src/core/first/select.mts#L12) | Returns the first matching descendant, or `null`. |
 | [`match(selectors, element, callback)`](../../../src/core/match/selector.mts#L68) | Returns whether the element matches. |
-| [`select(selectors, context, callback)`](../../../src/core/select/all.mts#L12) | Returns matching descendants. Results are arrays by default. `NODE_LIST` can enable static NodeList results. |
+| [`select(selectors, context, callback)`](../../../src/core/select/all.mts#L13) | Returns matching descendants. Results are arrays by default. `NODE_LIST` can enable static NodeList results. |
 
 ### Look up elements
 

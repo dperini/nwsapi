@@ -1,4 +1,5 @@
 import type { EngineState, EngineContext } from '../state/types.mts'
+import { hasNativeCollectionLength } from '../collection/native.mts'
 
 export function switchContext(
   engine: EngineState,
@@ -38,6 +39,7 @@ export function switchContext(
     }
     engine.useLegacy(engine.Config.LEGACY)
     engine.HTML_DOCUMENT = engine.isHTML(engine.doc)
+    engine.nativeCollections = hasNativeCollectionLength(engine.doc)
     engine.QUIRKS_MODE =
       engine.HTML_DOCUMENT && engine.doc.compatMode.indexOf('CSS') < 0
     engine.NAMESPACE = engine.root && engine.root.namespaceURI

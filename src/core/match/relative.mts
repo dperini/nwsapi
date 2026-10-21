@@ -1,3 +1,4 @@
+import { collectionSnapshot } from '../collection/snapshot/get.mts'
 import { relativeWeight } from '../cache/weight.mts'
 import type {
   EngineState,
@@ -25,13 +26,18 @@ export function hasCandidates(
     api in context
   ) {
     nodes = context[api]!(name)
-    snapshot = engine.collectionSnapshot(
-      nodes,
-      context,
-      undefined,
-      undefined,
-      kind == '*' && name == '*' ? context : undefined,
-    )
+    snapshot =
+      kind == '*' && name == '*'
+        ? collectionSnapshot(
+            engine,
+            nodes,
+            context,
+            undefined,
+            undefined,
+            context,
+            true,
+          )
+        : engine.collectionSnapshot(nodes, context)
     if (snapshot !== nodes) {
       return snapshot
     }
