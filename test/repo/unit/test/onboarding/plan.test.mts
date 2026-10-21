@@ -33,7 +33,7 @@ test('only direct onboarding inputs select the journey', () => {
     'scripts/develop/run.mts',
     'package-lock.json',
     '.npmrc',
-    '.github/workflows/onboarding-v2.yml',
+    '.github/workflows/onboarding.yml',
   ]) {
     assert.equal(onboardingInput(file), true, file)
   }

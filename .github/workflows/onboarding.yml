@@ -5,7 +5,7 @@ on:
   push:
     branches: [master]
     paths:
-      - .github/workflows/onboarding-v2.yml
+      - .github/workflows/onboarding.yml
       - scripts/test/onboarding/**
       - scripts/setup.mjs
       - scripts/setup/**
@@ -25,7 +25,7 @@ on:
   pull_request:
     branches: [master, improve/v2-developer-workflow]
     paths:
-      - .github/workflows/onboarding-v2.yml
+      - .github/workflows/onboarding.yml
       - scripts/test/onboarding/**
       - scripts/setup.mjs
       - scripts/setup/**

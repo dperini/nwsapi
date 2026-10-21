@@ -70,7 +70,7 @@ background sessions are not needed by v2's guided tasks.
 ## Onboarding verification
 
 The separate `ci: onboarding` workflow is defined in
-`.github/workflows/onboarding-v2.yml`. It runs only for direct setup, menu,
+`.github/workflows/onboarding.yml`. It runs only for direct setup, menu,
 installer, pin, manifest, lockfile, or onboarding changes. README changes run a
 small planner first. Only edits inside the balanced `<!-- <onboarding> -->`
 section select the complete journey. Missing or malformed markers require

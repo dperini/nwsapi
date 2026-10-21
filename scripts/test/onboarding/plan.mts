@@ -22,7 +22,7 @@ export function onboardingBlock(markdown: string): string | undefined {
 export function onboardingInput(file: string): boolean {
   return (
     [
-      '.github/workflows/onboarding-v2.yml',
+      '.github/workflows/onboarding.yml',
       '.config/external-tools.json',
       '.npmrc',
       'package.json',
