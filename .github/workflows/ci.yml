@@ -32,7 +32,9 @@ jobs:
       - parallel:
           - name: Install PHP for the WPT server
             uses: ./.github/actions/php
-          - name: Verify the pinned WPT checkout
-            run: npm run wpt:verify
+          - name: Prepare and verify pinned WPT checkout
+            run: |
+              npm run wpt:setup
+              npm run wpt:verify
       - run: npm exec -- playwright install --with-deps chromium
       - run: npm run wpt:test
