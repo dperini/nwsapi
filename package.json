@@ -40,6 +40,8 @@
   "scripts": {
     "preinstall": "node scripts/package-manager.mjs",
     "clean": "node scripts/clean.mts",
+    "dev": "node scripts/develop/run.mts",
+    "docs": "node scripts/develop/docs.mts",
     "lint": "eslint ./src/nwsapi.js",
     "npm:approve": "node scripts/publish/npm/approve.mjs",
     "npm:auth": "node scripts/publish/npm/auth.mjs",
@@ -54,6 +56,8 @@
     "prepublishOnly": "node scripts/publish/block-publish.cjs",
     "publish:setup": "node scripts/publish/setup.mjs",
     "setup": "node scripts/setup.mjs",
+    "setup:check": "node scripts/develop/doctor.mts",
+    "review": "node scripts/develop/review.mts",
     "test": "node --test test/repo/integration/*.test.mjs test/repo/integration/fastpaths/*.test.mjs test/repo/release/*.test.mjs",
     "wpt:serve": "node test/wpt/wpt-launcher.mjs serve",
     "wpt:setup": "node test/wpt/wpt-launcher.mjs setup",
@@ -64,6 +68,7 @@
     "npm": ">=12.2.0"
   },
   "devDependencies": {
+    "@opentui/core": "0.5.17",
     "acorn": "8.15.0",
     "jsdom": "26.1.0",
     "playwright": "1.63.0",
