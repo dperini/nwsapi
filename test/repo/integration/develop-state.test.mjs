@@ -38,7 +38,9 @@ test('stores private, checkout-bound task metadata and ignores stale or unknown 
   const file = path.join(root, '.cache/developer-state.json')
 
   assert.deepEqual(JSON.parse(readFileSync(file, 'utf8')), state)
-  assert.equal(statSync(file).mode & 0o777, 0o600)
+  if (process.platform !== 'win32') {
+    assert.equal(statSync(file).mode & 0o777, 0o600)
+  }
   assert.deepEqual(readDeveloperState(root, identity, ['review'], now), state)
   assert.equal(
     readDeveloperState(

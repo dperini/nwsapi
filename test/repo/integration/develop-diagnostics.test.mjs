@@ -64,7 +64,15 @@ test('PATH resolution keeps the first executable and reports missing tools', t =
     PATH: `${path.join(root, 'missing')}${path.delimiter}${bin}`,
   }
   const report = activeTool('node', root, bin, env)
-  assert.equal(report.executable, path.join(bin, filename))
+  const expectedExecutable = path.join(bin, filename)
+  assert.equal(
+    process.platform === 'win32'
+      ? report.executable?.toLowerCase()
+      : report.executable,
+    process.platform === 'win32'
+      ? expectedExecutable.toLowerCase()
+      : expectedExecutable,
+  )
   assert.equal(report.pathEntry, 2)
   assert.equal(report.version, process.versions.node)
   assert.equal(report.owner, 'checkout')
