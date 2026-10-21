@@ -8,6 +8,57 @@ NWSAPI is the development progress of [NWMATCHER](https://github.com/dperini/nwm
 
 It uses [regular expressions](https://en.wikipedia.org/wiki/Regular_expression) to parse CSS selector strings and [metaprogramming](https://en.wikipedia.org/wiki/Metaprogramming) to transforms these selector strings into Javascript function resolvers. This process is executed only once for each selector string allowing memoization of the function resolvers and achieving unmatched performances.
 
+<!-- <onboarding> -->
+
+## Start contributing
+
+From the checkout root, install and prepare the checkout:
+
+<!-- onboarding:install:start -->
+```sh
+npm i
+```
+<!-- onboarding:install:end -->
+
+This installs the pinned tools and dependencies, then prepares the package.
+[Make your first change](docs/repo/development/first-change.md) · [V2 toolchain notes](docs/repo/development/toolchain.md)
+
+<details>
+<summary>If npm is unavailable or too old</summary>
+
+Use Node.js 22.18 or newer from the checkout root:
+
+<!-- onboarding:bootstrap:start -->
+```sh
+node scripts/setup.mjs
+```
+<!-- onboarding:bootstrap:end -->
+
+This installs pinned npm and prepares the checkout without changing global tools or PATH. If npm still cannot run, open the menu with `node scripts/develop/run.mts`.
+
+</details>
+
+<details>
+<summary>For agents</summary>
+
+Discover tasks:
+
+<!-- onboarding:discovery:start -->
+```sh
+node scripts/develop/run.mts --list --json
+```
+<!-- onboarding:discovery:end -->
+
+<!-- onboarding:readiness:start -->
+```sh
+node scripts/develop/run.mts --task setup:check --json
+```
+<!-- onboarding:readiness:end -->
+
+</details>
+
+<!-- </onboarding> -->
+
 ## Installation
 
 To include NWSAPI in a standard web page:
@@ -150,18 +201,11 @@ NW.Dom.registerSelector('Controls', /^\:(control)(.*)/i,
 
 ## Development setup
 
-Use Node.js 22.18 or newer to start setup:
-
-```sh
-npm run setup
-npm test
-```
-
-Either `npm run setup` or `pnpm run setup` selects this branch's pinned `npm` automatically. Setup downloads and verifies `mise`, `nub`, `npm`, and `pnpm` from the versions and integrity hashes in `.config/external-tools.json`, uses `mise` with `nub` to provision Node, installs dependencies from `package-lock.json`, and prepares WPT and Chromium. Tools and isolated `mise` state stay in the checkout's ignored `.cache/` directory. No global installation or shell configuration is required.
-
-If neither package manager is installed, run `node scripts/setup.mjs`. Add `--tools-only` to provision tools without installing dependencies. After switching branches, rerun setup to replace dependencies and restore the tools for that checkout. Setup needs Git, archive extraction tools, and network access.
-
-The v3 prerelease uses the same setup commands and selects `pnpm`. For direct dependency installation, use `npm install` on master and `pnpm install` on v3. The common setup command avoids needing to remember that distinction.
+For optional PHP, Web Platform Tests, and Chromium fixtures, run
+`node scripts/setup.mjs --full`. Add `--tools-only` to provision checkout
+tools without installing dependencies. V2 uses npm and `package-lock.json`.
+Keep v2 and v3 in separate worktrees. See [Make your first change](docs/repo/development/first-change.md)
+and the [v2 toolchain notes](docs/repo/development/toolchain.md) for details.
 
 ## 💖 Support & Sponsoring
 

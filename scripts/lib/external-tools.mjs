@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { REPO_ROOT } from './paths.mts'
+export { REPO_ROOT } from './paths.mts'
 import { parseIntegrity } from './tools/download.mjs'
 
-export const REPO_ROOT = fileURLToPath(new URL('../../', import.meta.url))
 export const TOOL_CACHE = path.join(REPO_ROOT, '.cache', 'external-tools')
 export const TOOL_BIN = path.join(REPO_ROOT, '.cache', 'bin')
 export const TOOLCHAIN_STATE = path.join(TOOL_BIN, 'toolchain.json')
@@ -31,7 +31,7 @@ export function toolVersions(data = manifest) {
   )
 }
 
-export function toolchainState(names = ['nub', 'npm', 'pnpm', 'mise']) {
+export function toolchainState(names = ['nub', 'npm', 'mise']) {
   return JSON.stringify({
     manager: 'npm',
     node: toolVersion('node'),

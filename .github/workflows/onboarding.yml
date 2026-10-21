@@ -1,0 +1,105 @@
+name: 'ci: onboarding'
+run-name: 'ci: onboarding'
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - .github/workflows/onboarding.yml
+      - scripts/test/onboarding/**
+      - scripts/setup.mjs
+      - scripts/setup/**
+      - scripts/develop/**
+      - scripts/lib/tools/**
+      - scripts/lib/paths.mts
+      - scripts/lib/named-blocks.mts
+      - scripts/lib/external-tools.mjs
+      - scripts/lib/npm.mjs
+      - scripts/lib/package-manager.mjs
+      - scripts/package-manager.mjs
+      - .config/external-tools.json
+      - .npmrc
+      - package.json
+      - package-lock.json
+      - README.md
+  pull_request:
+    branches: [master, improve/v2-developer-workflow]
+    paths:
+      - .github/workflows/onboarding.yml
+      - scripts/test/onboarding/**
+      - scripts/setup.mjs
+      - scripts/setup/**
+      - scripts/develop/**
+      - scripts/lib/tools/**
+      - scripts/lib/paths.mts
+      - scripts/lib/named-blocks.mts
+      - scripts/lib/external-tools.mjs
+      - scripts/lib/npm.mjs
+      - scripts/lib/package-manager.mjs
+      - scripts/package-manager.mjs
+      - .config/external-tools.json
+      - .npmrc
+      - package.json
+      - package-lock.json
+      - README.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v2-onboarding-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    name: onboarding changes
+    runs-on: ubuntu-26.04
+    outputs:
+      run: ${{ steps.plan.outputs.run }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: '22.18.0'
+          package-manager-cache: false
+      - name: Compare onboarding inputs
+        id: plan
+        env:
+          ONBOARDING_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: node scripts/test/onboarding/plan.mts
+
+  journey:
+    needs: plan
+    if: needs.plan.outputs.run == 'true'
+    name: '${{ matrix.scenario }} (${{ matrix.os }}, npm)'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-26.04"]' || '["ubuntu-26.04","macos-15","windows-2025"]') }}
+        scenario: [bootstrap, journey]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: ${{ matrix.scenario == 'bootstrap' && '22.18.0' || '26.11.0' }}
+          package-manager-cache: false
+      - name: Follow the README and guided contributor tasks
+        env:
+          ONBOARDING_SCENARIO: ${{ matrix.scenario }}
+        run: node scripts/test/onboarding/run.mts "${{ matrix.scenario }}"
+      - name: Upload onboarding diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: onboarding-v2-${{ matrix.os }}-${{ matrix.scenario }}-${{ github.run_id }}
+          path: .cache/onboarding/
+          if-no-files-found: warn
+          retention-days: 14

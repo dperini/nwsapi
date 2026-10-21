@@ -21,6 +21,7 @@ import {
 } from '../external-tools.mjs'
 import { installTool } from './install.mjs'
 import { registerNub, nubRequest, miseEnvironment, MISE_ROOT } from './mise.mjs'
+import { checkPrerequisites } from '../../setup/prerequisites.mts'
 
 export function managedEnvironment(env = process.env) {
   const result = { ...env }
@@ -85,9 +86,10 @@ export function activateTool(name, executable, directory = TOOL_BIN) {
 }
 
 export async function setupTools() {
+  checkPrerequisites()
   rmSync(TOOLCHAIN_STATE, { force: true })
   const executables = Object.create(null)
-  const names = ['nub', 'npm', 'pnpm', 'mise']
+  const names = ['nub', 'npm', 'mise']
   for (let i = 0, length = names.length; i < length; i += 1) {
     const name = names[i]
     executables[name] = await installTool(toolPlan(name))
@@ -124,7 +126,6 @@ export async function setupTools() {
   activateTool('node', node)
   activateTool('nub', executables.nub)
   activateTool('mise', executables.mise)
-  activateTool('pnpm', executables.pnpm)
   const launcher = path.join(
     TOOL_BIN,
     process.platform === 'win32' ? 'npm.cmd' : 'npm',
@@ -139,5 +140,5 @@ export async function setupTools() {
     { mode: 0o755 },
   )
   writeFileSync(TOOLCHAIN_STATE, toolchainState(names))
-  return { node, npm: executables.npm, pnpm: executables.pnpm }
+  return { node, npm: executables.npm }
 }
