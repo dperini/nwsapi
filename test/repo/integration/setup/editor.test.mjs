@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import {
+  assertSafeParents,
   configureEditor,
   describeEditorSetup,
   editorFiles,
@@ -48,6 +49,16 @@ test("editor setup writes idempotent workspace settings and launchers", () => {
   assert.match(
     readFileSync(path.join(root, ".vscode/settings.json"), "utf8"),
     /js\/ts\.experimental\.useTsgo/,
+  );
+});
+
+test("editor setup normalizes a trailing checkout separator and rejects escapes", () => {
+  const root = temporaryRoot();
+  const result = configureEditor(root + path.sep, "darwin", "arm64");
+  assert.ok(result.results.every((item) => item.status === "written"));
+  assert.throws(
+    () => assertSafeParents(root + path.sep, path.join(root, "..", "outside", "file")),
+    /editor path escapes the checkout/,
   );
 });
 

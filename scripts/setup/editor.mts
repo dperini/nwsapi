@@ -74,8 +74,19 @@ export function fileStat(file: string) {
 }
 
 export function assertSafeParents(root: string, destination: string) {
-  let directory = path.dirname(destination);
-  while (directory !== root) {
+  const checkout = path.resolve(root);
+  const target = path.resolve(destination);
+  const relative = path.relative(checkout, target);
+  if (
+    !relative ||
+    relative === ".." ||
+    relative.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relative)
+  ) {
+    throw new Error(`Preserved ${destination}: editor path escapes the checkout.`);
+  }
+  let directory = path.dirname(target);
+  while (directory !== checkout) {
     const stat = fileStat(directory);
     if (stat && (!stat.isDirectory() || stat.isSymbolicLink())) {
       throw new Error(`Preserved ${directory}: editor setup requires real directories.`);
