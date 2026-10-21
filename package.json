@@ -58,7 +58,7 @@
     "setup": "node scripts/setup.mjs",
     "setup:check": "node scripts/develop/doctor.mts",
     "review": "node scripts/develop/review.mts",
-    "test": "node scripts/test/run.mts",
+    "test": "node --test test/repo/integration/*.test.mjs test/repo/integration/fastpaths/*.test.mjs test/repo/release/*.test.mjs",
     "wpt:serve": "node test/wpt/wpt-launcher.mjs serve",
     "wpt:setup": "node test/wpt/wpt-launcher.mjs setup",
     "wpt:verify": "node test/wpt/wpt-launcher.mjs verify",
@@ -74,6 +74,9 @@
     "acorn": "8.15.0",
     "jsdom": "26.1.0",
     "playwright": "1.63.0",
-    "std-env": "4.3.0"
+    "std-env": "4.3.0",
+    "@eslint/js": "10.0.1",
+    "eslint": "10.12.0",
+    "globals": "17.13.0"
   }
 }

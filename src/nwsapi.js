@@ -708,13 +708,17 @@
       // duplicates id allowed
       if (Config.IDS_DUPES === false) {
         if (api in context) {
-          return (e = context[api](id)) ? [ e ] : none;
+          e = context[api](id);
+          return e ? [ e ] : none;
         }
       } else {
         if ('all' in context) {
           if ((e = context.all[id])) {
             if (e.nodeType == 1) return e.getAttribute('id') != id ? [ ] : [ e ];
-            else if (id == 'length') return (e = context[api](id)) ? [ e ] : none;
+            else if (id == 'length') {
+              e = context[api](id);
+              return e ? [ e ] : none;
+            }
             for (i = 0, l = e.length, nodes = [ ]; l > i; ++i) {
               if (e[i].id == id) nodes[nodes.length] = e[i];
             }
@@ -787,7 +791,7 @@
         } else nodes = none;
       }
       return !Config.NODE_LIST ?
-        nodes : isInstanceof(nodes) ?
+        nodes : isInstanceOf(nodes) ?
         nodes : toNodeList(nodes);
     },
 
@@ -961,6 +965,32 @@
         (/^(select|textarea)$/.test(node.localName) ||
         (node.localName == 'input' &&
         !/^(hidden|range|color|button|submit|reset|image)$/.test(node.type)));
+    },
+
+  isRadioGroupChecked =
+    function(element) {
+      var root = element, radios, radio, i;
+
+      if (element.checked) { return true; }
+      if (!element.name) { return false; }
+      if (element.form) {
+        radios = element.form.elements;
+      } else {
+        while (root.parentNode) { root = root.parentNode; }
+        if (root.localName === 'input' && root.type === 'radio' &&
+          root.name === element.name && root.form === element.form && root.checked) {
+          return true;
+        }
+        radios = root.querySelectorAll ? root.querySelectorAll('input[type="radio"]') : [];
+      }
+      for (i = 0; i < radios.length; i++) {
+        radio = radios[i];
+        if (radio.type === 'radio' && radio.name === element.name &&
+          radio.form === element.form && radio.checked) {
+          return true;
+        }
+      }
+      return false;
     },
 
   isContentEditable =
@@ -1851,7 +1881,7 @@
     function(selector, mode, callback, relative, seed) {
       var cacheKey = mode + ':' + (callback ? 1 : 0) + ':' +
         (relative ? 1 : 0) + ':' + JSON.stringify(seed || null) + ':' + selector;
-      var factory, head = '', loop = '', macro = '', source = '', vars = '',
+      var factory, head = '', loop = '', macro = '', source, vars = '',
         enter = '', cleanup = '', info, previousCompilation, current;
 
       // Internal modes 1/2 find a boolean/node; 3 retains extension macros.
@@ -2309,7 +2339,7 @@
                   source = 'if((s.isLink(e)&&e.visited)){' + source + '}';
                   break;
                 case 'target':
-                  source = 'if((s.doc.location.hash&&e.id==s.doc.location.hash.slice(1)&&(s.doc.compareDocumentPosition(e)&16))){' + source + '}';
+                  source = 'if((s.doc.location&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1)&&(s.doc.compareDocumentPosition(e)&16))){' + source + '}';
                   break;
                 case 'defined':
                   source = 'if(s.isDefined(e)){' + source + '}';
@@ -2431,7 +2461,7 @@
                   source =
                     'if((/^progress$/i.test(e.localName)&&!e.hasAttribute("value"))||' +
                       '(/^input$/i.test(e.localName)&&("checkbox"==e.type&&e.indeterminate)||' +
-                      '("radio"==e.type&&e.name&&!s.first("input[name="+e.name+"]:checked",e.form))' +
+                      '("radio"==e.type&&!s.isRadioGroupChecked(e))' +
                     ')){' + source + '}';
                   break;
                 case 'required':
@@ -2795,7 +2825,8 @@
       }
 
       // normalize input string
-      parsed = normalizeSelector(selectors.replace(/\x00|\\$/g, '\ufffd'));
+      // CSS parsing replaces NUL characters before compiling the selector.
+      parsed = normalizeSelector(selectors.replace(/\x00|\\$/g, '\ufffd')); // eslint-disable-line no-control-regex
 
       // parse, validate and split possible compound selectors
       if ((selectors = parsed.match(reValidator)) && selectors.join('') == parsed) {
@@ -3516,6 +3547,7 @@
     isDefined: isDefined,
     matchesNative: matchesNative,
     isRequired: isRequired,
+    isRadioGroupChecked: isRadioGroupChecked,
     isOpen: isOpen,
     isClosed: isClosed,
     isDisabled: isDisabled,
