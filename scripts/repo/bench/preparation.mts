@@ -112,6 +112,18 @@ const cases: Case[] = [
     operation: 'cold',
     markup: broad,
   },
+  {
+    name: 'cold compilation with one attribute',
+    selector: 'div[data-hit-N]',
+    operation: 'cold',
+    markup: broad,
+  },
+  {
+    name: 'cold compilation with repeated attribute',
+    selector: 'div[data-hit^="a-N"][data-hit$="b"]',
+    operation: 'cold',
+    markup: broad,
+  },
 ]
 const [baseline, candidate, output] = process.argv.slice(2)
 if (!baseline || !candidate || !output) {
@@ -123,10 +135,12 @@ const require = createRequire(import.meta.url)
 const factories = [baseline, candidate].map(
   file => require(path.resolve(file)) as (host: unknown) => NwsapiEngine,
 )
-const settings = { rounds: 7, milliseconds: 30, batch: 8 }
+const settings = { rounds: 7, milliseconds: 100, batch: 8 }
 const rows = []
 for (const entry of cases) {
-  const variants = factories.map(factory => prepare(factory, entry))
+  const variants = factories.map((factory, index) =>
+    prepare(factory, entry, index),
+  )
   try {
     for (const variant of variants) {
       variant.check()
@@ -173,7 +187,7 @@ writeFileSync(
         sha256: createHash('sha256').update(readFileSync(file)).digest('hex'),
       })),
       methodology:
-        'Seven rotating rounds; equivalent independent jsdom documents. Setup and identity checks outside timing. Raw calls use fixed arrays. Cache-clear rows include configure and compile. Cold rows use distinct selector suffixes. No application-wide, browser timing, or retained-memory claim.',
+        'Seven rotating rounds; equivalent independent jsdom documents. Setup and identity checks outside timing. Raw calls use fixed arrays. Cache-clear rows include configure and compile. Cold selectors use equal-length variant namespaces to prevent V8 Function-source cache sharing. No application-wide, browser timing, or retained-memory claim.',
       rows,
     },
     null,
@@ -181,7 +195,11 @@ writeFileSync(
   ) + '\n',
 )
 
-export function prepare(factory: (host: unknown) => NwsapiEngine, entry: Case) {
+export function prepare(
+  factory: (host: unknown) => NwsapiEngine,
+  entry: Case,
+  variant = 0,
+) {
   const first = new JSDOM(entry.markup)
   const second = entry.operation === 'switch' ? new JSDOM(entry.markup) : null
   const document = first.window.document
@@ -212,7 +230,7 @@ export function prepare(factory: (host: unknown) => NwsapiEngine, entry: Case) {
         return engine.compile(entry.selector, true)
       case 'cold':
         return engine.compile(
-          entry.selector.replace('-N', '-' + iteration++),
+          entry.selector.replace('-N', '-' + variant + '-' + iteration++),
           true,
         )
       default:
@@ -236,9 +254,14 @@ export function prepare(factory: (host: unknown) => NwsapiEngine, entry: Case) {
         entry.operation === 'cold'
       ) {
         assert.equal(typeof actual, 'function')
-        const expected = Array.from(
-          document.querySelectorAll(entry.selector.replace('-N', '-probe')),
-        )
+        const selector =
+          entry.operation === 'cold'
+            ? entry.selector.replace(
+                '-N',
+                '-' + variant + '-' + (iteration - 1),
+              )
+            : entry.selector
+        const expected = Array.from(document.querySelectorAll(selector))
         assert.deepEqual(
           (actual as NonNullable<ReturnType<NwsapiEngine['compile']>>)(
             candidates,

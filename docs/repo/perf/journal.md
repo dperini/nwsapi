@@ -13,6 +13,24 @@ Follow the [shared performance practices](../../fleet/perf/practices.md) when de
 
 Each entry identifies the measured phase, the result, whether the change was retained, the behavior protected by verification, and any remaining work. Entries record their measurement dates. Older measurements without a separate date were recorded on September 8, 2026. Revision pairs identify comparable builds. Percentages from different comparisons must not be added together.
 
+## 2026-10-20: Apply lessons from compiler optimization reports
+
+Three Rust compiler reports—[December 2025](https://nnethercote.github.io/2025/12/05/how-to-speed-up-the-rust-compiler-in-december-2025.html), [July 2026](https://nnethercote.github.io/2026/07/31/how-to-speed-up-the-rust-compiler-in-july-2026.html), and [September 2026](https://nnethercote.github.io/2026/09/30/how-to-speed-up-the-rust-compiler-in-september-2026.html)—suggest ideas to test in `nwsapi`:
+
+- Skip analysis when a quick check shows it cannot affect the result.
+- Delay calculations and allocations until a path needs them.
+- Prefer algorithm and data-movement improvements over small code-level tweaks.
+
+Measure representative workloads and compare the time for a complete query. The reports' compiler thresholds and profile-guided optimization (PGO) results do not apply directly to JavaScript or V8.
+
+We revised the cold-compilation benchmark because both variants used identical selectors and generated identical `Function` source. This could allow V8 to reuse compilation work, so the earlier comparison could not isolate the proposed change. The revised harness gives each variant unique selectors with equal-length variant prefixes. Before and after timing, it invokes a compiled resolver and compares its ordered results with `querySelectorAll()` for the same selector. The [cold-compilation report](../../../assets/repo/bench/compiler-lessons-2026-10-20/cold-compilation.json) records summary medians and build hashes, not individual round samples.
+
+With the revised harness, compilation time for a one-attribute selector fell 6.75% in the first run and rose 3.86% when we reversed variant order. Compilation time for repeated-attribute selectors rose 6.26% and 6.50% in both runs. The attempted check counted literal `[` characters before `parsePure()` to skip shared-attribute analysis. That analysis searches for repeated attribute names within one compound selector. We dropped the check because its one-attribute gain did not repeat and it slowed repeated-attribute compilation.
+
+We also tried delaying allocation of an empty results array when a cached query uses one resolver. One seven-round Node.js comparison showed mixed results, and it did not record which cached queries had one resolver. The largest apparent gain came from a `match()` control outside the changed selection path: its baseline-to-candidate speed ratio was 1.089×, or it used 8.16% less time. Among `select()` cases, one sparse `:has()` case used 5.36% less time, while a missing-match `:has()` case used 1.88% more. We did not reverse variant order or record resolver counts, so the comparison cannot show that the allocation change caused these differences. We dropped the change. The [resolver-array report](../../../assets/repo/bench/compiler-lessons-2026-10-20/resolver-array.json) records API types, summary medians, and build hashes, but not individual round samples.
+
+Both experiments used Node.js 26.10.0 on an Apple M1 Max with seven rotating rounds. The cold-compilation benchmark used a 100ms minimum CPU-time target per variant per round. The resolver-array comparison used 20ms. Neither engine change is retained.
+
 ## Retain tag snapshots across class edits
 
 **Measured October 20, 2026. Retained in v3.** Tag copies and wildcard candidate searches now use structural mutation observation. Class collections retain class observation. The shared copy path reuses cached snapshots directly and reads uncached collection lengths once. Each root creates its observer states lazily. A root using both kinds can have one additional observer.

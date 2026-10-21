@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-20",
+  "node": "v26.10.0",
+  "cpu": "Apple M1 Max",
+  "settings": {
+    "rounds": 7,
+    "milliseconds": 20,
+    "batch": 8
+  },
+  "methodology": "One seven-round Node.js selector comparison; each case checks output before and after timing. Ratios are baseline time divided by candidate time. No reversed-order confirmation was run.",
+  "inputs": [
+    {
+      "file": "baseline.cjs.gz",
+      "sourceSha256": "f4e9fc4c7910744d0c2e8ced245708a1814dfa2e4314b01e52440fee9f8a981d"
+    },
+    {
+      "file": "single-resolver-array.cjs.gz",
+      "sourceSha256": "07766ae1d0a67c5fb70f911956fc99981b45bc46bd7b72cfe7ce29acb33ae9ea"
+    }
+  ],
+  "cases": [
+    {
+      "name": "shared class scans",
+      "milliseconds": [
+        0.040703125,
+        0.041057375
+      ],
+      "speedup": 0.9913718302740981,
+      "api": "select"
+    },
+    {
+      "name": "shared tag scans",
+      "milliseconds": [
+        0.0360105,
+        0.035692625
+      ],
+      "speedup": 1.008905901429217,
+      "api": "select"
+    },
+    {
+      "name": "complex logical predicates",
+      "milliseconds": [
+        0.090625,
+        0.08849475
+      ],
+      "speedup": 1.0240720494718614,
+      "api": "select"
+    },
+    {
+      "name": "mixed backtracking miss",
+      "milliseconds": [
+        2.749854125,
+        2.525546875
+      ],
+      "speedup": 1.0888153184644416,
+      "api": "match"
+    },
+    {
+      "name": "mixed backtracking hit",
+      "milliseconds": [
+        0.023458375,
+        0.02336975
+      ],
+      "speedup": 1.0037922955958023,
+      "api": "match"
+    },
+    {
+      "name": "sparse overlapping has",
+      "milliseconds": [
+        0.01681775,
+        0.015916625
+      ],
+      "speedup": 1.0566153314537472,
+      "api": "select"
+    },
+    {
+      "name": "missing overlapping has",
+      "milliseconds": [
+        0.001385375,
+        0.001411375
+      ],
+      "speedup": 0.9815782481622531,
+      "api": "select"
+    },
+    {
+      "name": "dense has control",
+      "milliseconds": [
+        0.07009375,
+        0.06853125
+      ],
+      "speedup": 1.0227998176014592,
+      "api": "select"
+    },
+    {
+      "name": "small has control",
+      "milliseconds": [
+        0.001885375,
+        0.001890625
+      ],
+      "speedup": 0.9972231404958678,
+      "api": "select"
+    },
+    {
+      "name": "compound attribute reject",
+      "milliseconds": [
+        0.00034375,
+        0.000349
+      ],
+      "speedup": 0.9849570200573065,
+      "api": "match"
+    },
+    {
+      "name": "identity selection control",
+      "milliseconds": [
+        0.000703125,
+        0.000692625
+      ],
+      "speedup": 1.0151597184623713,
+      "api": "select"
+    },
+    {
+      "name": "simple match control",
+      "milliseconds": [
+        0.000364625,
+        0.000364625
+      ],
+      "speedup": 1,
+      "api": "match"
+    }
+  ],
+  "decision": "Mixed results; not retained without reversed-order confirmation."
+}

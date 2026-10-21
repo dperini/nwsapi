@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-20",
+  "node": "v26.10.0",
+  "v8": "14.6.202.34-node.34",
+  "cpu": "Apple M1 Max",
+  "settings": {
+    "rounds": 7,
+    "milliseconds": 100,
+    "batch": 8
+  },
+  "methodology": "Seven rotating rounds; 100ms minimum CPU time per variant and round; unique, equal-length variant prefixes prevent identical generated-function source across variants. Values are per-call medians in milliseconds, preserving argument order for each run.",
+  "inputs": [
+    {
+      "file": "baseline.cjs.gz",
+      "sourceSha256": "f4e9fc4c7910744d0c2e8ced245708a1814dfa2e4314b01e52440fee9f8a981d"
+    },
+    {
+      "file": "single-attribute-guard.cjs.gz",
+      "sourceSha256": "806ee6e2306191194a6e7e250ac8edb26612fc61201f43d612a5f264f20c456a"
+    }
+  ],
+  "comparisons": [
+    {
+      "order": "baseline then guard",
+      "timesMsInOrder": {
+        "distinct cold compilation control": [
+          0.017380125,
+          0.017
+        ],
+        "cold compilation with one attribute": [
+          0.014359375,
+          0.013390625
+        ],
+        "cold compilation with repeated attribute": [
+          0.021140625,
+          0.022463625
+        ]
+      }
+    },
+    {
+      "order": "guard then baseline",
+      "timesMsInOrder": {
+        "distinct cold compilation control": [
+          0.016526,
+          0.01684375
+        ],
+        "cold compilation with one attribute": [
+          0.014572875,
+          0.01403125
+        ],
+        "cold compilation with repeated attribute": [
+          0.019213625,
+          0.018041625
+        ]
+      }
+    }
+  ],
+  "selectors": {
+    "distinct cold compilation control": "div:not(.missing-N)",
+    "cold compilation with one attribute": "div[data-hit-N]",
+    "cold compilation with repeated attribute": "div[data-hit^=\"a-N\"][data-hit$=\"b\"]"
+  }
+}

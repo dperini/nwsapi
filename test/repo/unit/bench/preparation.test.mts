@@ -47,7 +47,7 @@ test('preparation compares equivalent DOM operations and records measured ratios
       invalid.close()
     }
     const report = JSON.parse(readFileSync(output, 'utf8'))
-    assert.equal(report.rows.length, 13)
+    assert.equal(report.rows.length, 15)
     assert.equal(report.sources[0].sha256, report.sources[1].sha256)
     assert.equal(report.sources[0].sha256.length, 64)
     assert.equal(report.settings.rounds, 7)
