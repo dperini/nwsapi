@@ -356,9 +356,6 @@
   color: var(--theme-soft-text, #c3a5f3);
   overflow-wrap: anywhere;
 }
-html[data-reading-mode] .documents-page .document-result h2 a {
-  color: var(--reading-ink, #302a25);
-}
 html[data-reading-mode] .documents-page .document-match a,
 html[data-reading-mode] .documents-page .document-related a {
   color: var(--topic-why, #28695e);
