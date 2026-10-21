@@ -54,7 +54,10 @@ test('JSON discovery uses direct Node for built-in commands and managed npm for 
   )
   assert.deepEqual(output.tasks[0].command, ['node', 'scripts/setup.mjs'])
   assert.deepEqual(output.tasks[1].command, ['node', 'scripts/develop/docs.mts'])
-  assert.deepEqual(output.tasks[2].command, ['.cache/bin/npm', 'run', 'review'])
+  assert.deepEqual(
+    output.tasks[2].command,
+    [process.platform === 'win32' ? '.cache\\bin\\npm.cmd' : '.cache/bin/npm', 'run', 'review'],
+  )
   assert.deepEqual(output.tasks[3].command, [
     'node',
     'scripts/develop/doctor.mts',

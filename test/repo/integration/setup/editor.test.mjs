@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
+import path from "node:path";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import os from "node:os";
-import path from "node:path";
 import test from "node:test";
 import {
   assertSafeParents,
@@ -92,11 +92,11 @@ test("Windows editor setup selects pinned native-preview executables", () => {
 test("editor setup exposes descriptions and dry-run paths", () => {
   assert.equal(describeEditorSetup().name, "setup/editor");
   assert.deepEqual(editorSetupPlan("/checkout", "linux", "arm64").targets, [
-    "/checkout/.cache/editor/tsdk/tsgo",
-    "/checkout/.cache/editor/tsdk/tsrs",
-    "/checkout/.vscode/settings.json",
-    "/checkout/.vscode/extensions.json",
-    "/checkout/.zed/settings.json",
+    path.join("/checkout", ".cache/editor/tsdk/tsgo"),
+    path.join("/checkout", ".cache/editor/tsdk/tsrs"),
+    path.join("/checkout", ".vscode/settings.json"),
+    path.join("/checkout", ".vscode/extensions.json"),
+    path.join("/checkout", ".zed/settings.json"),
   ]);
 });
 

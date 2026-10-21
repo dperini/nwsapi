@@ -14,9 +14,11 @@ export function testTarball(tarball, directory, inspect = () => {}) {
   const extracted = path.join(directory, 'extracted')
   mkdirSync(extracted)
   // Inspect paths before extracting an artifact fetched from a release.
-  const entries = run('tar', ['-tzf', tarball]).split('\n')
+  const entries = run('tar', ['-tzf', tarball]).split(/\r?\n/)
   const allowed = ['package/LICENSE', 'package/README.md', 'package/package.json', 'package/src/nwsapi.js']
-  if (JSON.stringify(entries.sort()) !== JSON.stringify(allowed.sort())) throw new Error('Unexpected tarball entries.')
+  if (JSON.stringify(entries.sort()) !== JSON.stringify(allowed.sort())) {
+    throw new Error(`Unexpected tarball entries: ${JSON.stringify(entries)}`)
+  }
   if (run('tar', ['-tvzf', tarball]).split('\n').some(line => !line.startsWith('-'))) throw new Error('The tarball must contain only regular files.')
   run('tar', ['-xzf', tarball, '-C', extracted])
   const manifest = readJson(path.join(extracted, 'package/package.json'))
