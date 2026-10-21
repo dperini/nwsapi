@@ -72,7 +72,7 @@ test('the generated type-union decision matches its saved experimental expressio
   }
 })
 
-test('generation writes reproducible output and rejects stale checks', async () => {
+test('type-union generation writes reproducible output and rejects stale checks', async () => {
   const directory = temporaryDirectory()
   const fixture = path.join(directory, 'model.json')
   const output = path.join(directory, 'generated', 'route.mts')

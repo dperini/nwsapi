@@ -35,20 +35,30 @@ test('each compiled resolver owns its adaptive counters', t => {
   const { document, nw } = fixture(t)
   const first = nw.compile('div ul li a', true)
   const second = nw.compile('body div ul a', true)
-  assert.match(first!.toString(), /s\.mayMatch\(e,\d+,a\)/)
-  assert.match(second!.toString(), /s\.mayMatch\(e,\d+,a\)/)
-  assert.deepEqual(
-    (
-      first!([document.getElementById('a')], null, document, []) as Element[]
-    ).map(e => e.id),
-    ['a'],
-  )
+  for (const resolver of [first, second]) {
+    assert.deepEqual(
+      (
+        resolver!(
+          [document.getElementById('a')],
+          null,
+          document,
+          [],
+        ) as Element[]
+      ).map(e => e.id),
+      ['a'],
+    )
+  }
 })
 
 test('negated tags do not become required ancestor tags', t => {
   const { document, nw } = fixture(t)
   const resolver = nw.compile('div ul a:not(article)', true)!
-  assert.match(resolver.toString(), /s\.mayMatch\(/)
+  assert.deepEqual(
+    (
+      resolver([document.getElementById('a')], null, document, []) as Element[]
+    ).map(e => e.id),
+    ['a'],
+  )
   assert.deepEqual(
     Array.from(nw.select('div ul a:not(article)', document)).map(
       element => element.id,

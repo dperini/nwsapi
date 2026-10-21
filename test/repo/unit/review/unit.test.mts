@@ -15,12 +15,12 @@ const identity: LocalUnitShardIdentity = {
   runAttempt: '1',
 }
 
-test('local review reports each shard duration before verifying all reports', () => {
+test('local review reports each shard duration before verifying all reports', async () => {
   const indexes: number[] = []
   const messages: string[] = []
   let clock = 0
   let verifiedDirectory = ''
-  const result = runLocalUnitShards({
+  const result = await runLocalUnitShards({
     directory: '/tmp/unit-reports',
     identity,
     log: message => messages.push(message),
@@ -33,6 +33,7 @@ test('local review reports each shard duration before verifying all reports', ()
       assert.equal(runIdentity, identity)
       indexes.push(index)
     },
+    concurrency: 1,
     verify: directory => {
       verifiedDirectory = directory
       return 'verified'
@@ -59,25 +60,25 @@ test('local review reports each shard duration before verifying all reports', ()
   )
 })
 
-test('local review stops on the first failed shard without partial verification', () => {
+test('local review stops scheduling after a failed shard without partial verification', async () => {
   const indexes: number[] = []
   let verified = false
 
-  assert.throws(
-    () =>
-      runLocalUnitShards({
-        directory: '/tmp/unit-reports',
-        identity,
-        runShard: index => {
-          indexes.push(index)
-          if (index === 3) {
-            throw new Error('shard failed')
-          }
-        },
-        verify: () => {
-          verified = true
-        },
-      }),
+  await assert.rejects(
+    runLocalUnitShards({
+      directory: '/tmp/unit-reports',
+      identity,
+      runShard: index => {
+        indexes.push(index)
+        if (index === 3) {
+          throw new Error('shard failed')
+        }
+      },
+      concurrency: 1,
+      verify: () => {
+        verified = true
+      },
+    }),
     /shard failed/,
   )
 
@@ -85,26 +86,26 @@ test('local review stops on the first failed shard without partial verification'
   assert.equal(verified, false)
 })
 
-test('CI collection runs every shard and reports all failures without partial verification', () => {
+test('CI collection runs every shard and reports all failures without partial verification', async () => {
   const indexes: number[] = []
   let verified = false
-  assert.throws(
-    () =>
-      runLocalUnitShards({
-        directory: '/tmp/unit-reports',
-        identity,
-        collectFailures: true,
-        log: () => {},
-        runShard: index => {
-          indexes.push(index)
-          if (index === 3 || index === 10) {
-            throw new Error('fixture failure')
-          }
-        },
-        verify: () => {
-          verified = true
-        },
-      }),
+  await assert.rejects(
+    runLocalUnitShards({
+      directory: '/tmp/unit-reports',
+      identity,
+      collectFailures: true,
+      log: () => {},
+      runShard: async index => {
+        await new Promise<void>(resolve => setImmediate(resolve))
+        indexes.push(index)
+        if (index === 3 || index === 10) {
+          throw new Error('fixture failure')
+        }
+      },
+      verify: () => {
+        verified = true
+      },
+    }),
     (error: unknown) =>
       error instanceof AggregateError && error.errors.length === 2,
   )
@@ -113,7 +114,26 @@ test('CI collection runs every shard and reports all failures without partial ve
   assert.equal(verified, false)
 })
 
-test('failed shards print a focused command from their fresh report and retain full verification', () => {
+test('local review runs shards in bounded parallel lanes', async () => {
+  let active = 0
+  let peak = 0
+  await runLocalUnitShards({
+    directory: '/tmp/unit-reports',
+    identity,
+    log: () => {},
+    concurrency: 3,
+    runShard: async () => {
+      active += 1
+      peak = Math.max(peak, active)
+      await new Promise<void>(resolve => setImmediate(resolve))
+      active -= 1
+    },
+    verify: () => 'verified',
+  })
+  assert.equal(peak, 3)
+})
+
+test('failed shards print a focused command from their fresh report and retain full verification', async () => {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-review-test-'))
   try {
     const shardDirectory = path.join(directory, 'nwsapi-unit-shard-3-test')
@@ -133,21 +153,21 @@ test('failed shards print a focused command from their fresh report and retain f
       }),
     )
 
-    assert.throws(
-      () =>
-        runLocalUnitShards({
-          directory,
-          identity,
-          log: message => messages.push(message),
-          runShard: index => {
-            if (index === 3) {
-              throw new Error('shard failed')
-            }
-          },
-          verify: () => {
-            verified = true
-          },
-        }),
+    await assert.rejects(
+      runLocalUnitShards({
+        directory,
+        identity,
+        log: message => messages.push(message),
+        runShard: index => {
+          if (index === 3) {
+            throw new Error('shard failed')
+          }
+        },
+        concurrency: 1,
+        verify: () => {
+          verified = true
+        },
+      }),
       /shard failed/,
     )
 

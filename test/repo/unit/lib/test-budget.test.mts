@@ -3,6 +3,7 @@ import { spawn, type ChildProcess } from 'node:child_process'
 import { EventEmitter } from 'node:events'
 import {
   COVERAGE_TEST_BUDGET_MS,
+  LOCAL_REVIEW_TEST_BUDGET_MS,
   ONBOARDING_TEST_BUDGET_MS,
   TEST_BUDGET_MS,
   testBudget,
@@ -53,6 +54,15 @@ test('onboarding gets platform headroom without changing CI budgets', () => {
   expect(testBudget('integration', false, { NWSAPI_ONBOARDING: '1' })).toBe(
     TEST_BUDGET_MS.integration,
   )
+})
+
+test('local review gets scheduling headroom without changing CI budgets', () => {
+  expect(testBudget('unit', false, { NWSAPI_LOCAL_REVIEW_TEST: '1' })).toBe(
+    LOCAL_REVIEW_TEST_BUDGET_MS.unit,
+  )
+  expect(
+    testBudget('integration', false, { NWSAPI_LOCAL_REVIEW_TEST: '1' }),
+  ).toBe(TEST_BUDGET_MS.integration)
 })
 
 test('budgeted runners preserve exit codes, process environments and cleanup handlers', async () => {

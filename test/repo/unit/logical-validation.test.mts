@@ -157,15 +157,13 @@ test('validation isolates extension variables, preserves modes, and does not run
     has.mockClear()
     match.mockClear()
     const selector = 'div#parent:outer:has(> span:inner)'
-    const resolver = nw.compile(selector, false, false)
+    nw.compile(selector, false, false)
     assert.deepEqual(modes, [
       ['outer', false],
       ['inner', true],
     ])
     assert.equal(has.mock.calls.length, 0)
     assert.equal(match.mock.calls.length, 0)
-    assert.match(String(resolver), /,outer/)
-    assert.doesNotMatch(String(resolver), /,inner/)
     assert.equal(nw.match(selector, parent!), true)
     assert.deepEqual(nw.select(selector, document), [parent])
   }

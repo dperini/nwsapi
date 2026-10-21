@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process'
+import { spawn, execFileSync } from 'node:child_process'
 import { globSync, mkdtempSync, readFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -24,40 +24,60 @@ interface LocalUnitShardOptions {
     index: number,
     directory: string,
     identity: LocalUnitShardIdentity,
-  ) => void
+  ) => void | Promise<void>
+  concurrency?: number
   verify?: (directory: string, identity: LocalUnitShardIdentity) => unknown
 }
 
-export function runLocalUnitShards({
+export async function runLocalUnitShards({
   directory,
   identity,
   log = console.log,
   now = () => performance.now(),
   collectFailures = false,
   runShard = executeShard,
+  concurrency = Math.min(2, os.availableParallelism()),
   verify = verifyUnitShardDirectory,
 }: LocalUnitShardOptions) {
   const failures: Error[] = []
-  for (let index = 1; index <= UNIT_CI_SHARD_COUNT; index += 1) {
-    const started = now()
-    log(`[review] Unit shard ${index}/${UNIT_CI_SHARD_COUNT} started.`)
-    try {
-      runShard(index, directory, identity)
-    } catch (error) {
-      const report = shardReportPath(directory, index)
-      const elapsedMs = Math.round(now() - started)
-      logShardCompletion(log, index, elapsedMs, report)
-      logShardFailure(log, report)
-      if (!collectFailures) {
-        throw error
+  let nextIndex = 1
+  const runWorker = async () => {
+    while (nextIndex <= UNIT_CI_SHARD_COUNT) {
+      const index = nextIndex
+      nextIndex += 1
+      const started = now()
+      log(`[review] Unit shard ${index}/${UNIT_CI_SHARD_COUNT} started.`)
+      try {
+        await runShard(index, directory, identity)
+      } catch (error) {
+        const report = shardReportPath(directory, index)
+        const elapsedMs = Math.round(now() - started)
+        logShardCompletion(log, index, elapsedMs, report)
+        logShardFailure(log, report)
+        failures.push(new Error(`Unit shard ${index} failed`, { cause: error }))
+        if (!collectFailures) {
+          nextIndex = UNIT_CI_SHARD_COUNT + 1
+        }
+        continue
       }
-      failures.push(new Error(`Unit shard ${index} failed`, { cause: error }))
-      continue
+      const elapsedMs = Math.round(now() - started)
+      logShardCompletion(
+        log,
+        index,
+        elapsedMs,
+        shardReportPath(directory, index),
+      )
     }
-    const elapsedMs = Math.round(now() - started)
-    logShardCompletion(log, index, elapsedMs, shardReportPath(directory, index))
   }
+  const workerCount = Math.max(
+    1,
+    Math.min(UNIT_CI_SHARD_COUNT, Math.floor(concurrency)),
+  )
+  await Promise.all(Array.from({ length: workerCount }, runWorker))
   if (failures.length) {
+    if (!collectFailures) {
+      throw failures[0]!.cause
+    }
     throw new AggregateError(
       failures,
       `${failures.length} unit shards failed. See their retained reports.`,
@@ -156,29 +176,45 @@ export function executeShard(
   directory: string,
   identity: LocalUnitShardIdentity,
 ) {
-  execFileSync(
-    process.execPath,
-    [
-      'scripts/repo/run.mts',
-      'scripts/repo/test/shard/run.mts',
-      '--index',
-      String(index),
-      '--count',
-      String(UNIT_CI_SHARD_COUNT),
-      '--directory',
-      directory,
-    ],
-    {
-      cwd: REPO_ROOT,
-      stdio: 'inherit',
-      env: {
-        ...process.env,
-        GITHUB_SHA: identity.revision,
-        GITHUB_RUN_ID: identity.runId,
-        GITHUB_RUN_ATTEMPT: identity.runAttempt,
+  return new Promise<void>((resolve, reject) => {
+    const child = spawn(
+      process.execPath,
+      [
+        'scripts/repo/run.mts',
+        'scripts/repo/test/shard/run.mts',
+        '--index',
+        String(index),
+        '--count',
+        String(UNIT_CI_SHARD_COUNT),
+        '--directory',
+        directory,
+      ],
+      {
+        cwd: REPO_ROOT,
+        stdio: 'inherit',
+        env: {
+          ...process.env,
+          NWSAPI_TEST_BUILD_READY: '1',
+          NWSAPI_LOCAL_REVIEW_TEST: '1',
+          GITHUB_SHA: identity.revision,
+          GITHUB_RUN_ID: identity.runId,
+          GITHUB_RUN_ATTEMPT: identity.runAttempt,
+        },
       },
-    },
-  )
+    )
+    child.once('error', reject)
+    child.once('exit', (code, signal) => {
+      if (code === 0) {
+        resolve()
+        return
+      }
+      reject(
+        new Error(
+          `Unit shard ${index} exited ${signal ? `on ${signal}` : `with code ${code}`}.`,
+        ),
+      )
+    })
+  })
 }
 
 export function createLocalReportDirectory() {
@@ -197,10 +233,16 @@ export function currentIdentity(): LocalUnitShardIdentity {
   }
 }
 
-export function runLocalUnitReview() {
+export async function runLocalUnitReview() {
   const directory = createLocalReportDirectory()
   console.log(`[review] Unit reports: ${directory}`)
-  return runLocalUnitShards({
+  if (process.env['NWSAPI_TEST_BUILD_READY'] !== '1') {
+    execFileSync(process.execPath, ['scripts/repo/build/run.mts'], {
+      cwd: REPO_ROOT,
+      stdio: 'inherit',
+    })
+  }
+  return await runLocalUnitShards({
     directory,
     identity: currentIdentity(),
     collectFailures: ['1', 'true'].includes(process.env['CI'] ?? ''),
@@ -211,6 +253,6 @@ if (isMainModule(import.meta.url)) {
   if (process.argv.includes('--help') || process.argv.includes('-h')) {
     console.log('Usage: node scripts/repo/run.mts scripts/repo/review/unit.mts')
   } else {
-    runLocalUnitReview()
+    await runLocalUnitReview()
   }
 }

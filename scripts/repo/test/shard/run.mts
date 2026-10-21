@@ -74,6 +74,11 @@ export async function executeShard(
   const vitestOutput = output.replace(/\.json$/, '.vitest.json')
   const startedAt = new Date().toISOString()
   const startedClock = performance.now()
+  const testEnvironment: NodeJS.ProcessEnv = {
+    ...process.env,
+    NWSAPI_TEST_TIER: 'unit',
+  }
+  delete testEnvironment['NWSAPI_LOCAL_REVIEW_TEST']
   const code = await runBudgeted(
     [
       'node_modules/vitest/vitest.mjs',
@@ -88,9 +93,10 @@ export async function executeShard(
     testBudget('unit', false, {
       ...process.env,
       NWSAPI_ONBOARDING_TEST: '1',
+      NWSAPI_LOCAL_REVIEW_TEST: '1',
     }),
     `unit shard ${index}/${count}`,
-    { ...process.env, NWSAPI_TEST_TIER: 'unit' },
+    testEnvironment,
   )
   const elapsedMs = performance.now() - startedClock
   const finishedAt = new Date().toISOString()

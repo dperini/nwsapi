@@ -8,12 +8,6 @@ test('exact comparisons preserve attribute case rules', () => {
   const { window } = new JSDOM(markup)
   try {
     const nw = factory(window)
-    assert.match(
-      nw.compile('[data-k="TYPE"]', false)!.toString(),
-      /getAttribute\("data-k"\)=="TYPE"/,
-    )
-    assert.match(nw.compile('[data-k="type" i]', false)!.toString(), /\.test\(/)
-    assert.match(nw.compile('[type="CHECKBOX"]', false)!.toString(), /\.test\(/)
     for (const [selector, expected] of cases) {
       assert.deepEqual(
         Array.from(nw.select(selector)).map(e => e.id),

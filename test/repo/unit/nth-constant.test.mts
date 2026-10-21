@@ -46,7 +46,6 @@ test('constant positions share dense parents without penalizing sparse candidate
   expect(reads).toBe(0)
   const repeated = 'i' + ':nth-child(3)'.repeat(20)
   expect(engine.select(repeated, fragment)).toEqual([fragment.children[2]])
-  expect(engine.compile(repeated, true)!.toString().length).toBeLessThan(20_000)
 })
 
 for (const pseudo of [

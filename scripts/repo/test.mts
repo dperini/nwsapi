@@ -62,7 +62,7 @@ export async function runLane(
 for (const lane of tier === 'all' ? ['unit', 'integration'] : [tier]) {
   const coverage = args.includes('--coverage')
   if (usesLocalUnitShards(lane, args, coverage)) {
-    runLocalUnitReview()
+    await runLocalUnitReview()
     continue
   }
   const upstream = lane === 'upstream'

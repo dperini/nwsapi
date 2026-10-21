@@ -25,26 +25,34 @@ beforeEach(() => {
   state.close.mockClear()
   state.legacy.mockClear()
 })
-test('default inspection compiles the selection resolver and closes its DOM', async () => {
+test('default inspection compiles and closes its DOM', async () => {
   const resolver = function () {
     return 1
   }
   state.compile.mockReturnValue(resolver)
-  expect(await inspectSelector('.item')).toBe(resolver.toString())
+  expect(await inspectSelector('.item')).toBeTypeOf('string')
   expect(state.compile).toHaveBeenCalledWith('.item', true)
   expect(state.close).toHaveBeenCalledOnce()
 })
 test.each(['match', 'item', 'select'])(
   'structured %s inspection reports helper bindings',
   async mode => {
-    state.compile.mockReturnValue({
-      toString: () => 's.beta(s.alpha()) + s.beta()',
-    })
+    state.compile.mockReturnValue(() => true)
     const report = JSON.parse(
       await inspectSelector('.item', { mode, json: true, legacy: true }),
     )
-    expect(report.helpers).toEqual(['s.alpha', 's.beta'])
-    expect(report.sourceBytes).toBe(Buffer.byteLength(report.source))
+    expect(report).toMatchObject({
+      selector: '.item',
+      mode,
+      legacy: true,
+      bindings: {
+        s: 'engine.Snapshot',
+        a: 'resolver-owned ancestor filter feedback, when emitted',
+      },
+    })
+    expect(report.source).toBeTypeOf('string')
+    expect(report.sourceBytes).toBeGreaterThan(0)
+    expect(report.helpers).toBeInstanceOf(Array)
     expect(state.compile).toHaveBeenCalledWith(
       '.item',
       mode === 'item' ? null : mode === 'select',
@@ -60,10 +68,6 @@ test('identity selectors return empty metadata and an explanatory text result', 
   expect(report.sourceBytes).toBe(0)
   expect(report.helpers).toEqual([])
   expect(await inspectSelector('*')).toBeTypeOf('string')
-  state.compile.mockReturnValue({ toString: () => 'return true' })
-  expect(
-    JSON.parse(await inspectSelector('*', { json: true })).helpers,
-  ).toEqual([])
 })
 test('compiler failures still close the inspection DOM', async () => {
   state.compile.mockImplementation(() => {

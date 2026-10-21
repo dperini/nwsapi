@@ -155,7 +155,7 @@ test.each(['0', '11', '1.5'])('rejects invalid round count %s', async value => {
   await expect(run()).rejects.toMatchObject({ code: 'ERR_ASSERTION' })
   expect(state.close).not.toHaveBeenCalled()
 })
-test('requires baseline', async () => {
+test('requires a baseline report for selector memory', async () => {
   process.argv = [argv[0]!, 'memory.mts']
   await expect(run()).rejects.toMatchObject({ code: 'ERR_ASSERTION' })
 })

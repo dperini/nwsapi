@@ -222,7 +222,17 @@ export async function runNodePlan(plan: CiTestPlan): Promise<void> {
   if (plan.fullNode) {
     const integrationOnly = process.argv.includes('--integration-only')
     if (!integrationOnly) {
-      runNode(path.join(REPO_ROOT, 'scripts/repo/review/unit.mts'))
+      const buildReady = process.env['NWSAPI_TEST_BUILD_READY']
+      process.env['NWSAPI_TEST_BUILD_READY'] = '1'
+      try {
+        runNode(path.join(REPO_ROOT, 'scripts/repo/review/unit.mts'))
+      } finally {
+        if (buildReady === undefined) {
+          delete process.env['NWSAPI_TEST_BUILD_READY']
+        } else {
+          process.env['NWSAPI_TEST_BUILD_READY'] = buildReady
+        }
+      }
     }
     runNode(testScript, ['integration', '--ci-isolate-clean-checkout'])
     return

@@ -168,7 +168,7 @@ test.each(['format', 'factory'])(
     expect(state.cleanup).toHaveBeenCalledOnce()
   },
 )
-test('requires baseline', async () => {
+test('requires a baseline report for build compression', async () => {
   process.argv = argv.slice(0, 1).concat('build-compression.mts')
   await expect(run()).rejects.toBeInstanceOf(Error)
 })

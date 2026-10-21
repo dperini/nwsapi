@@ -82,7 +82,7 @@ test('the generated host policies preserve the pinned JavaScript route behavior'
   }
 })
 
-test('generation writes reproducible output and rejects stale checks', async () => {
+test('has-route generation writes reproducible output and rejects stale checks', async () => {
   const directory = temporaryDirectory()
   const fixture = path.join(directory, 'model')
   const output = path.join(directory, 'generated', 'route.mts')

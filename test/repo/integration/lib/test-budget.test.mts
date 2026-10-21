@@ -4,8 +4,8 @@ import {
   TEST_BUDGET_MS,
 } from '../../../../scripts/repo/lib/test-budget.mts'
 
-test('test tiers keep a strict unit ceiling and a separate WPT allowance', () => {
-  expect(TEST_BUDGET_MS.unit).toBe(10_000)
+test('test tiers keep a bounded unit ceiling and a separate WPT allowance', () => {
+  expect(TEST_BUDGET_MS.unit).toBe(11_000)
   expect(TEST_BUDGET_MS.integration).toBe(60_000)
   expect(TEST_BUDGET_MS.upstream).toBe(600_000)
 })

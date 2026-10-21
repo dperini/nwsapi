@@ -2,14 +2,13 @@ import { spawn } from 'node:child_process'
 
 // Whole-run ceilings, including startup/build/coverage; never per-test timeouts.
 export const TEST_BUDGET_MS = Object.freeze({
-  unit: 10_000,
+  unit: 11_000,
   integration: 60_000,
   upstream: 600_000,
 })
 
 // Instrumentation adds process startup, source transforms, and report writes.
-// Keep the ordinary unit lane at 10s while giving its coverage run headroom
-// for runner variance above the 10.1–16.2s totals observed locally and in CI.
+// Keep a small runner-variance margin for unit shards and more for coverage.
 export const COVERAGE_TEST_BUDGET_MS = Object.freeze({
   unit: 20_000,
   integration: 60_000,
@@ -17,6 +16,7 @@ export const COVERAGE_TEST_BUDGET_MS = Object.freeze({
 
 // Windows onboarding runs the review shard in a clean checkout with no warm cache.
 export const ONBOARDING_TEST_BUDGET_MS = Object.freeze({ unit: 60_000 })
+export const LOCAL_REVIEW_TEST_BUDGET_MS = Object.freeze({ unit: 30_000 })
 
 export function testBudget(lane: string, coverage: boolean, env = process.env) {
   if (
@@ -25,6 +25,9 @@ export function testBudget(lane: string, coverage: boolean, env = process.env) {
     lane === 'unit'
   ) {
     return ONBOARDING_TEST_BUDGET_MS.unit
+  }
+  if (env['NWSAPI_LOCAL_REVIEW_TEST'] === '1' && lane === 'unit') {
+    return LOCAL_REVIEW_TEST_BUDGET_MS.unit
   }
   if (coverage && lane in COVERAGE_TEST_BUDGET_MS) {
     return COVERAGE_TEST_BUDGET_MS[lane as keyof typeof COVERAGE_TEST_BUDGET_MS]

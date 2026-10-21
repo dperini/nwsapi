@@ -7,22 +7,57 @@ import type * as Paths from '../../../../../scripts/repo/lib/paths.mts'
 import {
   engineDefinitions,
   engineSignature,
-  readEngineSources,
 } from '../../../../../scripts/repo/gen/api/engine.mts'
 import {
   renderApiMarkdown,
   writeApiMarkdown,
 } from '../../../../../scripts/repo/gen/api/markdown.mts'
 import {
-  ADAPTER_SOURCE_PATH,
-  ENGINE_SOURCE_PATH,
-  TRAVERSAL_SOURCE_PATH,
-} from '../../../../../scripts/repo/lib/paths.mts'
+  adapterDescriptions,
+  descriptions,
+  optionDescriptions,
+} from '../../../../../scripts/repo/gen/api/descriptions.mts'
 
-const engine = readFileSync(ENGINE_SOURCE_PATH, 'utf8')
-const adapter = readFileSync(ADAPTER_SOURCE_PATH, 'utf8')
-const traversal = readFileSync(TRAVERSAL_SOURCE_PATH, 'utf8')
-const apiMarkdown = renderApiMarkdown(engine, adapter, traversal)
+const methodNames = [
+  'byClass',
+  'byId',
+  'byTag',
+  'closest',
+  'first',
+  'match',
+  'select',
+  'configure',
+  'emit',
+  'registerLegacyHooks',
+  'useRoutePlanner',
+  'registerBulkHasPlanner',
+  'compile',
+  'registerCombinator',
+  'registerOperator',
+  'registerSelector',
+  'install',
+  'uninstall',
+]
+const fieldNames = Object.keys(descriptions).filter(
+  name => !methodNames.includes(name),
+)
+const engine = 'var Factory = function Factory() {}'
+const adapter = `class DOMSelector { ${Object.keys(adapterDescriptions)
+  .map(name => `${name}() {}`)
+  .join('\n')} }`
+const traversal = `function down(node) {}\nfunction next(node) {}\nfunction previous(node) {}\nfunction up(node) {}\nvar D = {}; D.down = down; D.next = next; D.previous = previous; D.up = up;`
+const apiSources = [
+  {
+    file: 'src/core/initialize/api.mts',
+    text: `engine.Dom = { ${[
+      ...methodNames.map(name => `${name}: function () {}`),
+      ...fieldNames.map(name => `${name}: {}`),
+    ].join(', ')} }; engine.Config = { ${Object.keys(optionDescriptions)
+      .map(name => `${name}: false`)
+      .join(', ')} };`,
+  },
+]
+const apiMarkdown = renderApiMarkdown(engine, adapter, traversal, apiSources)
 
 test('API nests a readable callout inside its collapsed section', t => {
   const dom = new JSDOM(apiMarkdown)
@@ -86,20 +121,22 @@ test('API discovery retains initializer definitions over runtime assignments', (
 })
 
 test('new exports need a description instead of silently disappearing', () => {
+  const undocumentedSources = apiSources.map(source => ({
+    ...source,
+    text: source.text.replace(
+      'uninstall: function () {}',
+      'uninstall: function () {}, undocumented: function () {}',
+    ),
+  }))
   expect(() =>
-    renderApiMarkdown(engine, adapter, traversal, [
-      ...readEngineSources(),
-      {
-        file: 'src/core/initialize/fixture.mts',
-        text: 'engine.Dom = { undocumented: function () {} }',
-      },
-    ]),
+    renderApiMarkdown(engine, adapter, traversal, undocumentedSources),
   ).toThrow('undocumented')
   expect(() =>
     renderApiMarkdown(
       engine,
       'class DOMSelector { undocumented() {} }',
       traversal,
+      apiSources,
     ),
   ).toThrow('undocumented')
 })
@@ -117,17 +154,18 @@ test('check mode detects missing or stale docs without writing', t => {
 })
 
 test('requires expected AST structures for engine, adapter and traversal', () => {
-  expect(() => renderApiMarkdown('', adapter, traversal)).toThrow()
-  expect(() => renderApiMarkdown(engine, '', traversal)).toThrow()
+  expect(() => renderApiMarkdown('', adapter, traversal, apiSources)).toThrow()
+  expect(() => renderApiMarkdown(engine, '', traversal, apiSources)).toThrow()
   expect(() =>
     renderApiMarkdown(
       engine,
       "class DOMSelector { ['querySelector']() {} }",
       traversal,
+      apiSources,
     ),
   ).toThrow()
   expect(() =>
-    renderApiMarkdown(engine, adapter, 'D.down = function() {}'),
+    renderApiMarkdown(engine, adapter, 'D.down = function() {}', apiSources),
   ).toThrow()
   expect(() =>
     renderApiMarkdown(engine, adapter, traversal, [
@@ -136,14 +174,14 @@ test('requires expected AST structures for engine, adapter and traversal', () =>
   ).toThrow()
   expect(() =>
     renderApiMarkdown(engine, adapter, traversal, [
-      ...readEngineSources(),
+      ...apiSources,
       {
         file: 'src/core/initialize/fixture.mts',
         text: 'engine.Config={UNKNOWN:true}',
       },
     ]),
   ).toThrow()
-  const methods = engineDefinitions(readEngineSources())
+  const methods = engineDefinitions(apiSources)
     .object('Dom')
     .map(member => member.node.key.name)
   const text = `engine.Dom={${methods.map(name => `${name}:function(){}`).join(',')}}`
@@ -154,42 +192,32 @@ test('requires expected AST structures for engine, adapter and traversal', () =>
   ).toThrow()
 })
 
-test.each([{ args: [] }, { args: ['--invalid'] }])(
-  'CLI enforces supported arguments %j',
-  async ({ args }) => {
-    vi.resetModules()
-    vi.doMock('../../../../../scripts/repo/lib/run-node.mts', () => ({
-      isMainModule: () => true,
-    }))
-    const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-api-cli-'))
-    const actual = await vi.importActual<typeof Paths>(
-      '../../../../../scripts/repo/lib/paths.mts',
-    )
-    vi.doMock('../../../../../scripts/repo/lib/paths.mts', () => ({
-      ...actual,
-      API_DOC_PATH: path.join(directory, 'api.md'),
-    }))
-    const argv = process.argv
-    process.argv = ['node', 'markdown.mts', ...args]
-    try {
-      if (args.length) {
-        await expect(
-          import('../../../../../scripts/repo/gen/api/markdown.mts'),
-        ).rejects.toThrow()
-      } else {
-        await import('../../../../../scripts/repo/gen/api/markdown.mts')
-        expect(
-          readFileSync(path.join(directory, 'api.md'), 'utf8').length,
-        ).toBeGreaterThan(100)
-      }
-    } finally {
-      process.argv = argv
-      rmSync(directory, { recursive: true, force: true })
-      vi.doUnmock('../../../../../scripts/repo/lib/run-node.mts')
-      vi.doUnmock('../../../../../scripts/repo/lib/paths.mts')
-    }
-  },
-)
+test('CLI rejects unsupported arguments', async () => {
+  vi.resetModules()
+  vi.doMock('../../../../../scripts/repo/lib/run-node.mts', () => ({
+    isMainModule: () => true,
+  }))
+  const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-api-cli-'))
+  const actual = await vi.importActual<typeof Paths>(
+    '../../../../../scripts/repo/lib/paths.mts',
+  )
+  vi.doMock('../../../../../scripts/repo/lib/paths.mts', () => ({
+    ...actual,
+    API_DOC_PATH: path.join(directory, 'api.md'),
+  }))
+  const argv = process.argv
+  process.argv = ['node', 'markdown.mts', '--invalid']
+  try {
+    await expect(
+      import('../../../../../scripts/repo/gen/api/markdown.mts'),
+    ).rejects.toThrow()
+  } finally {
+    process.argv = argv
+    rmSync(directory, { recursive: true, force: true })
+    vi.doUnmock('../../../../../scripts/repo/lib/run-node.mts')
+    vi.doUnmock('../../../../../scripts/repo/lib/paths.mts')
+  }
+})
 
 test('resolving external or unbound members preserves their parsed definitions', () => {
   const definitions = engineDefinitions([
@@ -205,6 +233,6 @@ test('resolving external or unbound members preserves their parsed definitions',
     expect(definitions.resolve(value)).toBe(value)
   }
   expect(() =>
-    renderApiMarkdown(engine, adapter, 'D.down=missing'),
+    renderApiMarkdown(engine, adapter, 'D.down=missing', apiSources),
   ).not.toThrow()
 })

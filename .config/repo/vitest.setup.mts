@@ -11,7 +11,9 @@ export default function setup(project: TestProject) {
       stdio: 'inherit',
     })
   }
-  build()
+  if (process.env['NWSAPI_TEST_BUILD_READY'] !== '1') {
+    build()
+  }
   // Tests import generated CommonJS files, so watch their sources explicitly.
   if (project.vitest.config.watch) {
     project.vite.watcher.add(

@@ -94,9 +94,7 @@ test('foreign candidate classification refreshes after observer delivery and pre
   const foreign = doc.createElementNS('urn:foreign', 's:p')
   foreign.id = 'foreign'
   main.prepend(foreign)
-  await new Promise<void>(resolve => {
-    setTimeout(() => resolve(), 0)
-  })
+  await Promise.resolve()
   expect(engine.first('p', doc)).toBe(foreign)
   engine.configure({ NODE_LIST: true })
   const result = engine.byTag('p', main)
@@ -104,9 +102,7 @@ test('foreign candidate classification refreshes after observer delivery and pre
   expect(result[0]).toBe(foreign)
   expect(engine.select('p:nth-of-type(1)', main)[0]).toBe(foreign)
   foreign.remove()
-  await new Promise<void>(resolve => {
-    setTimeout(() => resolve(), 0)
-  })
+  await Promise.resolve()
   expect(engine.first('p', doc)).toBe(main.firstElementChild)
   const uppercaseHtml = doc.createElementNS(
     'http://www.w3.org/1999/xhtml',

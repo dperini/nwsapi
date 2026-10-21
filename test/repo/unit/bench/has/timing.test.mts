@@ -117,7 +117,7 @@ test('rejects incorrect ordered results', async () => {
   state.mismatch = true
   await expect(run()).rejects.toMatchObject({ code: 'ERR_ASSERTION' })
 })
-test('requires baseline', async () => {
+test('requires a baseline report for selector timing', async () => {
   process.argv = [argv[0]!, 'timing.mts']
   await expect(run()).rejects.toMatchObject({ code: 'ERR_ASSERTION' })
 })
