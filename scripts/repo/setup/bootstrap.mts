@@ -21,6 +21,7 @@ import { recordSetupProgress } from './progress.mts'
 import { setupVoiceOver } from './voiceover/run.mts'
 import type { VoiceOverChoice } from './voiceover/run.mts'
 import { buildRequiredFiles } from './build.mts'
+import { bootstrapNodeIssue } from './node-version.mts'
 
 const TOOL_NAMES = ['nub', 'pnpm', 'npm', 'sfw', 'mise'] as const
 
@@ -262,8 +263,19 @@ export function handleBootstrapProtocol(
 const SETUP_HELP =
   'Usage: node scripts/repo/setup/bootstrap.mts [--tools-only] [--voiceover|--no-voiceover] [--dry-run]\nPrepares checkout tools, installs dependencies, and builds the package.\nVoiceOver is optional and runs after successful core setup.\nBrowser, WPT, and scanner setup are separate tasks.\n-h, --help  Show this help without downloading tools.\n--json  Return a machine-readable result.\n--describe  Describe this command without setup.\n--dry-run  List planned stages and paths without changes.\n--tools-only  Install the pinned tools without installing dependencies.\n--voiceover  Explicitly opt in to optional macOS VoiceOver setup.\n--no-voiceover  Skip the optional VoiceOver prompt.'
 
-export async function runCoreSetup(toolsOnly = false) {
-  return bootstrap(toolsOnly, setupTools, executeManaged, 'no')
+export async function runCoreSetup(
+  toolsOnly = false,
+  runtimeVersion = process.versions.node,
+  setup: typeof setupTools = setupTools,
+  run: ManagedRun = executeManaged,
+  log = console.log,
+) {
+  const issue = bootstrapNodeIssue(runtimeVersion)
+  if (issue) {
+    log(issue)
+    return { status: 1, signal: null }
+  }
+  return bootstrap(toolsOnly, setup, run, 'no')
 }
 
 export function parseSetupOptions(args: string[]) {

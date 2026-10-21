@@ -26,12 +26,12 @@ pnpm run setup:check
 
 This reports Node.js and package-manager versions, whether pinned checkout tools are ready, and the suggested next command. It does not install or change tools.
 
-Use `pnpm run setup:check -- --details` when you need executable paths or wrapper details. You do not need to edit PATH to use repository commands. If pnpm is unavailable, see [verified contributor toolchain](toolchain.md) for the direct Node bootstrap, which supports Node.js 22.18 or newer.
+Use `pnpm run setup:check -- --details` when you need executable paths or wrapper details. You do not need to edit PATH to use repository commands. If pnpm is unavailable, see [verified contributor toolchain](toolchain.md) for the direct Node bootstrap and its security-patched runtime requirements.
 
 <details>
 <summary>Use npm instead</summary>
 
-With Node.js 26.11.0 and npm 12.2.0, install and open the same contributor menu with:
+With Node.js 26.12.1 and npm 12.2.0, install and open the same contributor menu with:
 
 ```sh
 npm i

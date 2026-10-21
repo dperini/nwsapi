@@ -3,7 +3,19 @@ import { cp, mkdir, rm } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { expect, test } from 'vitest'
-import { copyTrackedTree } from '../../../../../scripts/repo/test/onboarding/snapshot.mts'
+import {
+  copyTrackedTree,
+  requireSupportedNode,
+} from '../../../../../scripts/repo/test/onboarding/snapshot.mts'
+
+test('bootstrap onboarding rejects Node below the security floor', async () => {
+  await expect(
+    requireSupportedNode('bootstrap', '22.23.3', '/checkout'),
+  ).rejects.toThrow('Node.js 22.23.4, 24.22.1, or 26.12.1')
+  await expect(
+    requireSupportedNode('bootstrap', '22.23.4', '/checkout'),
+  ).resolves.toBeUndefined()
+})
 
 test('copies only tracked files and excludes generated and local state', async t => {
   const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-snapshot-test-'))

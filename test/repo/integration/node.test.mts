@@ -13,14 +13,14 @@ const execute = vi.mocked(execFileSync)
 afterEach(() => execute.mockReset())
 
 test('the matrix requires distinct exact pins and cannot silently skip every runtime', () => {
-  for (const versions of [[], ['22'], ['latest'], ['22.23.2', '22.23.2']]) {
+  for (const versions of [[], ['22'], ['latest'], ['22.23.4', '22.23.4']]) {
     expect(() => nodeInteropVersions(versions)).toThrow(
       'Node interoperability requires unique, exact versions.',
     )
   }
-  expect(nodeInteropVersions(['22.23.2', '24.21.0'])).toEqual([
-    '22.23.2',
-    '24.21.0',
+  expect(nodeInteropVersions(['22.23.4', '24.22.1'])).toEqual([
+    '22.23.4',
+    '24.22.1',
   ])
 })
 
@@ -42,22 +42,22 @@ test('nub resolves an isolated exact pin and the returned binary is verified', (
   execute.mockImplementationOnce((_command, _args, options) => {
     directory = String(options?.cwd)
     expect(readFileSync(path.join(directory, '.node-version'), 'utf8')).toBe(
-      '22.23.2\n',
+      '22.23.4\n',
     )
     expect(
       JSON.parse(readFileSync(path.join(directory, 'package.json'), 'utf8')),
     ).toEqual({ private: true })
-    return '/nub/node/22.23.2/bin/node\n'
+    return '/nub/node/22.23.4/bin/node\n'
   })
-  execute.mockReturnValueOnce('v22.23.2\n')
-  expect(resolveNodeRuntime('22.23.2')).toBe('/nub/node/22.23.2/bin/node')
+  execute.mockReturnValueOnce('v22.23.4\n')
+  expect(resolveNodeRuntime('22.23.4')).toBe('/nub/node/22.23.4/bin/node')
   expect(execute.mock.calls[0]?.[1]).toEqual([
     '--no-env-file',
     '-p',
     'process.execPath',
   ])
   expect(execute.mock.calls[1]?.slice(0, 2)).toEqual([
-    '/nub/node/22.23.2/bin/node',
+    '/nub/node/22.23.4/bin/node',
     ['--version'],
   ])
   expect(existsSync(directory)).toBe(false)
@@ -65,9 +65,9 @@ test('nub resolves an isolated exact pin and the returned binary is verified', (
 
 test('a wrong runtime fails instead of silently testing the host Node', () => {
   execute.mockReturnValueOnce('/custom/node\n')
-  execute.mockReturnValueOnce('v24.21.0\n')
-  expect(() => resolveNodeRuntime('22.23.2')).toThrow(
-    'Expected Node 22.23.2, received v24.21.0',
+  execute.mockReturnValueOnce('v24.22.1\n')
+  expect(() => resolveNodeRuntime('22.23.4')).toThrow(
+    'Expected Node 22.23.4, received v24.22.1',
   )
   expect(existsSync(String(execute.mock.calls[0]?.[2]?.cwd))).toBe(false)
 })
@@ -76,6 +76,6 @@ test('failed provisioning propagates and removes the temporary project', () => {
   execute.mockImplementationOnce(() => {
     throw new Error('Node download failed')
   })
-  expect(() => resolveNodeRuntime('22.23.2')).toThrow('Node download failed')
+  expect(() => resolveNodeRuntime('22.23.4')).toThrow('Node download failed')
   expect(existsSync(String(execute.mock.calls[0]?.[2]?.cwd))).toBe(false)
 })

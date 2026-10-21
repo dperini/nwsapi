@@ -24,7 +24,7 @@ type TestPackage = Record<string, unknown> & {
 const roots: string[] = []
 const alias = `npm:nwsapi@${manifest.version}`
 const env = {
-  npm_config_user_agent: 'npm/12.2.0 node/v26.11.0',
+  npm_config_user_agent: 'npm/12.2.0 node/v26.12.1',
   npm_execpath: '/tools/npm/bin/npm-cli.js',
 }
 
@@ -258,7 +258,7 @@ test('legacy pnpm overrides and mixed lockfiles are rejected', async () => {
   const legacy = makeProject(
     {
       name: 'consumer',
-      packageManager: 'pnpm@12.12.0',
+      packageManager: 'pnpm@12.14.0',
       dependencies: { jsdom: '^30.0.1' },
       pnpm: { overrides: { '@asamuzakjp/dom-selector': alias } },
     },
@@ -268,7 +268,7 @@ test('legacy pnpm overrides and mixed lockfiles are rejected', async () => {
   await expect(
     runJsdomCommand(['add'], {
       cwd: legacy,
-      env: { npm_config_user_agent: 'pnpm/12.12.0' },
+      env: { npm_config_user_agent: 'pnpm/12.14.0' },
       install: vi.fn(),
     }),
   ).rejects.toThrow('pnpm.overrides')
@@ -328,7 +328,7 @@ test('Windows manager calls pass paths as separate arguments', () => {
       manager: 'npm',
       cwd: projectPath,
       env: {
-        npm_config_user_agent: 'npm/12.2.0 node/v26.11.0',
+        npm_config_user_agent: 'npm/12.2.0 node/v26.12.1',
         npm_execpath: 'C:\\Program Files\\npm\\npm-cli.js',
       },
       platform: 'win32',

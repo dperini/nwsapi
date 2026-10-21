@@ -30,7 +30,7 @@ type TestPackage = Record<string, unknown> & {
 const roots: string[] = []
 const alias = `npm:nwsapi@${manifest.version}`
 const env = {
-  npm_config_user_agent: 'npm/12.2.0 node/v26.11.0',
+  npm_config_user_agent: 'npm/12.2.0 node/v26.12.1',
   npm_execpath: '/tools/npm/bin/npm-cli.js',
 }
 
@@ -42,7 +42,7 @@ afterEach(() => {
 
 test('pnpm workspace configuration is edited at its included root', async () => {
   const root = makeProject(
-    { name: 'workspace', packageManager: 'pnpm@12.12.0' },
+    { name: 'workspace', packageManager: 'pnpm@12.14.0' },
     'pnpm',
   )
   const app = path.join(root, 'packages', 'app')
@@ -63,7 +63,7 @@ test('pnpm workspace configuration is edited at its included root', async () => 
 
   await runJsdomCommand(['add'], {
     cwd: app,
-    env: { npm_config_user_agent: 'pnpm/12.12.0' },
+    env: { npm_config_user_agent: 'pnpm/12.14.0' },
     install,
   })
 
@@ -81,7 +81,7 @@ test('pnpm workspace configuration is edited at its included root', async () => 
 
   await runJsdomCommand(['remove'], {
     cwd: app,
-    env: { npm_config_user_agent: 'pnpm/12.12.0' },
+    env: { npm_config_user_agent: 'pnpm/12.14.0' },
     install,
   })
   const removedWorkspace = readFileSync(
@@ -100,7 +100,7 @@ test('pnpm creates and removes its workspace override file when none exists', as
   const root = makeProject(
     {
       name: 'consumer',
-      packageManager: 'pnpm@12.12.0',
+      packageManager: 'pnpm@12.14.0',
       dependencies: { jsdom: '^30.0.1' },
     },
     'pnpm',
@@ -111,7 +111,7 @@ test('pnpm creates and removes its workspace override file when none exists', as
 
   await runJsdomCommand(['add'], {
     cwd: root,
-    env: { npm_config_user_agent: 'pnpm/12.12.0' },
+    env: { npm_config_user_agent: 'pnpm/12.14.0' },
     install,
   })
   expect(existsSync(workspacePath)).toBe(true)
@@ -126,7 +126,7 @@ test('pnpm creates and removes its workspace override file when none exists', as
 
   await runJsdomCommand(['remove'], {
     cwd: root,
-    env: { npm_config_user_agent: 'pnpm/12.12.0' },
+    env: { npm_config_user_agent: 'pnpm/12.14.0' },
     install,
   })
   expect(existsSync(workspacePath)).toBe(false)
@@ -137,7 +137,7 @@ test('pnpm active yaml nested selector conflicts fail before writes', async () =
   const root = makeProject(
     {
       name: 'consumer',
-      packageManager: 'pnpm@12.12.0',
+      packageManager: 'pnpm@12.14.0',
       dependencies: { jsdom: '^30.0.1' },
       overrides: { 'jsdom>@asamuzakjp/dom-selector': 'other' },
     },
@@ -153,7 +153,7 @@ test('pnpm active yaml nested selector conflicts fail before writes', async () =
   await expect(
     runJsdomCommand(['add'], {
       cwd: root,
-      env: { npm_config_user_agent: 'pnpm/12.12.0' },
+      env: { npm_config_user_agent: 'pnpm/12.14.0' },
       install,
     }),
   ).rejects.toThrow('nested or version-qualified')

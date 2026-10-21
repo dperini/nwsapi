@@ -172,6 +172,7 @@
     "./dist/external/unicode.d.ts": "./dist/external/unicode.d.ts"
   },
   "scripts": {
+    "preinstall": "node scripts/repo/setup/node-preflight.mts",
     "bench": "pnpm run build && node scripts/repo/run.mts scripts/repo/bench/report/run.mts",
     "bench:accessors": "node scripts/repo/run.mts scripts/repo/bench/accessors.bench.mts",
     "bench:cache": "node scripts/repo/run.mts scripts/repo/bench/run.mts cache",
@@ -363,6 +364,8 @@
     "@guidepup/setup": "0.29.2",
     "@huggingface/transformers": "4.3.1",
     "@maschwenk/tsrs": "0.8.0-ts7.1.0-dev.20260929",
+    "@maschwenk/tsrslint": "0.1.5",
+    "@maschwenk/oxlint-tsgolint": "7.0.2003-ts7.1.0-dev.20260929.1",
     "@opentui/core": "0.6.6",
     "@playwright/test": "1.64.1",
     "@puppeteer/browsers": "3.2.5",
@@ -401,7 +404,6 @@
     "nock": "15.0.2",
     "oxfmt": "0.66.0",
     "oxlint": "1.81.0",
-    "oxlint-tsgolint": "7.0.2001",
     "parse5": "8.0.1",
     "phonemizer": "1.2.1",
     "react": "19.3.1",
@@ -430,8 +432,12 @@
   },
   "overrides": {
     "@swc/core": "1.15.41",
+    "oxlint-tsgolint": "npm:@maschwenk/tsrslint@0.1.5",
     "rolldown": "1.2.13",
     "vite": "8.2.2"
+  },
+  "engines": {
+    "node": ">=22.23.4 <23 || >=24.22.1 <25 || >=26.12.1"
   },
   "browserslist": [
     "ie 11"
@@ -445,7 +451,7 @@
       },
       {
         "name": "pnpm",
-        "version": ">=12.12.0",
+        "version": ">=12.14.0",
         "onFail": "error"
       }
     ]

@@ -18,6 +18,8 @@ import { managedCommand, managedEnvironment } from '../setup/manager.mts'
 // Toolchain versions need a separate compatibility review.
 const PINNED_TOOLCHAIN = [
   '@maschwenk/tsrs*',
+  '@maschwenk/tsrslint',
+  '@maschwenk/oxlint-tsgolint',
   '@oxfmt/*',
   '@oxlint/*',
   '@rolldown/*',
@@ -25,7 +27,6 @@ const PINNED_TOOLCHAIN = [
   'gpu-lexer',
   'oxfmt',
   'oxlint',
-  'oxlint-tsgolint',
   'rolldown',
   'vite',
 ]

@@ -25,7 +25,7 @@ function workflow(name: string): Workflow {
 }
 
 test('onboarding is reusable and centralizes its change filter in the planner', () => {
-  const config = workflow('onboarding-v3.yml')
+  const config = workflow('onboarding.yml')
   expect(Object.keys(config.on)).toEqual(['workflow_call'])
   expect(config).not.toHaveProperty('concurrency')
   expect(ONBOARDING_INPUT_PATHS).toContain('.github/workflows/ci.yml')
@@ -40,11 +40,11 @@ test('the main workflow gates onboarding on its completed Node summary', () => {
     needs: 'node',
     if: "needs.node.result == 'success'",
   })
-  expect(jobs['onboarding']?.uses).toBe('./.github/workflows/onboarding-v3.yml')
+  expect(jobs['onboarding']?.uses).toBe('./.github/workflows/onboarding.yml')
 })
 
 test('minimum Node bootstrap and manager journeys run independently', () => {
-  const jobs = workflow('onboarding-v3.yml').jobs
+  const jobs = workflow('onboarding.yml').jobs
   expect(Object.keys(jobs).toSorted()).toEqual(['bootstrap', 'journey', 'plan'])
   expect(jobs['bootstrap']?.needs).toBe('plan')
   expect(jobs['journey']?.needs).toBe('plan')
@@ -58,9 +58,9 @@ test('minimum Node bootstrap and manager journeys run independently', () => {
   )
   expect(
     bootstrap.find(step => step.with?.['node-version'])?.with?.['node-version'],
-  ).toBe('22.18.0')
+  ).toBe('22.23.4')
   expect(
     journey.find(step => step.with?.['node-version'])?.with?.['node-version'],
-  ).toBe('26.11.0')
+  ).toBe('26.12.1')
   expect(journey.some(step => step.run?.endsWith('ci.mts journey'))).toBe(true)
 })

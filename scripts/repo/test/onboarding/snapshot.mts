@@ -14,6 +14,10 @@ import { verifyEntryPath } from './scenario.mts'
 import type { ScenarioOptions } from './scenario.mts'
 import { readJourney } from './readme.mts'
 import type { CommandRunner } from './scenario.mts'
+import {
+  bootstrapNodeIssue,
+  nodeMeetsSecurityFloor,
+} from '../../setup/node-version.mts'
 
 export interface SnapshotContext {
   gitExecutable: string
@@ -385,9 +389,8 @@ export async function requireSupportedNode(
   version: string,
   snapshot: string,
 ) {
-  const nodeNumber = version.replace(/^v/, '').split('.').map(Number)
-  if (nodeNumber[0]! < 22 || (nodeNumber[0] === 22 && nodeNumber[1]! < 18)) {
-    throw new Error(`Node.js 22.18 or newer is required; got ${version}.`)
+  if (!nodeMeetsSecurityFloor(version)) {
+    throw new Error(bootstrapNodeIssue(version))
   }
   if (scenario !== 'bootstrap') {
     const pin = await externalToolVersion(snapshot, 'node')

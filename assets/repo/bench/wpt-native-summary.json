@@ -3,36 +3,36 @@
   "browser": "154.0.8037.0",
   "revision": "fd983776a7cd19ebcda7a2bcb69c74330ee5d8c9",
   "finalized": true,
-  "inference": "73c2405adfaf71537fdde31153547b5db2405e09275604d9b553d86e5fa1c1e1",
-  "durationMs": 1812161,
+  "inference": "e418ed1684baa4421097a2bf7ae353b7edad5f8c94f59ec66ab5ff89ed8ac5a9",
+  "durationMs": 1638994,
   "runs": 1,
-  "processes": 4,
+  "processes": 10,
   "platform": "mac",
   "arch": "arm",
   "planned": 11013,
   "observed": 11013,
   "disabled": 0,
-  "nativePassing": 1267060,
-  "selected": 14734,
-  "selectedPages": 571,
+  "nativePassing": 1267001,
+  "selected": 14674,
+  "selectedPages": 568,
   "totals": {
-    "other-api": 1141528,
-    "selector-matching": 11865,
+    "other-api": 1141529,
+    "selector-matching": 11805,
     "css-values": 32710,
     "rendering": 78088,
     "mixed-selector": 1083,
     "selector-parsing": 1786
   },
-  "supportSha256": "c756d1ecf38198577ebdd144d211138bf26c8edb6c983aab86ce29dd31500d8d",
-  "categoriesSha256": "836b4b758473e3361ff6eaf9ae0d723d24894e0b36ddf25f7aaa5cee59e39743",
+  "supportSha256": "ba1fa9289e1eb0d36b68e461a0990b53f83a3c28eeef48a8e85274eed3aa377f",
+  "categoriesSha256": "cf51c7ffdddce3ff4ec5375e0d6079b9ada9b1aa52c9510ec5e5a5d8857072f4",
   "inputs": [
     {
       "file": "plan.json",
-      "sha256": "52ef7d0f92df40ffc61292ba9aff8a228b7324684eb635b77359be38e857e85b"
+      "sha256": "2ec867628efb32995333ebec7f3a926110e2952f99a868184cffa12c4d1d78d4"
     },
     {
       "file": "report.json",
-      "sha256": "59660c1f6bd4b23f86a22c7b68443cc52eb334067728783866f0785b4652f676"
+      "sha256": "b20bf9001f8fa84ae4b01dc60f92d524abb899a298963ee8bd19ba0fa268a0ed"
     },
     {
       "file": "discovery.json",

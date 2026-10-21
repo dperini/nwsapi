@@ -19,7 +19,7 @@ import {
 const tools = vi.hoisted(() => ({ ready: true }))
 vi.mock('../../../../scripts/repo/setup/diagnostics.mts', () => ({
   managedReady: () => tools.ready,
-  managedVersions: () => ({ node: '26.6.0', npm: '12.2.0', pnpm: '12.12.0' }),
+  managedVersions: () => ({ node: '26.6.0', npm: '12.2.0', pnpm: '12.14.0' }),
 }))
 
 function fixture() {

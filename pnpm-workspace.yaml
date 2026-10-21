@@ -55,7 +55,8 @@ catalog:
   'nock': '15.0.2'
   'oxfmt': '0.66.0'
   'oxlint': '1.81.0'
-  'oxlint-tsgolint': '7.0.2001'
+  '@maschwenk/tsrslint': '0.1.5'
+  '@maschwenk/oxlint-tsgolint': '7.0.2003-ts7.1.0-dev.20260929.1'
   'parse5': '8.0.1'
   'rolldown': '1.2.13'
   'taze': '21.3.0'
@@ -74,6 +75,7 @@ minimumReleaseAge: 1440
 overrides:
   # Vitiate 0.3.1's WASM instrumentation uses this SWC plugin ABI.
   '@swc/core': '1.15.41'
+  oxlint-tsgolint: 'npm:@maschwenk/tsrslint@0.1.5'
   rolldown: '1.2.13'
   vite: '8.2.2'
 pmOnFail: warn

@@ -99,7 +99,7 @@
     },
     "node": {
       "origin": "nub",
-      "version": "26.11.0"
+      "version": "26.12.1"
     },
     "npm": {
       "origin": "npm",
@@ -197,47 +197,47 @@
     "pnpm": {
       "origin": "gh-asset",
       "repository": "github:pnpm/pnpm",
-      "version": "12.12.0",
-      "tag": "v12.12.0",
+      "version": "12.14.0",
+      "tag": "v12.14.0",
       "platforms": {
         "darwin-arm64": {
           "asset": "pnpm-darwin-arm64.tar.gz",
-          "integrity": "sha256-t7rZh9Td97r8MIguKdRvmCWUbUpVQXsCu5aAaRSYpUQ=",
+          "integrity": "sha256-UPSODhdQiVJ5Cj+/WPzxTzuC76X1lMoErZBOKar4VLA=",
           "binary": "pnpm"
         },
         "darwin-x64": {
           "asset": "pnpm-darwin-x64.tar.gz",
-          "integrity": "sha256-9xuSjGMO7CdgkDwKRHLxdXvd9M5AVy0dFJfT+1q2zBY=",
+          "integrity": "sha256-LEEuBzggSbTtsE+m2njz1O94ELdYU8gFRNz7fA7XmIA=",
           "binary": "pnpm"
         },
         "linux-arm64": {
           "asset": "pnpm-linux-arm64.tar.gz",
-          "integrity": "sha256-zz5ZpXbTVhtyGrIUqKveejeYJ3cAHEunUBnt7tEJiuY=",
+          "integrity": "sha256-z8eAueaQVJ5mM+EEX7H7bvhOOQcR4gmebMuukcMkVuo=",
           "binary": "pnpm"
         },
         "linux-arm64-musl": {
           "asset": "pnpm-linux-arm64-musl.tar.gz",
-          "integrity": "sha256-g5bE/+PolBMtFE6khN88Ev5qcL0Acmi8LRJ2kXhyFgs=",
+          "integrity": "sha256-URpUgJvf0oJw0wAR0Wl/WCyBMNVVtPoOKFaxp1NMmL8=",
           "binary": "pnpm"
         },
         "linux-x64": {
           "asset": "pnpm-linux-x64.tar.gz",
-          "integrity": "sha256-INaNU7+om6nPcnwf/Q08HDGT6TPQl7Nufyn3QyV3E9k=",
+          "integrity": "sha256-ORDDhSE2vtW8FRG5E3pF/UNX7Ws5cNnQiJNkHpAFhn4=",
           "binary": "pnpm"
         },
         "linux-x64-musl": {
           "asset": "pnpm-linux-x64-musl.tar.gz",
-          "integrity": "sha256-LhbQ9fwjvdKbfgzZk02Tx9RMtvuYe07UJcf3NXlbKXk=",
+          "integrity": "sha256-1xFeLyeR15v55+RIYJU3WVu3eH3h71KSzpH/PRviYp4=",
           "binary": "pnpm"
         },
         "win32-arm64": {
           "asset": "pnpm-win32-arm64.zip",
-          "integrity": "sha256-/8zxOwKhPctL2LkriuK9JqAS9de96Y213mtlrsfOmuA=",
+          "integrity": "sha256-l/cHzmd7dZG62dlcH3RjW1srlGjaku+U1CbbRFNSQ1c=",
           "binary": "pnpm.exe"
         },
         "win32-x64": {
           "asset": "pnpm-win32-x64.zip",
-          "integrity": "sha256-LsFlF4xoKoLfvmCN3PDFUQi2GwlBNCvOLKSxom+qLHw=",
+          "integrity": "sha256-bw846RfIznbvMdtSjDV+K/o1ShvLFkZOPN7DnmUw14Q=",
           "binary": "pnpm.exe"
         }
       }

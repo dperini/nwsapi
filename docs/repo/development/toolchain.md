@@ -1,6 +1,6 @@
 # Verified contributor toolchain
 
-Run the bootstrap from the checkout root with Node 22.18 or newer. It imports only Node built-ins and tracked `.mts` and JSON files, so it works before `node_modules` exists.
+Run the bootstrap from the checkout root with a patched Node release: 22.23.4, 24.22.1, or 26.12.1, or a later supported release. These are the minimums in the [October 2026 Node.js security release](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases). The bootstrap imports only Node built-ins and tracked `.mts` and JSON files, so it works before `node_modules` exists.
 
 ```sh
 node scripts/repo/setup/bootstrap.mts
@@ -8,7 +8,7 @@ node scripts/repo/setup/bootstrap.mts
 
 The direct Node entry point works before the pinned package manager is installed. After setup, use `node scripts/repo/develop/run.mts` for guided tasks or `.cache/bin/pnpm` for repository commands (`.cache/bin/pnpm.cmd` on Windows). `pnpm go` and `npm run go` rerun the checkout bootstrap with the manager pinned for this branch and its frozen lockfile. Add `--tools-only` to provision tools without installing dependencies. No shell configuration is required.
 
-With contributor Node 26.11.0 and either npm 12.2.0 or pnpm 12.12.0 already available, `npm i` and `pnpm i` install dependencies and run preparation directly. Preparation provisions verified checkout tools, refreshes agent aliases, prepares the video source, and builds with the pinned Node runtime. It does not recursively install dependencies. Node 22.18 is the bootstrap minimum, not the supported runtime for a direct npm 12.2 installation.
+With contributor Node 26.12.1 and either npm 12.2.0 or pnpm 12.14.0 already available, `npm i` and `pnpm i` install dependencies and run preparation directly. Preparation provisions verified checkout tools, refreshes agent aliases, prepares the video source, and builds with the pinned Node runtime. It does not recursively install dependencies. Node 22.23.4 is the bootstrap minimum, not the supported runtime for a direct npm installation.
 
 V3 uses `pnpm` for the managed developer workflow. Starting with `npm i` uses
 npm for that installation, then preparation provisions the checkout tools.

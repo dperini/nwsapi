@@ -53,7 +53,7 @@ test('mise selects the exact nub version and preserves all Node arguments', () =
   const request = nubRequest([
     'node',
     'install',
-    '26.11.0',
+    '26.12.1',
     'argument with spaces',
   ])
   expect(request.command).toBe(toolExecutable('mise'))
@@ -64,7 +64,7 @@ test('mise selects the exact nub version and preserves all Node arguments', () =
     'nub',
     'node',
     'install',
-    '26.11.0',
+    '26.12.1',
     'argument with spaces',
   ])
 })

@@ -15,7 +15,7 @@ vi.mock('../../../../scripts/repo/setup/diagnostics.mts', () => ({
   managedReady: () => state.tools,
   managedVersionProbes: () => ({
     node: {
-      version: '26.11.0',
+      version: '26.12.1',
       status: 0,
       signal: null,
       errorCode: undefined,
@@ -31,7 +31,7 @@ vi.mock('../../../../scripts/repo/setup/diagnostics.mts', () => ({
       outputMatchesVersion: true,
     },
     pnpm: {
-      version: '12.12.0',
+      version: '12.14.0',
       status: 0,
       signal: null,
       errorCode: undefined,
@@ -39,7 +39,7 @@ vi.mock('../../../../scripts/repo/setup/diagnostics.mts', () => ({
       outputMatchesVersion: true,
     },
   }),
-  managedVersions: () => ({ node: '26.11.0', npm: '12.2.0', pnpm: '12.12.0' }),
+  managedVersions: () => ({ node: '26.12.1', npm: '12.2.0', pnpm: '12.14.0' }),
   meetsMinimum: () => true,
   realExecutable: (value: string) => value,
   resolveExecutable: (name: string) => ({
@@ -133,7 +133,7 @@ test('doctor distinguishes an external Homebrew pnpm from the ready checkout pin
     const log = vi.fn()
     expect(await main([], log)).toBe(0)
     expect(log.mock.calls.flat().join('\n')).toContain(
-      'pnpm: PATH 12.11.2 (Homebrew); checkout pin 12.12.0 ready',
+      'pnpm: PATH 12.11.2 (Homebrew); checkout pin 12.14.0 ready',
     )
   } finally {
     state.externalPnpm = false

@@ -8,6 +8,7 @@ import {
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { parse, stringify } from 'yaml'
 import { expect, test } from 'vitest'
 import {
@@ -69,86 +70,96 @@ test('local reusable workflow calls must stay in the workflow directory', () => 
   }
 })
 
-test.skipIf(process.platform === 'win32')(
-  'inline checkouts select the event commit with full ancestry and no persisted credentials',
-  () => {
-    const directory = mkdtempSync(
-      path.join(os.tmpdir(), 'nwsapi-checkout-inline-'),
-    )
-    try {
-      const remote = path.join(directory, 'remote')
-      mkdirSync(remote)
-      const git = (...args: string[]) =>
-        execFileSync('git', args, { cwd: remote, encoding: 'utf8' }).trim()
-      git('init', '-q')
-      git('config', 'user.name', 'Test')
-      git('config', 'user.email', 'test@example.invalid')
-      const branch = git('symbolic-ref', '--short', 'HEAD')
-      const commits: string[] = []
-      for (const value of ['first', 'event', 'newer']) {
-        writeFileSync(path.join(remote, 'content'), value)
-        git('add', 'content')
-        git('commit', '-qm', value)
-        commits.push(git('rev-parse', 'HEAD'))
-      }
-      for (const [name, event] of [
-        ['ci.yml', 'push'],
-        ['ci-coverage.yml', 'workflow_dispatch'],
-      ] as const) {
-        const workflow = parse(
-          readFileSync(path.join(REPO_ROOT, '.github/workflows', name), 'utf8'),
-        )
-        if (event === 'push') {
-          expect(workflow.on.push.branches).toEqual(['prerelease/3.0.0'])
-        } else {
-          expect(workflow.on.workflow_dispatch).toBeDefined()
-        }
-        const job = Object.values(workflow.jobs)[0] as {
-          steps: Array<{ name?: string; run?: string }>
-        }
-        const step = job.steps.find(item => item.name === 'Bootstrap checkout')!
-        const target = path.join(directory, name)
-        mkdirSync(target)
-        execFileSync('bash', ['-c', step.run!], {
-          cwd: target,
-          stdio: 'pipe',
-          env: {
-            ...process.env,
-            SERVER_URL: 'file://' + directory,
-            REPOSITORY: 'remote',
-            TRIGGER_SHA: commits[1]!,
-            GITHUB_TOKEN: 'fixture-token',
-          },
-        })
-        expect(readFileSync(path.join(target, 'content'), 'utf8')).toBe('event')
-        expect(
-          execFileSync('git', ['rev-list', '--count', 'HEAD'], {
-            cwd: target,
-            encoding: 'utf8',
-          }).trim(),
-        ).toBe('2')
-        expect(
-          execFileSync('git', ['rev-parse', '--is-shallow-repository'], {
-            cwd: target,
-            encoding: 'utf8',
-          }).trim(),
-        ).toBe('false')
-        expect(
-          execFileSync('git', ['rev-parse', `refs/remotes/origin/${branch}`], {
-            cwd: target,
-            encoding: 'utf8',
-          }).trim(),
-        ).toBe(commits[2])
-        expect(
-          spawnSync(
-            'git',
-            ['config', '--local', '--get-regexp', 'extraheader|credential'],
-            { cwd: target },
-          ).status,
-        ).toBe(1)
-      }
-    } finally {
-      rmSync(directory, { recursive: true, force: true })
+test('inline checkouts select the event commit with full ancestry and no persisted credentials', () => {
+  const directory = mkdtempSync(
+    path.join(os.tmpdir(), 'nwsapi-checkout-inline-'),
+  )
+  try {
+    const remote = path.join(directory, 'remote')
+    mkdirSync(remote)
+    const git = (...args: string[]) =>
+      execFileSync('git', args, { cwd: remote, encoding: 'utf8' }).trim()
+    git('init', '-q')
+    git('config', 'user.name', 'Test')
+    git('config', 'user.email', 'test@example.invalid')
+    const branch = git('symbolic-ref', '--short', 'HEAD')
+    const commits: string[] = []
+    for (const value of ['first', 'event', 'newer']) {
+      writeFileSync(path.join(remote, 'content'), value)
+      git('add', 'content')
+      git('commit', '-qm', value)
+      commits.push(git('rev-parse', 'HEAD'))
     }
-  },
-)
+    const shell =
+      process.platform === 'win32'
+        ? path.resolve(
+            execFileSync('git', ['--exec-path'], { encoding: 'utf8' }).trim(),
+            '..',
+            '..',
+            '..',
+            'bin',
+            'bash.exe',
+          )
+        : 'bash'
+    for (const [name, event] of [
+      ['ci.yml', 'push'],
+      ['ci-coverage.yml', 'workflow_dispatch'],
+    ] as const) {
+      const workflow = parse(
+        readFileSync(path.join(REPO_ROOT, '.github/workflows', name), 'utf8'),
+      )
+      if (event === 'push') {
+        expect(workflow.on.push.branches).toEqual(['prerelease/3.0.0'])
+      } else {
+        expect(workflow.on.workflow_dispatch).toBeDefined()
+      }
+      const job = Object.values(workflow.jobs)[0] as {
+        steps: Array<{ name?: string; run?: string }>
+      }
+      const step = job.steps.find(item => item.name === 'Bootstrap checkout')!
+      const target = path.join(directory, name)
+      mkdirSync(target)
+      execFileSync(shell, ['-c', step.run!], {
+        cwd: target,
+        stdio: 'pipe',
+        env: {
+          ...process.env,
+          SERVER_URL: pathToFileURL(directory).href,
+          REPOSITORY: 'remote',
+          TRIGGER_SHA: commits[1]!,
+          GITHUB_TOKEN: 'fixture-token',
+        },
+      })
+      expect(readFileSync(path.join(target, 'content'), 'utf8')).toBe('event')
+      expect(
+        execFileSync('git', ['rev-list', '--count', 'HEAD'], {
+          cwd: target,
+          encoding: 'utf8',
+        }).trim(),
+      ).toBe('2')
+      expect(
+        execFileSync('git', ['rev-parse', '--is-shallow-repository'], {
+          cwd: target,
+          encoding: 'utf8',
+        }).trim(),
+      ).toBe('false')
+      expect(
+        execFileSync('git', ['rev-parse', `refs/remotes/origin/${branch}`], {
+          cwd: target,
+          encoding: 'utf8',
+        }).trim(),
+      ).toBe(commits[2])
+      expect(
+        spawnSync(
+          'git',
+          ['config', '--local', '--get-regexp', 'extraheader|credential'],
+          {
+            cwd: target,
+          },
+        ).status,
+      ).toBe(1)
+    }
+  } finally {
+    rmSync(directory, { recursive: true, force: true })
+  }
+})

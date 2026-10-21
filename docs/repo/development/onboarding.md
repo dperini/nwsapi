@@ -1,6 +1,6 @@
 # Onboarding validation
 
-The separate `.github/workflows/onboarding-v3.yml` workflow checks the minimum-Node
+The separate `.github/workflows/onboarding.yml` workflow checks the minimum-Node
 bootstrap once per operating system and two complete contributor journeys.
 Bootstrap and manager journeys run in parallel in independent clean checkouts.
 Ordinary checks and unit shards remain in `.github/workflows/ci.yml`.
@@ -16,7 +16,7 @@ workflow uses npm and rejects pnpm installation.
 
 ## Steps in each journey
 
-1. Start with Node 22.18 and no usable package manager. Run the README bootstrap
+1. Start with Node 22.23.4 and no usable package manager. Run the README bootstrap
    command and verify the prepared checkout.
 2. Start a separate clean checkout with the pinned contributor Node and the
    journey's entry manager. Run the README's literal install command. This

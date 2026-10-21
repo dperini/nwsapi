@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
-          node-version: '22.18.0'
+          node-version: '22.23.4'
           package-manager-cache: false
       - name: Compare onboarding inputs
         id: plan
@@ -43,7 +43,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
-          node-version: '22.18.0'
+          node-version: '22.23.4'
           package-manager-cache: false
       - name: Bootstrap from the minimum Node version
         timeout-minutes: 30
@@ -74,7 +74,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
-          node-version: '26.11.0'
+          node-version: '26.12.1'
           package-manager-cache: false
       - name: Provision the entry package manager
         timeout-minutes: 15

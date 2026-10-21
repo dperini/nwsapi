@@ -266,7 +266,7 @@ jobs:
     name: onboarding
     needs: node
     if: needs.node.result == 'success'
-    uses: ./.github/workflows/onboarding-v3.yml
+    uses: ./.github/workflows/onboarding.yml
 
   perf:
     name: 'perf: tak'

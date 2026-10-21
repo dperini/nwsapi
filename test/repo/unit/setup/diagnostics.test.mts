@@ -30,7 +30,7 @@ vi.mock('../../../../scripts/repo/external-tools.mts', () => ({
   TOOL_BIN: '/tools/bin',
   managedNodeEntry: () => '/tools/bin/node.exe',
   toolExecutable: (name: string) => `/tools/${name}`,
-  toolVersions: () => ({ node: '26.11.0', pnpm: '12.12.0' }),
+  toolVersions: () => ({ node: '26.12.1', pnpm: '12.14.0' }),
 }))
 vi.mock('../../../../scripts/repo/lib/paths.mts', () => ({
   REPO_ROOT: '/repo',

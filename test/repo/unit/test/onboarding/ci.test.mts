@@ -134,7 +134,7 @@ test('runs package manager provisioning through the injected process runner', ()
 
   expect(execute).toHaveBeenCalledWith(
     'npm',
-    expect.arrayContaining(['pnpm@12.12.0']),
+    expect.arrayContaining(['pnpm@12.14.0']),
   )
 })
 

@@ -17,8 +17,9 @@ import {
 import { setupProgress } from './progress.mts'
 import { checkoutReadiness, readinessForTask } from './readiness.mts'
 import { preflightVoiceOver } from './voiceover/preflight.mts'
+import { nodeMeetsSecurityFloor, nodeSecurityMinimum } from './node-version.mts'
 
-const minimums = { node: '22.18.0', npm: '12.2.0', pnpm: '12.12.0' }
+const minimums = { node: '22.23.4', npm: '12.2.0', pnpm: '12.14.0' }
 
 export function toolReports() {
   const probes = managedVersionProbes()
@@ -46,8 +47,11 @@ export function toolReports() {
       pathEntry: resolution ? resolution.index + 1 : undefined,
       version,
       owner: executableOwner(executable),
-      minimum: minimums[name],
-      meetsMinimum: meetsMinimum(version, minimums[name]),
+      minimum: name === 'node' ? nodeSecurityMinimum(version) : minimums[name],
+      meetsMinimum:
+        name === 'node'
+          ? nodeMeetsSecurityFloor(version)
+          : meetsMinimum(version, minimums[name]),
       pin: pins[name],
       managedVersion: versions[name],
       probe: probes[name],
