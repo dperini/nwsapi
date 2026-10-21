@@ -399,37 +399,37 @@
     "uv": {
       "origin": "gh-asset",
       "repository": "github:astral-sh/uv",
-      "version": "0.12.23",
-      "tag": "0.12.23",
+      "version": "0.13.4",
+      "tag": "0.13.4",
       "platforms": {
         "darwin-arm64": {
           "asset": "uv-aarch64-apple-darwin.tar.gz",
-          "integrity": "sha256-UEh65WXM2W5JkFa0Z01Dj0xTFwICYXtMdZ3v4MahtUQ=",
+          "integrity": "sha256-4LHUdDzmTFXZ8PSkRK+muBElaABw7gToU/zQ9sHr+PE=",
           "binary": "uv-aarch64-apple-darwin/uv"
         },
         "darwin-x64": {
           "asset": "uv-x86_64-apple-darwin.tar.gz",
-          "integrity": "sha256-lg2kTLS3NoUgbd0lCxngoRf6QQlXEMEDjwgfXLYT77Q=",
+          "integrity": "sha256-e+Lc0xYSL0s+Wgp4ifYkgmbBRCU3ThBf99yXeRhGA6Y=",
           "binary": "uv-x86_64-apple-darwin/uv"
         },
         "linux-arm64": {
           "asset": "uv-aarch64-unknown-linux-gnu.tar.gz",
-          "integrity": "sha256-ZSS9M4F37VDQNdOTVOElRemTu+ui7L3fBIDFs6gdMT8=",
+          "integrity": "sha256-GucrRxhynizMTxrixtHlMcqEZ4AOBUbpEws4hgI6YKs=",
           "binary": "uv-aarch64-unknown-linux-gnu/uv"
         },
         "linux-x64": {
           "asset": "uv-x86_64-unknown-linux-gnu.tar.gz",
-          "integrity": "sha256-kWfXKzMZZ0tjA8TL4HGFS7oT6989drGny9wXVHH7ZtY=",
+          "integrity": "sha256-K0KDlvElctRCnPIQyiNN1ZmjOzrwlYpNXtVp1j4/NE8=",
           "binary": "uv-x86_64-unknown-linux-gnu/uv"
         },
         "win32-arm64": {
           "asset": "uv-aarch64-pc-windows-msvc.zip",
-          "integrity": "sha256-EylOIy7Oy+cJwGt05s7QbyoiXqVZFHZoU2LyK+VqUNU=",
+          "integrity": "sha256-xLxalTSyu2oS/inqdIRF4ab5y3uydSEcT7dMUuzzF6U=",
           "binary": "uv.exe"
         },
         "win32-x64": {
           "asset": "uv-x86_64-pc-windows-msvc.zip",
-          "integrity": "sha256-ddBd5nYneMMe4YM5jefdFQk/rQ7ZCx8jbYIF6l7ADJA=",
+          "integrity": "sha256-zOx1CKB9mTPXyxJhiAYz788fMNbm7dqyGCPx2ubyMiU=",
           "binary": "uv.exe"
         }
       }
@@ -538,47 +538,47 @@
     "mise": {
       "origin": "gh-asset",
       "repository": "github:jdx/mise",
-      "version": "2026.10.4",
-      "tag": "v2026.10.4",
+      "version": "2026.10.17",
+      "tag": "v2026.10.17",
       "platforms": {
         "darwin-arm64": {
-          "asset": "mise-v2026.10.4-macos-arm64.tar.gz",
-          "integrity": "sha256-dErkX5t8KkQ636Yd9IOXkw6IsTxUGDS3vSLKMdTfz80=",
+          "asset": "mise-v2026.10.17-macos-arm64.tar.gz",
+          "integrity": "sha256-18UMFoNSSnZCYJhszJxBwN5eH81JFxS1ZAtle3Z4GvY=",
           "binary": "mise/bin/mise"
         },
         "darwin-x64": {
-          "asset": "mise-v2026.10.4-macos-x64.tar.gz",
-          "integrity": "sha256-O/Zc/bVD9paFr9466czQuBm49epdEsZ8c0h78qGxa/Q=",
+          "asset": "mise-v2026.10.17-macos-x64.tar.gz",
+          "integrity": "sha256-5CQYEA4veB+b4Auf6qYDeOd1UXQfrs7MK/NgmSxUEMg=",
           "binary": "mise/bin/mise"
         },
         "linux-arm64": {
-          "asset": "mise-v2026.10.4-linux-arm64.tar.gz",
-          "integrity": "sha256-h2CEHNv5ZOz5kCpQyUcWx3GFqZr3+OtVycUexz7NiIA=",
+          "asset": "mise-v2026.10.17-linux-arm64.tar.gz",
+          "integrity": "sha256-ysUQ5ReTrUXmX+kjBb2+QwnJxgtZB7rbx+uhEXOKsI8=",
           "binary": "mise/bin/mise"
         },
         "linux-x64": {
-          "asset": "mise-v2026.10.4-linux-x64.tar.gz",
-          "integrity": "sha256-L8eTAgtELQgWNgNAAjayxpP4zt6BDH5DL8dyIObJ6KE=",
+          "asset": "mise-v2026.10.17-linux-x64.tar.gz",
+          "integrity": "sha256-F1ZeJoxVQtjOlEMh4Xr4Hgt0G2WvSqfo4BDudzdqSqM=",
           "binary": "mise/bin/mise"
         },
         "linux-arm64-musl": {
-          "asset": "mise-v2026.10.4-linux-arm64-musl.tar.gz",
-          "integrity": "sha256-MkiJXPX2RFWApoh+r31XR2vH06/OPIzyE7fUq5quiog=",
+          "asset": "mise-v2026.10.17-linux-arm64-musl.tar.gz",
+          "integrity": "sha256-dFoaVAHEIJCVOo2kkyQ9XGZv/8LJj5o97jO9ivx3qe4=",
           "binary": "mise/bin/mise"
         },
         "linux-x64-musl": {
-          "asset": "mise-v2026.10.4-linux-x64-musl.tar.gz",
-          "integrity": "sha256-WT1X6qC2wbjTu56qOhwWsIHOoQWZJ2zmm+0q1dvnw2E=",
+          "asset": "mise-v2026.10.17-linux-x64-musl.tar.gz",
+          "integrity": "sha256-VNxfGg3hS933Ck2Cc2A2R8FA7t2LnQg6j3PKE6moL1M=",
           "binary": "mise/bin/mise"
         },
         "win32-x64": {
-          "asset": "mise-v2026.10.4-windows-x64.zip",
-          "integrity": "sha256-rmzPr3PKIlqQLzu7L1u/C+ZNsVYGDrXdxxQG1vye4vk=",
+          "asset": "mise-v2026.10.17-windows-x64.zip",
+          "integrity": "sha256-Mrz9pfcr98sYnhi6k8J5i//LSmeP0ATjEneANj8tjIw=",
           "binary": "mise/bin/mise.exe"
         },
         "win32-arm64": {
-          "asset": "mise-v2026.10.4-windows-arm64.zip",
-          "integrity": "sha256-1orQ7N8weIhx/33SXh6dSTQlpnU8GysTcNQYd4Meo1I=",
+          "asset": "mise-v2026.10.17-windows-arm64.zip",
+          "integrity": "sha256-2fs5b6Kh9Bt8aCdbbg5q9BJsLOE4xhsZuBnVAs+/D0M=",
           "binary": "mise/bin/mise.exe"
         }
       }

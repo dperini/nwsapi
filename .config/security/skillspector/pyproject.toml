@@ -7,8 +7,11 @@ dependencies = ["skillspector"]
 
 [tool.uv]
 exclude-newer = "7d"
+# Allow the eMudhra CA fix early. Remove this exception after 2026-10-27.
+exclude-newer-package = { certifi = "2026-10-21T00:00:00Z" }
 # Retain the security fixes required by the shared scanner lock.
 override-dependencies = [
+  "certifi>=2026.10.19",
   "cryptography>=50.0.0",
   "langsmith>=0.8.18",
   "langgraph-api>=0.10.0",
