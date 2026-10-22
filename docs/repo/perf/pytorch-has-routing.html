@@ -916,7 +916,7 @@
               replaces a negative value with zero. Their weighted outputs
               produce a final score. The saved jsdom model has no hidden layer.
             </p>
-            <pre>
+            <pre data-language="javascript">
 hidden = Math.max(0, bias + weight1 * input1 + …)
 score  = outputBias + outputWeight1 * hidden1 + …
 override = score > savedThreshold</pre>
@@ -1266,7 +1266,7 @@ override = score > savedThreshold</pre>
           </details>
           <details>
             <summary>Use the model or rebuild its module</summary>
-            <pre>
+            <pre data-language="javascript">
 // An `nwsapi` instance created directly for jsdom:
 engine.useRoutePlanner('jsdom')
 const matches = engine.select('.card[data-ok="1"]:has(.warning)', document)
@@ -1279,7 +1279,7 @@ engine.configure({ ROUTE_PLANNER: false })</pre>
               calls stay the same. To rebuild from the committed JavaScript
               exports:
             </p>
-            <pre>
+            <pre data-language="shell">
 pnpm run gen:has-route-decision
 pnpm run build</pre>
             <p>

@@ -21,7 +21,11 @@ export function showSource(id: SourceId) {
   text('source-role', source.role)
   text('source-title', source.title)
   text('source-explanation', source.explanation)
-  code('source-code', source.code)
+  code(
+    'source-code',
+    source.code,
+    source.path.endsWith('.py') ? 'python' : 'typescript',
+  )
   const link = element('source-link') as HTMLAnchorElement
   link.href = `https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/${source.path}`
   link.classList.add('code-source-link')

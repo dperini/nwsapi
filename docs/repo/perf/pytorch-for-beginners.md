@@ -119,9 +119,9 @@ from the owning files, and the timing examples load recorded benchmark inputs.
 The demonstration’s editable timing assumptions remain illustrative and are
 not measurements.
 
-Code panels use the pinned `gpu-lexer` dev dependency for syntax coloring. Its
-separate WebGPU model runs only in the guide. Without WebGPU, the source remains
-readable as plain text.
+Code panels use the pinned `@pierre/highlights` dev dependency for syntax
+coloring. Its WebAssembly lexers run only in the guide and do not require a GPU.
+If highlighting is unavailable, code remains readable as plain text.
 
 ## Maintaining the guide languages and narration
 

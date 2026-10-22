@@ -206,6 +206,9 @@ importers:
       '@opentui/core':
         specifier: 0.6.6
         version: 0.6.6(typescript@5.9.3)(web-tree-sitter@0.25.10)
+      '@pierre/highlights':
+        specifier: 0.2.0
+        version: 0.2.0
       '@playwright/test':
         specifier: 1.64.1
         version: 1.64.1
@@ -281,9 +284,6 @@ importers:
       eslint-plugin-compat:
         specifier: 7.0.2
         version: 7.0.2(eslint@10.10.0(jiti@2.7.0)(supports-color@7.2.0))
-      gpu-lexer:
-        specifier: 0.0.3
-        version: 0.0.3
       istanbul-lib-coverage:
         specifier: 3.2.2
         version: 3.2.2
@@ -1395,6 +1395,9 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [win32]
+
+  '@pierre/highlights@0.2.0':
+    resolution: {integrity: sha512-hTpcOU1EzDAP4bYtEhxmMu2jwMvtkUydRUBUpWMSHTs3dw0IaC3Ld5ansMy18L0GE3b6Vfl2OGkLK+pWWpnBmw==}
 
   '@playwright/test@1.64.1':
     resolution: {integrity: sha512-IaYGml/nSOiZWROfPtuIL7neuu9qDOZ3TNvNljUIrhDMxiGTgPjzj/g9p9RxpS2tSepPDRY+UwAaEeiKtUvIAg==}
@@ -2727,9 +2730,6 @@ packages:
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
     engines: {node: '>= 0.4'}
-
-  gpu-lexer@0.0.3:
-    resolution: {integrity: sha512-uwiRoB6AoWVMlyeo2bKo9w4UaqHMsFMuHXUdOeGj69T4EpxHrj32VVaHEhdRTHCta7ZUVSoLK0H8OJXP3/dq0A==}
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
@@ -4697,6 +4697,8 @@ snapshots:
   '@oxlint/binding-win32-x64-msvc@1.81.0':
     optional: true
 
+  '@pierre/highlights@0.2.0': {}
+
   '@playwright/test@1.64.1':
     dependencies:
       playwright: 1.64.1
@@ -5921,8 +5923,6 @@ snapshots:
       gopd: 1.2.0
 
   gopd@1.2.0: {}
-
-  gpu-lexer@0.0.3: {}
 
   graceful-fs@4.2.11: {}
 

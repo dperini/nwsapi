@@ -41,7 +41,7 @@ catalog:
   'acorn': '8.19.0'
   'ast-v8-to-istanbul': '1.0.7'
   'eslint-plugin-compat': '7.0.2'
-  'gpu-lexer': '0.0.3'
+  '@pierre/highlights': '0.2.0'
   '@guidepup/guidepup': '0.36.4'
   '@guidepup/setup': '0.29.2'
   'istanbul-lib-coverage': '3.2.2'

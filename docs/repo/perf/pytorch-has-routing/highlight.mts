@@ -1,5 +1,5 @@
-import { element, writeUnitText } from './ui.mts'
-import type { parse } from 'gpu-lexer'
+import { element, timeUnits, writeUnitText } from './ui.mts'
+import type { parse } from './highlight-tokens.mts'
 import { highlightSelector } from './selector.mts'
 import { attachCodeCopy } from './code-copy.mts'
 
@@ -7,59 +7,42 @@ let parser: Promise<{ parse: typeof parse }> | undefined
 let queue = Promise.resolve()
 const pending = new WeakMap<HTMLElement, string>()
 const finished = new WeakMap<HTMLElement, string>()
-const observed = new Set<HTMLElement>()
+const observed = new WeakSet<HTMLElement>()
 let unavailable = false
-const kinds = new Set([
-  'plain',
-  'comment',
-  'string',
-  'number',
-  'keyword',
-  'type',
-  'function',
-  'constant',
-  'operator',
-])
 
-function tokenFragment(
-  spans: Awaited<ReturnType<typeof parse>>,
-  source: string,
-) {
+function tokenFragment(spans: ReturnType<typeof parse>, source: string) {
   const fragment = document.createDocumentFragment()
-  let cursor = 0
-  for (let i = 0, length = spans.length; i < length; i += 1) {
-    const span = spans[i]!
-    if (
-      !Number.isSafeInteger(span.start) ||
-      !Number.isSafeInteger(span.end) ||
-      span.start !== cursor ||
-      span.end <= cursor ||
-      span.end > source.length ||
-      !kinds.has(span.type)
-    ) {
-      return undefined
-    }
+  const units = timeUnits(source)
+  for (const span of spans) {
     const token = document.createElement('span')
     token.className = `syntax-${span.type}`
-    writeUnitText(token, source, span.start, span.end)
+    writeUnitText(token, source, span.start, span.end, units)
     fragment.append(token)
-    cursor = span.end
-  }
-  if (cursor !== source.length) {
-    return undefined
   }
   return fragment
 }
 
-async function highlight(node: HTMLElement, source: string) {
+function language(node: HTMLElement) {
+  const codeNode = node.querySelector('code')
+  const classes = codeNode?.classList ?? node.classList
+  const marked = [...classes].find(name => name.startsWith('language-'))
+  return node.dataset['language'] ?? marked?.slice(9) ?? 'plain'
+}
+
+async function highlight(
+  node: HTMLElement,
+  source: string,
+  lang: string,
+  key: string,
+) {
   let timeout: ReturnType<typeof setTimeout> | undefined
   try {
-    if (unavailable) {
+    if (unavailable || pending.get(node) !== key) {
       return
     }
-    parser ??= import('gpu-lexer')
+    parser ??= import('./highlight-tokens.mts')
     const spans = await Promise.race([
-      parser.then(({ parse }) => parse(source)),
+      parser.then(({ parse }) => parse(source, lang)),
       new Promise<never>((_, reject) => {
         timeout = setTimeout(
           () => reject(new Error('Highlighting timed out')),
@@ -67,34 +50,30 @@ async function highlight(node: HTMLElement, source: string) {
         )
       }),
     ])
-    if (node.textContent !== source) {
+    if (node.textContent !== source || pending.get(node) !== key) {
       return
     }
     const fragment = tokenFragment(spans, source)
-    if (!fragment) {
-      return
-    }
     node.replaceChildren(fragment)
-    node.dataset['highlight'] = 'gpu-lexer'
-    finished.set(node, source)
+    node.dataset['highlight'] = 'highlights'
   } catch {
     unavailable = true
-    if (node.textContent === source) {
+    if (node.textContent === source && pending.get(node) === key) {
       node.dataset['highlight'] = 'plain'
     }
   } finally {
     clearTimeout(timeout)
-    if (node.textContent === source) {
+    if (node.textContent === source && pending.get(node) === key) {
       if (node.dataset['highlight'] === 'pending') {
         node.dataset['highlight'] = 'plain'
       }
       if (node.dataset['highlight'] === 'plain') {
         writeUnitText(node, source)
       }
-      finished.set(node, source)
+      finished.set(node, key)
       node.removeAttribute('aria-busy')
     }
-    if (pending.get(node) === source) {
+    if (pending.get(node) === key) {
       pending.delete(node)
     }
   }
@@ -102,17 +81,21 @@ async function highlight(node: HTMLElement, source: string) {
 
 function schedule(node: HTMLElement) {
   const source = node.textContent ?? ''
-  if (
-    !source ||
-    pending.get(node) === source ||
-    finished.get(node) === source
-  ) {
+  const lang = language(node)
+  const key = `${lang}\0${source}`
+  if (!source) {
+    node.dataset['highlight'] = 'plain'
+    node.removeAttribute('aria-busy')
+    pending.delete(node)
     return
   }
-  pending.set(node, source)
+  if (pending.get(node) === key || finished.get(node) === key) {
+    return
+  }
+  pending.set(node, key)
   node.dataset['highlight'] = 'pending'
   node.setAttribute('aria-busy', 'true')
-  queue = queue.then(() => highlight(node, source))
+  queue = queue.then(() => highlight(node, source, lang, key))
 }
 
 const observer = new IntersectionObserver(entries => {
@@ -124,6 +107,7 @@ const observer = new IntersectionObserver(entries => {
 })
 
 function observe(node: HTMLElement) {
+  node.dataset['language'] = language(node)
   attachCodeCopy(node)
   node.tabIndex = 0
   if (!observed.has(node)) {
@@ -133,17 +117,21 @@ function observe(node: HTMLElement) {
     observer.observe(node)
   }
   const box = node.getBoundingClientRect()
-  if (box.height > 0 && box.top < innerHeight && box.bottom > 0) {
+  if (
+    !node.textContent ||
+    (box.height > 0 && box.top < innerHeight && box.bottom > 0)
+  ) {
     schedule(node)
   }
 }
 
-export function code(id: string, source: string) {
+export function code(id: string, source: string, lang = 'javascript') {
   const node = element(id)
-  if (node.textContent === source) {
+  if (node.textContent === source && node.dataset['language'] === lang) {
     observe(node)
     return
   }
+  node.dataset['language'] = lang
   const height = node.getBoundingClientRect().height
   if (height > 0) {
     node.style.minHeight = `${height}px`
@@ -151,6 +139,7 @@ export function code(id: string, source: string) {
   node.dataset['highlight'] = 'pending'
   node.setAttribute('aria-busy', 'true')
   finished.delete(node)
+  pending.delete(node)
   node.textContent = source
   observe(node)
 }

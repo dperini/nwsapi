@@ -10,13 +10,17 @@ export function text(id: string, value: string) {
   writeUnitText(element(id), value)
 }
 
+export function timeUnits(source: string) {
+  return Array.from(source.matchAll(/(?<=\d)(?:µs|ns)\b/g))
+}
+
 export function writeUnitText(
   node: HTMLElement,
   source: string,
   start = 0,
   end = source.length,
+  units = timeUnits(source),
 ) {
-  const units = Array.from(source.matchAll(/(?<=\d)(?:µs|ns)\b/g))
   if (!units.length) {
     node.textContent = source.slice(start, end)
     return
