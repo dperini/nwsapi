@@ -72,7 +72,14 @@ export function compile(
 
   guardAncestors()
 
-  loop += mode || mode === null ? '{' + source + '}' : source
+  if (mode === false) {
+    loop += source
+    if (!callback) {
+      loop = 'matched:{' + loop + '}'
+    }
+  } else {
+    loop += '{' + source + '}'
+  }
 
   // Drop the summaries with the call that built them. They key on
   // elements, so holding them past the call would keep a removed subtree
@@ -138,7 +145,9 @@ export function compile(
             return
           }
         }
-        macro = engine.M_BODY + (callback ? engine.M_TEST : '') + engine.M_TAIL
+        macro =
+          engine.M_BODY +
+          (callback ? engine.M_TEST + engine.M_TAIL : 'r=true;break matched;')
         head = engine.M_HEAD
         loop = engine.M_LOOP
         break
