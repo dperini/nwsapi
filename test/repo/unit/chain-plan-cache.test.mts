@@ -7,7 +7,7 @@ import { createCache } from '../../../src/core/cache/plan.mts'
 import {
   parseChain,
   parseSiblingChain,
-} from '../../../src/core/select/chain.mts'
+} from '../../../src/core/select/chain/chain.mts'
 import type { EngineState } from '../../../src/core/state/types.mts'
 import factory from '../../../dist/nwsapi.js'
 import { registerLegacyInContext } from '../common/legacy.mts'

@@ -5,7 +5,7 @@ import {
   appendSnapshotLevel,
   appendTaggedLevel,
   fetchLevel,
-} from '../../../../../src/core/select/chain.mts'
+} from '../../../../../src/core/select/chain/chain.mts'
 import { MIN_COLLECTION_SNAPSHOT_LENGTH } from '../../../../../src/core/collection/snapshot/skip.mts'
 import type { EngineState } from '../../../../../src/core/state/types.mts'
 

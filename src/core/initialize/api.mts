@@ -22,7 +22,7 @@ import {
   parseChain,
   parseSiblingChain,
   siblingChain,
-} from '../select/chain.mts'
+} from '../select/chain/chain.mts'
 import { optimize } from '../compile/optimize.mts'
 import { select } from '../select/all.mts'
 import { first, firstCompiled, selectChildren } from '../first/select.mts'

@@ -5,7 +5,7 @@ import type {
   QueryPlan,
 } from '../state/types.mts'
 import { selectCandidates } from './candidates.mts'
-import { selectChainRoutes } from './chain-routes.mts'
+import { selectChainRoutes } from './chain/routes.mts'
 import { groupSelectors } from './group.mts'
 import { prepareBulkHas, selectBulkHas } from './has/match.mts'
 import { selectScopedTypeUnion, splitUnionTypes } from './scoped-union.mts'

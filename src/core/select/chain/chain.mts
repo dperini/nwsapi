@@ -1,5 +1,5 @@
-import type { EngineState, EngineContext } from '../state/types.mts'
-import { MIN_COLLECTION_SNAPSHOT_LENGTH } from '../collection/snapshot/skip.mts'
+import type { EngineState, EngineContext } from '../../state/types.mts'
+import { MIN_COLLECTION_SNAPSHOT_LENGTH } from '../../collection/snapshot/skip.mts'
 
 export function fetchLevel(
   engine: EngineState,

@@ -3,7 +3,7 @@ import type {
   ElementCallback,
   EngineContext,
   PlanCache,
-} from '../state/types.mts'
+} from '../../state/types.mts'
 import { siblingChildChain } from './chain.mts'
 
 export function selectChainRoutes(
