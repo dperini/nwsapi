@@ -86,3 +86,40 @@ test('sibling-chain fast path declines pseudo, attribute, escaped, and callback 
   assert.deepEqual(Array.from(results), Array.from(document.querySelectorAll('.start ~ .middle ~ .end')))
   assert.deepEqual(visited, Array.from(results))
 })
+
+test('a shared parent can reject a sibling chain before walking its children', t => {
+  const { window, document, engine } = fixture(t)
+  const parent = document.querySelector('main')
+  for (let i = 0; i < 256; ++i) {
+    const item = document.createElement('i')
+    item.className = 'item'
+    parent.append(item)
+  }
+  for (let i = 0; i < 256; ++i) {
+    const target = document.createElement('b')
+    target.className = 'target'
+    parent.append(target)
+  }
+  const selector = 'section.root > .item ~ .target'
+  const expected = Array.from(document.querySelectorAll(selector))
+  const elementPrototype = window.Element.prototype
+  const next = Object.getOwnPropertyDescriptor(elementPrototype, 'nextElementSibling')
+  const previous = Object.getOwnPropertyDescriptor(elementPrototype, 'previousElementSibling')
+  let nextReads = 0
+  let previousReads = 0
+  Object.defineProperty(elementPrototype, 'nextElementSibling', {
+    configurable: true,
+    get() { nextReads++; return next.get.call(this) },
+  })
+  Object.defineProperty(elementPrototype, 'previousElementSibling', {
+    configurable: true,
+    get() { previousReads++; return previous.get.call(this) },
+  })
+  t.after(() => {
+    Object.defineProperty(elementPrototype, 'nextElementSibling', next)
+    Object.defineProperty(elementPrototype, 'previousElementSibling', previous)
+  })
+  assert.deepEqual(Array.from(engine.select(selector, document)), expected)
+  assert.equal(nextReads, 0)
+  assert.equal(previousReads, 0)
+})

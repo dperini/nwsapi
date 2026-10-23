@@ -3253,11 +3253,23 @@
       return chain;
     },
 
+  parseSiblingChildChain =
+    function(selector) {
+      var child = selector.indexOf('>'), sibling, parent, match, chain;
+      if (child < 0 || selector.indexOf('~', child) < 0) return null;
+      parent = selector.slice(0, child).replace(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/g, '');
+      sibling = selector.slice(child + 1).replace(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/g, '');
+      match = /^(\*|[-_a-zA-Z][-_a-zA-Z0-9]*)?(?:\.([-_a-zA-Z][-_a-zA-Z0-9]*))?$/.exec(parent);
+      if (!match || (!match[1] && !match[2])) return null;
+      chain = parseSiblingChain(sibling);
+      return chain ? { parent: { tag: match[1], cls: match[2] }, chain: chain } : null;
+    },
+
   // For simple general-sibling chains, candidates are ordered by parent.
   // Scanning each distinct parent once avoids repeating the left-side walk
   // for every later matching sibling.
   siblingChain =
-    function(chain, context) {
+    function(chain, context, requiredParent) {
       var last = chain.length - 1,
         part = chain[last],
         candidates, parents, results = [], parent, child, matched, i, l;
@@ -3270,6 +3282,7 @@
         parent = candidates[i].parentElement;
         if (!parent || parents.has(parent)) continue;
         parents.add(parent);
+        if (requiredParent && !matchesSiblingPart(parent, requiredParent)) continue;
         matched = 0;
         child = parent.firstElementChild;
         while (child) {
@@ -3304,17 +3317,23 @@
       arguments.length == 0 && emit(qsNotArgs, TypeError);
       context || (context = doc);
       var previous = enterContext(context), nodes = [], resolver, parsed,
-        i, plan, plans, siblingNodes;
+        i, plan, plans, siblingNodes, siblingChild;
       try {
         resolver = selectResolvers.get(selectors);
         if (!resolver) {
           parsed = parse(selectors, true);
           resolver = collect(parsed || []);
           resolver.chain = parsed && parsed.length == 1 ? parseSiblingChain(parsed[0]) : null;
+          resolver.siblingChild = parsed && parsed.length == 1 ? parseSiblingChildChain(parsed[0]) : null;
           selectResolvers.set(selectors, resolver);
         }
         if (!callback && resolver.chain && HTML_DOCUMENT && !QUIRKS_MODE && context.nodeType == 9) {
           siblingNodes = siblingChain(resolver.chain, context);
+          if (siblingNodes !== null) { nodes = siblingNodes; }
+        }
+        if (!callback && resolver.siblingChild && !siblingNodes && HTML_DOCUMENT && !QUIRKS_MODE && context.nodeType == 9) {
+          siblingChild = resolver.siblingChild;
+          siblingNodes = siblingChain(siblingChild.chain, context, siblingChild.parent);
           if (siblingNodes !== null) { nodes = siblingNodes; }
         }
         if (siblingNodes === undefined || siblingNodes === null) {
