@@ -239,6 +239,51 @@ export function parseSiblingChain(engine: EngineState, selectors: string) {
   return cacheChain(engine, key, out)
 }
 
+export function siblingChildChain(
+  engine: EngineState,
+  selectors: string,
+  context: EngineContext,
+) {
+  if (
+    engine.Config.LEGACY ||
+    !engine.HTML_DOCUMENT ||
+    engine.QUIRKS_MODE ||
+    context.nodeType != 9 ||
+    !context.getElementsByClassName ||
+    !context.getElementsByTagName
+  ) {
+    return null
+  }
+
+  const child = selectors.indexOf('>')
+  if (child < 0 || selectors.indexOf('~', child) < 0) {
+    return null
+  }
+  const parentSelector = trimSelectorWhitespace(selectors.slice(0, child))
+  const siblingSelector = trimSelectorWhitespace(selectors.slice(child + 1))
+  const parentMatch = engine.reChainPart.exec(parentSelector)
+  if (
+    !parentMatch ||
+    (!parentMatch[1] && !parentMatch[2]) ||
+    !engine.reSiblingChain.test(siblingSelector)
+  ) {
+    return null
+  }
+  const chain = engine.parseSiblingChain(siblingSelector)
+  if (!chain || engine.hasForeignTypes(context)) {
+    return null
+  }
+
+  return siblingChain(engine, chain, context, {
+    tag: parentMatch[1],
+    cls: parentMatch[2],
+  })
+}
+
+function trimSelectorWhitespace(selector: string) {
+  return selector.replace(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/g, '')
+}
+
 function cacheChain(
   engine: EngineState,
   key: string,
@@ -280,6 +325,7 @@ export function siblingChain(
   engine: EngineState,
   chain: Array<{ cls: string | undefined; tag: string | undefined }>,
   context: EngineContext,
+  requiredParent?: { cls: string | undefined; tag: string | undefined },
 ) {
   var i: number,
     l: number,
@@ -329,7 +375,7 @@ export function siblingChain(
     if (parent) {
       markSeen(seen, parent)
       lastWalked = parent
-      scanParent(engine, chain, parent, results)
+      scanParentForRequiredPart(engine, chain, parent, results, requiredParent)
     }
   }
 
@@ -340,6 +386,21 @@ export function siblingChain(
   }
 
   return results
+}
+
+function scanParentForRequiredPart(
+  engine: EngineState,
+  chain: Array<{ cls: string | undefined; tag: string | undefined }>,
+  parent: Element,
+  results: Element[],
+  requiredParent:
+    | { cls: string | undefined; tag: string | undefined }
+    | undefined,
+) {
+  if (requiredParent && !matchesPart(engine, parent, requiredParent)) {
+    return
+  }
+  scanParent(engine, chain, parent, results)
 }
 
 function scanParent(

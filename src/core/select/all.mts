@@ -2,10 +2,10 @@ import type {
   EngineState,
   ElementCallback,
   EngineContext,
-  PlanCache,
   QueryPlan,
 } from '../state/types.mts'
 import { selectCandidates } from './candidates.mts'
+import { selectChainRoutes } from './chain-routes.mts'
 import { groupSelectors } from './group.mts'
 import { prepareBulkHas, selectBulkHas } from './has/match.mts'
 import { selectScopedTypeUnion, splitUnionTypes } from './scoped-union.mts'
@@ -74,7 +74,6 @@ export function selectByDescent(
   context: EngineContext,
   callback: ElementCallback,
 ) {
-  let descended
   const direct = selectDirectRoute(engine, selectors, context, callback)
   if (direct) {
     return direct
@@ -83,45 +82,7 @@ export function selectByDescent(
   if (typeUnion) {
     return typeUnion
   }
-  // A plain descendant chain of tags is answered by descending, when the
-  // shape of the document makes that the cheaper direction, and a chain
-  // of simple parts joined by general siblings is answered by one pass
-  // over each candidate parent. No callback: the ordinary path is what
-  // applies one, and both routes return the answer rather than a
-  // candidate list.
-  if (
-    callback === undefined &&
-    selectors &&
-    typeof selectors == 'string' &&
-    !engine.Config.LEGACY &&
-    engine.HTML_DOCUMENT &&
-    context.nodeType == 9 &&
-    hasChainRoute(engine, selectors) &&
-    !engine.hasForeignTypes(context)
-  ) {
-    descended =
-      chainByParts(selectors, context, {
-        declined: engine.descentDeclined,
-        grammar: engine.reTagChain,
-        parse: engine.parseChain,
-        answer: engine.descendChain,
-      }) ||
-      chainByParts(selectors, context, {
-        declined: engine.siblingDeclined,
-        grammar: engine.reSiblingChain,
-        parse: engine.parseSiblingChain,
-        answer: engine.siblingChain,
-      })
-    if (descended) {
-      return !engine.Config.NODE_LIST
-        ? descended
-        : engine.isInstanceOf(descended)
-          ? descended
-          : engine.toNodeList(descended)
-    }
-  }
-
-  return undefined
+  return selectChainRoutes(engine, selectors, context, callback)
 }
 
 export function selectClassDescendantTypeUnion(
@@ -344,38 +305,6 @@ export function selectTypeUnionBranches(
   return results
 }
 
-function chainByParts(
-  selectors: string,
-  context: EngineContext,
-  chain: {
-    declined: PlanCache<unknown>
-    grammar: RegExp
-    parse: (
-      selectors: string,
-    ) => Array<{ tag: string | undefined; cls: string | undefined }> | null
-    answer: (
-      parts: Array<{ cls: string | undefined; tag: string | undefined }>,
-      context: EngineContext,
-    ) => Element[] | null
-  },
-) {
-  let descended
-  if (
-    chain.declined.get(selectors) === undefined &&
-    chain.grammar.test(selectors) &&
-    (descended = chain.parse(selectors))
-  ) {
-    descended = chain.answer(descended, context)
-    if (descended) {
-      return descended
-    }
-    // A declined answer is a decision about document shape, which the
-    // selector remembers the way the descendant route does.
-    chain.declined.set(selectors, true)
-  }
-  return undefined
-}
-
 export function selectDirectChildren(
   engine: EngineState,
   selectors: string,
@@ -400,12 +329,6 @@ export function selectDirectChildren(
   }
 
   return undefined
-}
-
-function hasChainRoute(engine: EngineState, selectors: string) {
-  return (
-    engine.reTagChain.test(selectors) || engine.reSiblingChain.test(selectors)
-  )
 }
 
 function runCachedResolvers(
