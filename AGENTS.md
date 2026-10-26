@@ -36,6 +36,8 @@
 - Use `.claude/skills/ui-usability/SKILL.md` for docs and web UI usability work, and `.claude/skills/developer-flow-usability/SKILL.md` for setup, CLI, and terminal workflow reviews. Follow the [shared usability guide](docs/fleet/design/usability.md).
 - Preserve stable controls, focus, and content geometry. Keep essential outcomes available independently of brief visual cues. Report observed evidence separately from assumptions and unverified checks.
 - Keep shared instructions about observable product needs. Do not put personal context in implementation, skills, or public reports.
+- Use `.claude/skills/rust-engineering/SKILL.md` for Rust source, Cargo
+  manifests, APIs, and unsafe or FFI changes.
 - Author skills under `.claude/skills/`. Run `pnpm run setup:agents` to refresh ignored Claude and Codex/OpenCode aliases. Keep captures, logs, and downloads in `.cache/`. See [agent guidance](docs/repo/development/agent-guidance.md).
 
 # Style

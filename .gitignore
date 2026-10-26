@@ -129,6 +129,7 @@ yarn.lock
 # Authored shared guidance. Generated aliases and local agent state stay ignored.
 !/.claude/skills/ui-usability/SKILL.md
 !/.claude/skills/developer-flow-usability/SKILL.md
+!/.claude/skills/rust-engineering/SKILL.md
 /CLAUDE.md
 /.agents/
 /.codex/
