@@ -1,7 +1,7 @@
 import type { CompileState } from './state.mts'
 import { compileToken } from './token.mts'
 import { compileMixed } from './mixed.mts'
-import { compileSiblingPrefix } from './sibling-prefix.mts'
+import { compileSiblingPrefix } from './sibling/prefix.mts'
 import { orderGuards } from './guards.mts'
 import type {
   EngineState,

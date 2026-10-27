@@ -1,6 +1,6 @@
-import { parsePure, pureCompiler } from './pure.mts'
-import { nextCompileIdentifier } from './state.mts'
-import type { CompileState } from './state.mts'
+import { parsePure, pureCompiler } from '../pure.mts'
+import { nextCompileIdentifier } from '../state.mts'
+import type { CompileState } from '../state.mts'
 
 export function compileSiblingPrefix(state: CompileState): string | null {
   if (

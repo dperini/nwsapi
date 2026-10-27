@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'vitest'
 import { JSDOM } from 'jsdom'
-import factory from '../../../../../dist/nwsapi.js'
+import factory from '../../../../../../dist/nwsapi.js'
 
 test('sibling-prefix selection agrees with native selection across contexts', t => {
   for (const markup of [

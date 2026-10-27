@@ -1,5 +1,5 @@
-import { nextCompileIdentifier } from './state.mts'
-import type { CompileState } from './state.mts'
+import { nextCompileIdentifier } from '../state.mts'
+import type { CompileState } from '../state.mts'
 
 export function compileSibling(
   state: CompileState,
