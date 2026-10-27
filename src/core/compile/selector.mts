@@ -1,6 +1,7 @@
 import type { CompileState } from './state.mts'
 import { compileToken } from './token.mts'
 import { compileMixed } from './mixed.mts'
+import { compileSiblingPrefix } from './sibling-prefix.mts'
 import { orderGuards } from './guards.mts'
 import type {
   EngineState,
@@ -46,6 +47,10 @@ export function compileSelector(
   const mixed = compileMixed(state)
   if (mixed !== null) {
     return mixed
+  }
+  const siblingPrefix = compileSiblingPrefix(state)
+  if (siblingPrefix !== null) {
+    return siblingPrefix
   }
   if (state.ancestry.reuse && !state.engine.canReuseAncestor(state.selector)) {
     state.ancestry.reuse = ''
