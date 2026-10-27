@@ -26,8 +26,16 @@ export function compileSiblingPrefix(state: CompileState): string | null {
     false,
     false,
   )
+  const get = prefix + 'Get'
+  const set = prefix + 'Set'
   // Backfill visited siblings because each shares the same inclusive-prefix result.
   const helper =
+    'function ' +
+    get +
+    '(map,node){var i;if(map.get){return map.get(node);}for(i=map.length-2;i>=0;i-=2){if(map[i]===node){return map[i+1];}}}' +
+    'function ' +
+    set +
+    '(map,node,value){if(map.set){map.set(node,value);}else{map.push(node,value);}}' +
     'function ' +
     prefix +
     'Test(e){var n,o,r=false;' +
@@ -36,19 +44,25 @@ export function compileSiblingPrefix(state: CompileState): string | null {
     'function ' +
     prefix +
     '(node,map){var current=node,visited,result=false,cached;' +
-    'if(!current){return false;}cached=map.get(current);' +
+    'if(!current){return false;}cached=' +
+    get +
+    '(map,current);' +
     'if(cached!==undefined){return cached;}if(' +
     prefix +
     'Test(current)){return true;}visited=[current];' +
-    'current=current.previousElementSibling;while(current){cached=map.get(current);' +
+    'current=current.previousElementSibling;while(current){cached=' +
+    get +
+    '(map,current);' +
     'if(cached!==undefined){result=cached;break;}visited.push(current);if(' +
     prefix +
     'Test(current)){result=true;break;}current=current.previousElementSibling;}' +
-    'for(var i=0;i<visited.length;i++){map.set(visited[i],result);}return result;}'
+    'for(var i=0;i<visited.length;i++){' +
+    set +
+    '(map,visited[i],result);}return result;}'
   ;(state.compiler.prelude || (state.compiler.prelude = [])).push(helper)
   // Resolver-local state lets a later query observe sibling moves and mutations.
   ;(state.compiler.variables || (state.compiler.variables = [])).push(
-    memo + '=s.createWeakMap()',
+    memo + '=(s.createWeakMap()||[])',
   )
 
   const source =

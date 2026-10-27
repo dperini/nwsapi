@@ -156,3 +156,30 @@ test('sibling-prefix selection bounds previous-sibling reads on wide lists', t =
     Object.defineProperty(prototype, 'previousElementSibling', descriptor)
   }
 })
+
+test('sibling-prefix selection falls back when WeakMap is unavailable', t => {
+  const { window } = new JSDOM(
+    '<main><i data-a></i>' + '<b class="b"></b>'.repeat(32) + '</main>',
+  )
+  t.onTestFinished(() => window.close())
+  const document = window.document
+  const root = document.querySelector('main')!
+  const engine = factory(window)
+
+  const candidates = [...root.querySelectorAll('.b')]
+  const resolver = engine.compile('[data-a] ~ .b', true, false)!
+  const primordials = (
+    factory as unknown as {
+      _primordials: { WeakMapCtor: WeakMapConstructor | undefined }
+    }
+  )._primordials
+  const WeakMapCtor = primordials.WeakMapCtor
+  primordials.WeakMapCtor = undefined
+  try {
+    assert.deepEqual(resolver(candidates, null, document, []), [
+      ...root.querySelectorAll('[data-a] ~ .b'),
+    ])
+  } finally {
+    primordials.WeakMapCtor = WeakMapCtor
+  }
+})
