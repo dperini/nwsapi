@@ -1763,7 +1763,7 @@
     },
 
   compileSimple =
-    function(info, source, callback, seed) {
+    function(info, source, callback, seed, mode) {
       if (!info.pure || info.leading) { return null; }
       var parts = info.compounds, relation = info.relations[0], i, step, code,
         state = { next: 0, vars: [] }, facts = Object.create(null);
@@ -1782,6 +1782,29 @@
       code = condition == 'true' ? '' : 'if(' + condition + '){';
       if (parts.length > 1) {
         step = relation == ' ' ? 'parentElement' : 'previousElementSibling';
+        if (mode === true && relation == '~' && parts.length == 2 && !callback) {
+          var prefix = 'sp' + compilation.prelude.length + '_',
+            memo = prefix + 'Memo', leftState = { next: 0, vars: [] },
+            leftCondition = compoundExpression(parts[0].simple, leftState),
+            test = 'function ' + prefix + 'Test(e){' +
+              (leftState.vars.length ? 'var ' + leftState.vars.join(',') + ';' : '') +
+              'return ' + leftCondition + ';}',
+            cache = 'function ' + prefix + 'Get(m,e){var i;if(m.get)return m.get(e);' +
+              'for(i=m.length-2;i>=0;i-=2){if(m[i]===e)return m[i+1];}}' +
+              'function ' + prefix + 'Set(m,e,v){if(m.set)m.set(e,v);else m.push(e,v);}',
+            scan = 'function ' + prefix + '(node,m){var e=node,seen,v=false,x;' +
+              'if(!e)return false;x=' + prefix + 'Get(m,e);if(x!==undefined)return x;' +
+              'if(' + prefix + 'Test(e))return true;seen=[e];e=e.previousElementSibling;' +
+              'while(e){x=' + prefix + 'Get(m,e);if(x!==undefined){v=x;break;}' +
+              'seen.push(e);if(' + prefix + 'Test(e)){v=true;break;}' +
+              'e=e.previousElementSibling;}for(var i=0;i<seen.length;i++)' +
+              prefix + 'Set(m,seen[i],v);return v;}';
+          compilation.prelude.push(test + cache + scan);
+          S_VARS.push(memo + "=(typeof WeakMap==='function'?new WeakMap():[])");
+          code += 'if(' + prefix + '(e.previousElementSibling,' + memo + ')){' + source + '}';
+          return (state.vars.length ? 'var ' + state.vars.join(',') + ';' : '') +
+            code + (condition == 'true' ? '' : '}');
+        }
         code += 'chain:{';
         for (i = parts.length - 2; i >= 0; --i) {
           code += 'e=e.' + step + ';while(e&&!(' + compoundExpression(parts[i].simple, state) + ')){e=e.' + step + ';}if(!e)break chain;';
@@ -1995,7 +2018,8 @@
       var a, b, n, f, k = 0, compat, name,
       NS, expr, match, result, status, symbol,
       test, type, selector = expression, vars, guards = [[], [], []],
-      simple = compileSimple(selectorInfo(expression), source, callback, seed);
+      simple = compileSimple(selectorInfo(expression), source, callback, seed,
+        mode === 3 ? true : mode);
 
       if (simple !== null) { return simple; }
 
