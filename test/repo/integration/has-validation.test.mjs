@@ -25,6 +25,22 @@ function fixture(t) {
   return { window, document: window.document, engine }
 }
 
+test('has handles hyphenated component class names', t => {
+  const { document, engine } = fixture(t)
+  const parent = document.getElementById('parent')
+  parent.innerHTML =
+    '<span class="css-jbz0k-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"></span>' +
+    '<i class="MuiInputAdornment-root"></i>'
+
+  assert.equal(
+    engine.select(
+      '#parent:has(> .css-jbz0k-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input ~ .MuiInputAdornment-root)',
+      document,
+    )[0],
+    parent,
+  )
+})
+
 for (const selector of [
   ':has()',
   ':has(123)',

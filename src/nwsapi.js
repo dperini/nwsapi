@@ -1271,7 +1271,7 @@
 
       // can start with single/double dash
       // but it can not start with a digit
-      identifier = '(?:-|--|' + unicode + '[' + HSP + ']' +
+      identifier = '(?:' + unicode + '[' + HSP + ']' +
                     '?|\\\\[^' + VSP + ']|' + noascii + '|[\\w-])+',
 
       pseudonames = '[-\\w]+',
