@@ -8,6 +8,18 @@ import {
 } from './fixture/selector.mts'
 import './selector-reference.cases.mts'
 
+test('MUI style hyphenated classes match within :has()', () => {
+  const { document, NW } = build(
+    '<div id="parent"><span class="css-jbz0k-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"></span><i class="MuiInputAdornment-root"></i></div>',
+  )
+  expect(
+    NW.select(
+      '#parent:has(> .css-jbz0k-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input ~ .MuiInputAdornment-root)',
+      document,
+    ),
+  ).toHaveLength(1)
+})
+
 describe('state pseudo-classes under a host that delegates to nwsapi', () => {
   for (const pseudo of STATE_PSEUDOS) {
     test(`${pseudo} does not re-enter the engine`, () => {
