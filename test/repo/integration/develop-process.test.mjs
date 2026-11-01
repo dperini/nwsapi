@@ -74,7 +74,7 @@ test(
     const { spawn } = require('node:child_process');
     console.error('PARENT_READY:' + process.pid);
     const child = spawn(process.execPath, ['-e',
-      "process.on('SIGTERM', () => {}); console.log(process.pid); setInterval(() => {}, 1000)"
+      "process.on('SIGTERM', () => {}); console.log(String(process.pid)); setInterval(() => {}, 1000)"
     ], { stdio: ['ignore', 'pipe', 'inherit'] });
     child.stdout.on('data', data => console.error('READY:' + data.toString().trim()));
     setInterval(() => {}, 1000);
@@ -87,6 +87,7 @@ test(
         env: {
           ...process.env,
           PATH: `${TOOL_BIN}${path.delimiter}${process.env.PATH}`,
+          FORCE_COLOR: '1',
         },
         stdio: ['ignore', 'pipe', 'pipe'],
       },
