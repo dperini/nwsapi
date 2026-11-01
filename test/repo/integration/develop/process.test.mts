@@ -50,7 +50,7 @@ test.skipIf(process.platform === 'win32')(
     const source = `
     const { spawn } = require('node:child_process');
     const child = spawn(process.execPath, ['-e',
-      "process.on('SIGTERM', () => {}); console.log(process.pid); setInterval(() => {}, 1000)"
+      "process.on('SIGTERM', () => {}); console.log(String(process.pid)); setInterval(() => {}, 1000)"
     ], { stdio: ['ignore', 'pipe', 'inherit'] });
     child.stdout.on('data', data => console.error('READY:' + data.toString().trim()));
     setInterval(() => {}, 1000);
@@ -61,10 +61,12 @@ test.skipIf(process.platform === 'win32')(
       {
         cwd: REPO_ROOT,
         stdio: ['ignore', 'pipe', 'pipe'],
+        env: { ...process.env, FORCE_COLOR: '1' },
       },
     )
     let output = ''
     let grandchild: number | undefined
+    let stderr = ''
     parent.stdout.on('data', chunk => {
       output += chunk
     })
@@ -72,14 +74,15 @@ test.skipIf(process.platform === 'win32')(
     const timer = setTimeout(() => parent.kill('SIGTERM'), 4000)
     try {
       for await (const chunk of parent.stderr) {
-        const match = /READY:(\d+)/.exec(String(chunk))
+        stderr += String(chunk)
+        const match = /READY:(\d+)/.exec(stderr)
         if (match) {
           grandchild = Number(match[1])
           parent.kill('SIGTERM')
         }
       }
       await closed
-      expect(grandchild).toBeDefined()
+      expect(grandchild, stderr).toBeDefined()
       expect(JSON.parse(output).signal).toBe('SIGTERM')
       await expect
         .poll(() => {
