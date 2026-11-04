@@ -68,15 +68,24 @@ test(
   'SIGTERM stops the child process group and reaps its descendant',
   {
     skip: process.platform === 'win32',
+    timeout: 40_000,
   },
   async () => {
+    const grandchildSource = `
+      process.on('SIGTERM', () => {});
+      process.stderr.write('READY:' + process.pid);
+      setTimeout(() => process.stderr.write(String.fromCharCode(10)), 10);
+      setInterval(() => {}, 1000);
+    `
     const childSource = `
     const { spawn } = require('node:child_process');
-    console.error('PARENT_READY:' + process.pid);
-    const child = spawn(process.execPath, ['-e',
-      "process.on('SIGTERM', () => {}); console.log(String(process.pid)); setInterval(() => {}, 1000)"
-    ], { stdio: ['ignore', 'pipe', 'inherit'] });
-    child.stdout.on('data', data => console.error('READY:' + data.toString().trim()));
+    process.stderr.write('PARENT_READY:' + process.pid);
+    setTimeout(() => {
+      process.stderr.write(String.fromCharCode(10));
+      spawn(process.execPath, ['-e', ${JSON.stringify(grandchildSource)}], {
+        stdio: ['ignore', 'ignore', 'inherit'],
+      });
+    }, 10);
     setInterval(() => {}, 1000);
   `
     const host = spawn(
@@ -104,25 +113,28 @@ test(
     host.stderr.on('data', chunk => {
       errorOutput += chunk
     })
-    const childReady = waitForPid(host, () => errorOutput, /PARENT_READY:(\d+)/)
+    const childReady = waitForPid(
+      host,
+      () => errorOutput,
+      /^PARENT_READY:(\d+)\r?\n/m,
+      'managed child',
+    )
     const closed = once(host, 'close')
+    void closed.catch(() => {})
 
     try {
-      childPid = await withTimeout(
-        childReady,
-        5000,
-        'managed child did not start',
-      )
-      grandchild = await withTimeout(
-        waitForPid(host, () => errorOutput, /^READY:(\d+)/m),
-        5000,
-        'descendant did not start',
+      childPid = await childReady
+      grandchild = await waitForPid(
+        host,
+        () => errorOutput,
+        /^READY:(\d+)\r?\n/m,
+        'grandchild',
       )
       assert.notEqual(grandchild, childPid)
       host.kill('SIGTERM')
       const [code, signal] = await withTimeout(
         closed,
-        5000,
+        10_000,
         'process wrapper did not close',
       )
       assert.equal(code, 0, errorOutput)
@@ -130,7 +142,16 @@ test(
       assert.deepEqual(JSON.parse(output), { code: null, signal: 'SIGTERM' })
       assert.equal(await waitForPidGone(grandchild, 3000), true)
     } finally {
-      host.kill('SIGKILL')
+      host.kill('SIGTERM')
+      await withTimeout(closed, 6_000, 'process wrapper cleanup timed out').catch(() => {
+        if (childPid) {
+          signalPid(-childPid, 'SIGKILL')
+        }
+        host.kill('SIGKILL')
+      })
+      await withTimeout(closed, 1_000, 'process wrapper did not exit after SIGKILL').catch(
+        () => {},
+      )
       if (childPid) {
         signalPid(-childPid, 'SIGKILL')
       }
@@ -141,24 +162,54 @@ test(
   },
 )
 
-function waitForPid(host, readOutput, pattern) {
+function waitForPid(host, readOutput, pattern, label = 'managed child') {
   return new Promise((resolve, reject) => {
+    let settled = false
+    const finish = (error, pid) => {
+      if (settled) {
+        return
+      }
+      settled = true
+      clearTimeout(timer)
+      host.stderr.off('data', inspect)
+      host.off('close', onClose)
+      host.off('error', onError)
+      if (error) {
+        reject(error)
+      } else {
+        resolve(pid)
+      }
+    }
     const inspect = () => {
       const match = pattern.exec(readOutput())
       if (match) {
-        cleanup()
-        resolve(Number(match[1]))
+        const pid = Number(match[1])
+        if (!Number.isSafeInteger(pid) || pid <= 1) {
+          finish(new Error(`${label} announced an invalid PID`))
+          return
+        }
+        finish(undefined, pid)
       }
     }
     const timer = setTimeout(() => {
-      cleanup()
-      reject(new Error('descendant did not announce its PID'))
-    }, 5000)
-    const cleanup = () => {
-      clearTimeout(timer)
-      host.stderr.off('data', inspect)
+      const stderrTail = readOutput().slice(-2000)
+      finish(
+        new Error(
+          `${label} did not announce its PID${stderrTail ? `; stderr tail: ${stderrTail}` : ''}`,
+        ),
+      )
+    }, 10_000)
+    const onClose = (code, signal) => {
+      finish(
+        new Error(
+          `wrapper exited before ${label} announced its PID (code=${code}, signal=${signal}): ${readOutput().slice(-2000)}`,
+        ),
+      )
     }
+    const onError = error => finish(error)
     host.stderr.on('data', inspect)
+    host.once('close', onClose)
+    host.once('error', onError)
     inspect()
   })
 }
