@@ -246,7 +246,15 @@ async function waitForPidGone(pid, milliseconds) {
         return true
       }
       if (error.code === 'ENOENT' && process.platform === 'linux') {
-        return true
+        try {
+          process.kill(pid, 0)
+          return false
+        } catch (retryError) {
+          if (retryError.code === 'ESRCH') {
+            return true
+          }
+          throw retryError
+        }
       }
       throw error
     }
