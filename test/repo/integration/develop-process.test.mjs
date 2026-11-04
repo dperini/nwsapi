@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { spawn, spawnSync } from 'node:child_process'
 import { once } from 'node:events'
+import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 import { TASKS } from '../../../scripts/develop/actions.mts'
 import { taskResult } from '../../../scripts/develop/execute.mts'
@@ -65,7 +66,7 @@ test('JSON mode preserves a successful child exit code', () => {
 })
 
 test(
-  'SIGTERM stops the child process group and reaps its descendant',
+  'SIGTERM stops the child process group and its descendant',
   {
     skip: process.platform === 'win32',
     timeout: 40_000,
@@ -233,8 +234,18 @@ async function waitForPidGone(pid, milliseconds) {
   while (Date.now() < deadline) {
     try {
       process.kill(pid, 0)
+      if (process.platform === 'linux') {
+        const stat = readFileSync(`/proc/${pid}/stat`, 'utf8')
+        const state = stat.slice(stat.lastIndexOf(')') + 2).split(' ')[0]
+        if (state === 'Z' || state === 'X') {
+          return true
+        }
+      }
     } catch (error) {
       if (error.code === 'ESRCH') {
+        return true
+      }
+      if (error.code === 'ENOENT' && process.platform === 'linux') {
         return true
       }
       throw error
