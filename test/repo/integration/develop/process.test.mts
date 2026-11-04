@@ -204,7 +204,15 @@ function isProcessGone(pid: number) {
       (error as NodeJS.ErrnoException).code === 'ENOENT' &&
       process.platform === 'linux'
     ) {
-      return true
+      try {
+        process.kill(pid, 0)
+        return false
+      } catch (retryError) {
+        if ((retryError as NodeJS.ErrnoException).code === 'ESRCH') {
+          return true
+        }
+        throw retryError
+      }
     }
     throw error
   }
