@@ -1,5 +1,6 @@
 import { spawn, spawnSync } from 'node:child_process'
 import { once } from 'node:events'
+import { readFileSync } from 'node:fs'
 import { expect, test } from 'vitest'
 import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
 
@@ -189,9 +190,20 @@ test.skipIf(process.platform === 'win32')(
 function isProcessGone(pid: number) {
   try {
     process.kill(pid, 0)
+    if (process.platform === 'linux') {
+      const stat = readFileSync(`/proc/${pid}/stat`, 'utf8')
+      const state = stat.slice(stat.lastIndexOf(')') + 2).split(' ')[0]
+      return state === 'Z' || state === 'X'
+    }
     return false
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ESRCH') {
+      return true
+    }
+    if (
+      (error as NodeJS.ErrnoException).code === 'ENOENT' &&
+      process.platform === 'linux'
+    ) {
       return true
     }
     throw error
