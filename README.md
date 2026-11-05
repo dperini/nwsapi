@@ -155,7 +155,9 @@ engine.configure({ CACHE_LIMIT: 8192, CACHE_BYTES: 8 * 1024 * 1024 });
 
 This example opts into larger bounds for a large stylesheet. Measure runtime and memory for your workload. The byte budget is per cache and estimates keys and compiled plans, not total JavaScript heap usage. Configure the `nwsapi` instance used by your host. Creating a separate instance does not change `jsdom`'s engine.
 
-The eviction policy remains LRU. These settings can mitigate [issue #242](https://github.com/dperini/nwsapi/issues/242) when the stylesheet fits the configured bounds. Scans larger than those bounds can still miss on every query.
+Cache hits promote plans in LRU order. Plans that fit are retained immediately. When a new plan would require eviction, a local deterministic sequence admits approximately one in eight candidates. Admitted plans evict only the oldest entries needed to fit. This helps repeated stylesheet scans retain useful plans when they exceed the configured bounds, addressing the scan-thrashing behavior in [issue #242](https://github.com/dperini/nwsapi/issues/242).
+
+Admission is best-effort under pressure. A computed plan remains usable even when it is not retained, and oversized plans are not cached. A changed workload can take additional queries to become resident. The entry and byte defaults remain unchanged. See the [measurements and reproduction commands](docs/repo/perf/selector-cache-admission.md) for the tested workloads and tradeoffs.
 
 ### Examples on extending the basic functionalities
 
