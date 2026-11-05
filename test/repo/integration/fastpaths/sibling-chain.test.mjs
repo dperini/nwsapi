@@ -87,6 +87,37 @@ test('sibling-chain fast path declines pseudo, attribute, escaped, and callback 
   assert.deepEqual(visited, Array.from(results))
 })
 
+test('compiled attribute sibling queries cache each prefix once', t => {
+  const { window, document, engine } = fixture(t)
+  const parent = document.querySelector('main')
+  parent.innerHTML = '<i data-a></i>' + '<b class="end"></b>'.repeat(256)
+  const expected = Array.from(document.querySelectorAll('[data-a] ~ .end'))
+  const prototype = window.Element.prototype
+  const previous = Object.getOwnPropertyDescriptor(prototype, 'previousElementSibling')
+  let reads = 0
+  Object.defineProperty(prototype, 'previousElementSibling', {
+    configurable: true,
+    get() { reads++; return previous.get.call(this) },
+  })
+  t.after(() => Object.defineProperty(prototype, 'previousElementSibling', previous))
+  assert.deepEqual(Array.from(engine.select('[data-a] ~ .end', document)), expected)
+  assert.ok(reads < 600, `expected prefix caching, got ${reads} sibling reads`)
+})
+
+test('compiled attribute sibling queries fall back without WeakMap', t => {
+  const { window } = new JSDOM('<!doctype html><main></main>', {
+    runScripts: 'outside-only',
+  })
+  t.after(() => window.close())
+  window.WeakMap = undefined
+  window.eval(source)
+  const document = window.document
+  const parent = document.querySelector('main')
+  parent.innerHTML = '<i data-a></i>' + '<b class="end"></b>'.repeat(32)
+  const actual = window.NW.Dom.select('[data-a] ~ .end', document)
+  assert.deepEqual(Array.from(actual), Array.from(document.querySelectorAll('[data-a] ~ .end')))
+})
+
 test('a shared parent can reject a sibling chain before walking its children', t => {
   const { window, document, engine } = fixture(t)
   const parent = document.querySelector('main')
