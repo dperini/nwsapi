@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import type factory from '../../../../dist/nwsapi.js'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../lib/cli/arguments.mts'
 import { positiveInteger } from '../footprint/shared.mts'
 
 const { positionals, values } = parseArgs({

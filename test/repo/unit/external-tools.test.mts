@@ -34,7 +34,16 @@ import { normalizePath } from '../../../scripts/repo/lib/paths.mts'
 test('tool identities and state metadata use deterministic pinned paths', () => {
   const state = JSON.parse(toolchainState())
   expect(state.manager).toBe('pnpm')
-  expect(state.tools).toHaveLength(5)
+  expect(state.tools).toHaveLength(
+    5 +
+      Number(
+        Boolean(
+          manifest.tools.jouet.platforms[
+            toolPlatform() as keyof typeof manifest.tools.jouet.platforms
+          ],
+        ),
+      ),
+  )
   expect(normalizePath(toolchainStatePath('/tools'))).toBe(
     normalizePath('/tools/toolchain.json'),
   )
@@ -268,7 +277,7 @@ test('direct tool configuration verification prints pinned versions', async () =
 
 test('every declared platform has a pinned release URL and integrity', () => {
   checkExternalTools()
-  for (const name of ['pnpm', 'nub', 'sfw', 'mold', 'tak'] as const) {
+  for (const name of ['pnpm', 'nub', 'sfw', 'mold', 'tak', 'jouet'] as const) {
     for (const platform of Object.keys(manifest.tools[name].platforms)) {
       const plan = toolPlan(name, platform)
       expect(plan.url).toBe(

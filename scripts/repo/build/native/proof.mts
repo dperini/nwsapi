@@ -11,7 +11,7 @@ import {
 } from 'node:fs'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../lib/cli/arguments.mts'
 import { gzipSync } from 'node:zlib'
 import { fileURLToPath } from 'node:url'
 import { nativeCacheSize, runNativeCommand } from './host.mts'

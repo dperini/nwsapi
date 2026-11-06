@@ -1,7 +1,7 @@
 import { createReadStream, readFileSync, existsSync, globSync } from 'node:fs'
 import { createInterface } from 'node:readline'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../../lib/cli/arguments.mts'
 import { isMainModule } from '../../../lib/run-node.mts'
 import type { NativePlan } from './pool.mts'
 

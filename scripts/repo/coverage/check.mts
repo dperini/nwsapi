@@ -1,12 +1,20 @@
 import { existsSync } from 'node:fs'
+import { message } from '@optique/core/message'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import { runHelpOnlyCli } from '../lib/cli/parser.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule, runNode } from '../lib/run-node.mts'
 
 if (isMainModule(import.meta.url)) {
-  if (process.argv.includes('--help')) {
-    console.log('Usage: pnpm run coverage:check')
+  if (
+    runHelpOnlyCli(
+      'coverage:check',
+      process.argv.slice(2),
+      message`Check the generated coverage badge.`,
+    )
+  ) {
+    process.exitCode = 0
   } else if (
     !existsSync(path.join(REPO_ROOT, 'coverage/coverage-summary.json'))
   ) {

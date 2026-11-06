@@ -11,7 +11,9 @@ import {
 import path from 'node:path'
 import os from 'node:os'
 import { globSync } from 'node:fs'
+import { message } from '@optique/core/message'
 import { toolExecutable } from '../external-tools.mts'
+import { runHelpOnlyCli } from '../lib/cli/parser.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { checked, execute } from '../lib/command.mts'
 import type { CommandRunner } from '../lib/command.mts'
@@ -156,14 +158,14 @@ export function runSecurity(root = REPO_ROOT, run: CommandRunner = execute) {
 }
 
 export function main(args = process.argv.slice(2)) {
-  if (args.includes('--help') || args.includes('-h')) {
-    console.log(
-      'Usage: pnpm run security\nRuns actionlint, zizmor, AgentShield, and offline Skill Scanner checks.',
+  if (
+    runHelpOnlyCli(
+      'security',
+      args,
+      message`Run actionlint, zizmor, AgentShield, and offline Skill Scanner checks.`,
     )
+  ) {
     return
-  }
-  if (args.length) {
-    throw new Error('Usage: pnpm run security')
   }
   if (!existsSync(scannerExecutable())) {
     throw new Error(

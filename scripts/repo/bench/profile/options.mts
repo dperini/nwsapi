@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../lib/cli/arguments.mts'
 
 export const PROFILE_PHASES = [
   'cold',

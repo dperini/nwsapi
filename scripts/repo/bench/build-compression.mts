@@ -11,7 +11,7 @@ import {
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../lib/cli/arguments.mts'
 import vm from 'node:vm'
 import { parse } from 'acorn'
 import type { Comment } from 'acorn'

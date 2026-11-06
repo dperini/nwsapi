@@ -1,0 +1,72 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0; exe=\"$root/.cache/bin/jouet\"; [ -x \"$exe\" ] || exit 0; exec \"$exe\" hook claude session-start'",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Read|Grep|Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0; exe=\"$root/.cache/bin/jouet\"; [ -x \"$exe\" ] || exit 0; exec \"$exe\" hook claude pre-tool-use'",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0; exe=\"$root/.cache/bin/jouet\"; [ -x \"$exe\" ] || exit 0; exec \"$exe\" hook claude post-tool-use'",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0; exe=\"$root/.cache/bin/jouet\"; [ -x \"$exe\" ] || exit 0; exec \"$exe\" hook claude post-edit'",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0; exe=\"$root/.cache/bin/jouet\"; [ -x \"$exe\" ] || exit 0; exec \"$exe\" hook claude post-tool-use-failure'",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0; exe=\"$root/.cache/bin/jouet\"; [ -x \"$exe\" ] || exit 0; exec \"$exe\" hook claude stop'",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

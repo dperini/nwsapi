@@ -1,6 +1,10 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { withDefault } from '@optique/core/modifiers'
+import { flag } from '@optique/core/primitives'
+import { HELP_SHOWN, runCli } from '../lib/cli/parser.mts'
 import manifest from '../../../.config/external-tools.json' with { type: 'json' }
 import {
   TOOL_BIN,
@@ -207,18 +211,20 @@ export function describeSecuritySetup() {
 }
 
 export async function main(args = process.argv.slice(2)) {
-  const { values } = parseArgs({
-    args: args[0] === '--' ? args.slice(1) : args,
-    options: {
-      help: { type: 'boolean', short: 'h' },
-      all: { type: 'boolean' },
-      json: { type: 'boolean' },
-      describe: { type: 'boolean' },
-      'dry-run': { type: 'boolean' },
+  const values = runCli(
+    object({
+      all: withDefault(flag('--all'), false),
+      json: withDefault(flag('--json'), false),
+      describe: withDefault(flag('--describe'), false),
+      dryRun: withDefault(flag('--dry-run'), false),
+    }),
+    'setup:security',
+    args[0] === '--' ? args.slice(1) : args,
+    {
+      brief: message`Install pinned security scanners and isolated environments.`,
     },
-  })
-  if (values.help) {
-    console.log('Usage: pnpm run setup:security [--all] [--dry-run]')
+  )
+  if (values === HELP_SHOWN) {
     return
   }
   if (values.describe) {
@@ -228,7 +234,7 @@ export async function main(args = process.argv.slice(2)) {
     )
     return
   }
-  if (values['dry-run']) {
+  if (values.dryRun) {
     const plan = securitySetupPlan(values.all)
     console.log(
       values.json ? JSON.stringify(plan) : formatSecuritySetupPlan(plan),

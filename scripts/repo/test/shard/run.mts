@@ -1,4 +1,4 @@
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../lib/cli/arguments.mts'
 import {
   existsSync,
   mkdirSync,

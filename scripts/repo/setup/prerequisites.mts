@@ -1,7 +1,8 @@
 import type { SpawnSyncOptionsWithStringEncoding } from 'node:child_process'
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
-import { toolPlan } from '../external-tools.mts'
+import { toolPlan, toolPlatform } from '../external-tools.mts'
+import manifest from '../../../.config/external-tools.json' with { type: 'json' }
 
 export function resolvePowerShell(env = process.env) {
   const systemRoot = env['SystemRoot']
@@ -38,11 +39,7 @@ export type PrerequisiteProbe = (
 ) => { status: number | null; error?: Error }
 
 export function checkPrerequisites(
-  commands = requiredCommands(
-    ['nub', 'pnpm', 'npm', 'sfw', 'mise'].map(
-      name => toolPlan(name as 'npm' | 'nub' | 'pnpm' | 'sfw' | 'mise').asset,
-    ),
-  ),
+  commands = requiredCommands(requiredAssets()),
   run: PrerequisiteProbe = spawnSync,
 ) {
   for (const command of commands) {
@@ -89,4 +86,19 @@ export function checkPrerequisites(
       )
     }
   }
+}
+
+export function requiredAssets() {
+  const assets = ['nub', 'pnpm', 'npm', 'sfw', 'mise'].map(
+    name => toolPlan(name as 'npm' | 'nub' | 'pnpm' | 'sfw' | 'mise').asset,
+  )
+  const platform = toolPlatform()
+  if (
+    manifest.tools.jouet?.platforms[
+      platform as keyof typeof manifest.tools.jouet.platforms
+    ]
+  ) {
+    assets.push(toolPlan('jouet', platform).asset)
+  }
+  return assets
 }

@@ -7,6 +7,11 @@ import {
 } from '../../../.config/build.config.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { withDefault } from '@optique/core/modifiers'
+import { flag } from '@optique/core/primitives'
+import { HELP_SHOWN, runCli } from '../lib/cli/parser.mts'
 
 export const packageMetadata = ['LICENSE', 'README.md', 'package.json']
 
@@ -104,7 +109,17 @@ export function assertPackageFiles(files: readonly string[]) {
 }
 
 if (isMainModule(import.meta.url)) {
-  if (process.argv.includes('--write')) {
+  const options = runCli(
+    object({ write: withDefault(flag('--write'), false) }),
+    'wpt-candidates:write',
+    process.argv.slice(2),
+    {
+      brief: message`Generate the package manifest from the reviewed build mapping.`,
+    },
+  )
+  if (options === HELP_SHOWN) {
+    process.exitCode = 0
+  } else if (options.write) {
     writePackageManifest()
   } else {
     checkPackageManifest()

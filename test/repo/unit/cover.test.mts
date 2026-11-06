@@ -127,9 +127,7 @@ test('a worker override is forwarded only after positive integer validation', as
   }
   vi.resetModules()
   args(['--unknown'])
-  await expect(import('../../../scripts/repo/cover.mts')).rejects.toMatchObject(
-    { code: 'ERR_PARSE_ARGS_UNKNOWN_OPTION' },
-  )
+  await expect(import('../../../scripts/repo/cover.mts')).rejects.toThrow()
 })
 
 test('missing browser execution removes temporary reports and rejects the coverage run', async () => {

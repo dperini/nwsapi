@@ -8,7 +8,10 @@ vi.mock('node:fs', () => ({
   readFileSync: mocks.read,
   writeFileSync: mocks.write,
 }))
-vi.mock('node:util', () => ({ parseArgs: () => ({ values: mocks.values }) }))
+vi.mock('../../../../scripts/repo/lib/cli/parser.mts', () => ({
+  HELP_SHOWN: Symbol('help shown'),
+  runCheckCli: () => mocks.values,
+}))
 const heap = (cached = 50) => ({
   engineSha256: 'hash',
   node: '26',

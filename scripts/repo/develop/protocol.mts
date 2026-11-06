@@ -1,4 +1,4 @@
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../lib/cli/arguments.mts'
 import { TASKS } from './actions.mts'
 import type { TaskResult } from './execute.mts'
 import { bootstrapPlan } from '../setup/bootstrap.mts'

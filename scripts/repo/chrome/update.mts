@@ -1,4 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs'
+import { message } from '@optique/core/message'
+import { HELP_SHOWN, runCheckCli } from '../lib/cli/parser.mts'
 import { isMainModule, runNode } from '../lib/run-node.mts'
 import { fileURLToPath } from 'node:url'
 
@@ -86,8 +88,14 @@ export async function updateChrome(
 }
 
 if (isMainModule(import.meta.url)) {
-  if (process.argv.slice(2).some(arg => arg !== '--check')) {
-    throw new Error('Usage: update/chrome.mts [--check]')
+  const options = runCheckCli(
+    'chrome:update',
+    process.argv.slice(2),
+    message`Refresh the pinned Chrome for Testing version.`,
+  )
+  if (options === HELP_SHOWN) {
+    process.exitCode = 0
+  } else {
+    await updateChrome(options.check)
   }
-  await updateChrome(process.argv.includes('--check'))
 }

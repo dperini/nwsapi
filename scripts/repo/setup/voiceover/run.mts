@@ -1,9 +1,13 @@
 import { spawn, spawnSync } from 'node:child_process'
 import { createInterface } from 'node:readline/promises'
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { withDefault } from '@optique/core/modifiers'
+import { flag } from '@optique/core/primitives'
 import os from 'node:os'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
 import { stdin, stdout } from 'node:process'
+import { HELP_SHOWN, runCli } from '../../lib/cli/parser.mts'
 import { isMainModule } from '../../lib/run-node.mts'
 import { REPO_ROOT } from '../../lib/paths.mts'
 import { managedCommand, managedEnvironment } from '../manager.mts'
@@ -319,20 +323,22 @@ export async function main(
   args: string[] = [],
   options: VoiceOverOptions = {},
 ) {
-  const { values } = parseArgs({
-    args: args[0] === '--' ? args.slice(1) : args,
-    options: {
-      help: { type: 'boolean', short: 'h' },
-      yes: { type: 'boolean' },
-      json: { type: 'boolean' },
-      describe: { type: 'boolean' },
-      'dry-run': { type: 'boolean' },
+  const values = runCli(
+    object({
+      yes: withDefault(flag('--yes'), false),
+      json: withDefault(flag('--json'), false),
+      describe: withDefault(flag('--describe'), false),
+      dryRun: withDefault(flag('--dry-run'), false),
+    }),
+    'setup:voiceover',
+    args[0] === '--' ? args.slice(1) : args,
+    {
+      brief: message`Retry optional VoiceOver assets and settings only.`,
+      footer: message`Core setup is not rerun. Settings persist. Narration is never started. Interactive confirmation defaults to skip. --yes opts in, including without a terminal.`,
+      stdout: options.log ?? console.log,
     },
-  })
-  if (values.help) {
-    ;(options.log ?? console.log)(
-      'Usage: node scripts/repo/setup/voiceover/run.mts [--yes]\nRetries optional VoiceOver assets and settings only. Core setup is not rerun.\nSettings persist. Narration is never started. Interactive confirmation defaults to skip.\n--yes explicitly opts in, including without a terminal.',
-    )
+  )
+  if (values === HELP_SHOWN) {
     return { status: 0, signal: null }
   }
   if (values.describe) {
@@ -342,7 +348,7 @@ export async function main(
     )
     return { status: 0, signal: null }
   }
-  if (values['dry-run']) {
+  if (values.dryRun) {
     const plan = voiceOverSetupPlan(options.root)
     ;(options.log ?? console.log)(
       values.json ? JSON.stringify(plan) : formatVoiceOverSetupPlan(plan),

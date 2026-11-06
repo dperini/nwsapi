@@ -1,4 +1,9 @@
-import { parseArgs } from 'node:util'
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { optional } from '@optique/core/modifiers'
+import { option } from '@optique/core/primitives'
+import { integer } from '@optique/core/valueparser'
+import { HELP_SHOWN, runCli } from './lib/cli/parser.mts'
 import { execFileSync } from 'node:child_process'
 import {
   mkdirSync,
@@ -33,13 +38,20 @@ import {
 const { createCoverageMap } = libCoverage
 const { createContext } = libReport
 
-const { values } = parseArgs({ options: { workers: { type: 'string' } } })
+const values = runCli(
+  object({ workers: optional(option('--workers', integer({ min: 1 }))) }),
+  'cover',
+  process.argv.slice(2),
+  {
+    brief: message`Collect combined test coverage with optional worker control.`,
+  },
+)
+if (values === HELP_SHOWN) {
+  process.exit(0)
+}
 const testArgs = ['all', '--coverage']
 if (values.workers !== undefined) {
-  if (!/^[1-9]\d*$/.test(values.workers)) {
-    throw new Error('--workers must be a positive integer')
-  }
-  testArgs.push('--maxWorkers', values.workers)
+  testArgs.push('--maxWorkers', String(values.workers))
 }
 
 const raw = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-wpt-coverage-'))

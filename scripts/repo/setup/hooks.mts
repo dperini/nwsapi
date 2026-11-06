@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { parseArgs } from 'node:util'
+import { message as optiqueMessage } from '@optique/core/message'
 import {
   closeSync,
   lstatSync,
@@ -9,6 +9,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import path from 'node:path'
+import { HELP_SHOWN, runSetupCli } from '../lib/cli/parser.mts'
 import { isMainModule } from '../lib/run-node.mts'
 
 export interface HookFileSystem {
@@ -200,14 +201,14 @@ export function main(
   args = process.argv.slice(2),
   dependencies = defaultDependencies(),
 ) {
-  const { values } = parseArgs({
-    args: args[0] === '--' ? args.slice(1) : args,
-    options: {
-      json: { type: 'boolean' },
-      describe: { type: 'boolean' },
-      'dry-run': { type: 'boolean' },
-    },
-  })
+  const values = runSetupCli(
+    'setup:hooks',
+    args[0] === '--' ? args.slice(1) : args,
+    optiqueMessage`Install the repository pre-commit and pre-push hooks.`,
+  )
+  if (values === HELP_SHOWN) {
+    return
+  }
   if (values.describe) {
     const description = describeGitHooks()
     dependencies.log(
@@ -220,7 +221,7 @@ export function main(
   const operationDependencies = values.json
     ? { ...dependencies, log: () => {} }
     : dependencies
-  const result = installGitHooks(operationDependencies, values['dry-run'])
+  const result = installGitHooks(operationDependencies, values.dryRun)
   if (values.json) {
     dependencies.log(
       JSON.stringify({ schemaVersion: 1, type: 'result', ...result }),

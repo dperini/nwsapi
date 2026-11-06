@@ -1,4 +1,9 @@
-import { parseArgs } from 'node:util'
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { withDefault } from '@optique/core/modifiers'
+import { flag } from '@optique/core/primitives'
+import type { InferValue } from '@optique/core/parser'
+import { HELP_SHOWN, runCli } from '../lib/cli/parser.mts'
 import {
   BROWSER_SETUP_PATH,
   TOOL_SETUP_PATH,
@@ -11,6 +16,15 @@ import path from 'node:path'
 import os from 'node:os'
 import { setupVoiceOver } from './voiceover/run.mts'
 import type { VoiceOverChoice } from './voiceover/run.mts'
+
+const setupParser = object({
+  voiceover: withDefault(flag('--voiceover'), false),
+  noVoiceover: withDefault(flag('--no-voiceover'), false),
+  json: withDefault(flag('--json'), false),
+  describe: withDefault(flag('--describe'), false),
+  dryRun: withDefault(flag('--dry-run'), false),
+})
+type SetupOptions = InferValue<typeof setupParser>
 
 export function fullSetupPlan(root = REPO_ROOT) {
   return {
@@ -64,17 +78,17 @@ export async function main(
   optional: typeof setupVoiceOver = setupVoiceOver,
   log = console.log,
 ) {
-  const { values } = parseArgs({
-    args: args[0] === '--' ? args.slice(1) : args,
-    options: {
-      help: { type: 'boolean', short: 'h' },
-      voiceover: { type: 'boolean' },
-      'no-voiceover': { type: 'boolean' },
-      json: { type: 'boolean' },
-      describe: { type: 'boolean' },
-      'dry-run': { type: 'boolean' },
+  const values = runCli(
+    setupParser,
+    'setup:full',
+    args[0] === '--' ? args.slice(1) : args,
+    {
+      brief: message`Prepare all checkout tools, scanners, WPT, and Chrome.`,
     },
-  })
+  )
+  if (values === HELP_SHOWN) {
+    return { status: 0, signal: null }
+  }
   const protocol = fullSetupProtocol(values, log)
   if (protocol) {
     return protocol
@@ -91,9 +105,9 @@ export async function main(
     return { status: 1, signal: null }
   }
   log('Full setup complete. Next: npm run check')
-  const choice: VoiceOverChoice = values['voiceover']
+  const choice: VoiceOverChoice = values.voiceover
     ? 'yes'
-    : values['no-voiceover']
+    : values.noVoiceover
       ? 'no'
       : 'ask'
   const voiceOverResult = await optional({ choice })
@@ -104,25 +118,19 @@ export async function main(
 }
 
 export function fullSetupProtocol(
-  values: ReturnType<typeof parseArgs>['values'],
+  values: SetupOptions,
   log: (message: string) => void,
 ) {
-  if (values['voiceover'] && values['no-voiceover']) {
+  if (values.voiceover && values.noVoiceover) {
     log('Choose only one of --voiceover or --no-voiceover.')
     return { status: 2, signal: null }
   }
-  if (values['help']) {
-    log(
-      'Usage: pnpm run setup:full [--voiceover|--no-voiceover]\nPrepares tools, security scanners, WPT, and Chrome. VoiceOver setup is optional and runs after core setup succeeds.',
-    )
-    return { status: 0, signal: null }
-  }
-  if (values['describe']) {
+  if (values.describe) {
     const description = describeFullSetup()
     log(values['json'] ? JSON.stringify(description) : description.description)
     return { status: 0, signal: null }
   }
-  if (values['dry-run']) {
+  if (values.dryRun) {
     const plan = fullSetupPlan()
     log(values['json'] ? JSON.stringify(plan) : formatFullSetupPlan(plan))
     return { status: 0, signal: null }

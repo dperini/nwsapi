@@ -10,7 +10,7 @@
  */
 
 import process from 'node:process'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../lib/cli/arguments.mts'
 
 import { DOCUMENTS } from './documents.mts'
 import { compare } from './timing.mts'

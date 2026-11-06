@@ -9,7 +9,7 @@ import {
 } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../lib/cli/arguments.mts'
 import { parse } from 'acorn'
 import type { Node, CallExpression, ImportExpression, Literal } from 'acorn'
 import {

@@ -1,6 +1,7 @@
 import os from 'node:os'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { message } from '@optique/core/message'
+import { HELP_SHOWN, runSetupCli } from '../lib/cli/parser.mts'
 import {
   BROWSER_SETUP_PATH,
   WPT_CANDIDATES_PATH,
@@ -47,19 +48,12 @@ export function describeBrowserTestsSetup() {
 }
 
 export function main(args = process.argv.slice(2)) {
-  const { values } = parseArgs({
-    args: args[0] === '--' ? args.slice(1) : args,
-    options: {
-      help: { type: 'boolean', short: 'h' },
-      json: { type: 'boolean' },
-      describe: { type: 'boolean' },
-      'dry-run': { type: 'boolean' },
-    },
-  })
-  if (values.help) {
-    console.log(
-      'Usage: npm run setup:wpt [--dry-run]\nPrepares the pinned WPT checkout and Chrome for browser tasks.',
-    )
+  const values = runSetupCli(
+    'setup:wpt',
+    args[0] === '--' ? args.slice(1) : args,
+    message`Prepare the pinned WPT checkout and Chrome for browser tasks.`,
+  )
+  if (values === HELP_SHOWN) {
     return
   }
   if (values.describe) {
@@ -69,7 +63,7 @@ export function main(args = process.argv.slice(2)) {
     )
     return
   }
-  if (values['dry-run']) {
+  if (values.dryRun) {
     const plan = browserTestsPlan()
     console.log(
       values.json ? JSON.stringify(plan) : formatBrowserTestsPlan(plan),

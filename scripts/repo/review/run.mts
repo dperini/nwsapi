@@ -1,5 +1,7 @@
 import path from 'node:path'
+import { message } from '@optique/core/message'
 import { REPO_ROOT } from '../lib/paths.mts'
+import { runHelpOnlyCli } from '../lib/cli/parser.mts'
 import { isMainModule, runNode } from '../lib/run-node.mts'
 
 const steps = [
@@ -54,11 +56,13 @@ export function review(run = runNode, log = console.log) {
 }
 
 if (isMainModule(import.meta.url)) {
-  if (process.argv.includes('--help') || process.argv.includes('-h')) {
-    console.log(
-      'Usage: pnpm run review\nRuns lint, formatting checks, types, and unit tests. Stops at the first failure. Does not apply fixes.',
+  if (
+    !runHelpOnlyCli(
+      'review',
+      process.argv.slice(2),
+      message`Run lint, formatting, type, and unit checks in order; stop at the first failure.`,
     )
-  } else {
+  ) {
     process.exitCode = review()
   }
 }

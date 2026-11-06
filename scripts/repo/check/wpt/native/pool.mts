@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../../lib/cli/arguments.mts'
 import { CHROME_VERSION } from '../../../browser.mts'
 import { isMainModule } from '../../../lib/run-node.mts'
 import { REPO_ROOT } from '../../../lib/paths.mts'

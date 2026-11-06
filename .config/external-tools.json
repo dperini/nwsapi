@@ -583,6 +583,49 @@
         }
       }
     },
+    "jouet": {
+      "origin": "gh-asset",
+      "repository": "github:jdx/jouet",
+      "version": "0.0.3",
+      "tag": "v0.0.3",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "jouet-aarch64-apple-darwin.tar.gz",
+          "integrity": "sha256-57/tepThAgHqMBgNEroiIrEV+39C3XxxZtQ3MNxYNlQ=",
+          "binary": "jouet"
+        },
+        "linux-arm64": {
+          "asset": "jouet-aarch64-unknown-linux-gnu.tar.gz",
+          "integrity": "sha256-af53fNhgUlj6yt9S1dCGIIZGJabigZA2fgPJjah2GV0=",
+          "binary": "jouet"
+        },
+        "linux-x64": {
+          "asset": "jouet-x86_64-unknown-linux-gnu.tar.gz",
+          "integrity": "sha256-4VH6SLerljAS+qRQBBvjPXQWybvqJKEbvzGprD/B6JA=",
+          "binary": "jouet"
+        },
+        "linux-arm64-musl": {
+          "asset": "jouet-aarch64-unknown-linux-musl.tar.gz",
+          "integrity": "sha256-hW95mAuHtOqrFFNrMqK1+97v0hzci48jHp5vmg1pvOU=",
+          "binary": "jouet"
+        },
+        "linux-x64-musl": {
+          "asset": "jouet-x86_64-unknown-linux-musl.tar.gz",
+          "integrity": "sha256-lyEKUAH2ScinDgGTlMZiVnr5fvmWB9t2VrJb9bPQGp0=",
+          "binary": "jouet"
+        },
+        "win32-arm64": {
+          "asset": "jouet-aarch64-pc-windows-msvc.zip",
+          "integrity": "sha256-UaM3MZ6AFPZbv9zm/HRGIM35xeCttc3OM/dUkz71ki8=",
+          "binary": "jouet.exe"
+        },
+        "win32-x64": {
+          "asset": "jouet-x86_64-pc-windows-msvc.zip",
+          "integrity": "sha256-DhKZJMYqsQeApRYFTvvoUcRdTj5PWpuiqU/Vlc0qcmw=",
+          "binary": "jouet.exe"
+        }
+      }
+    },
     "fframes": {
       "origin": "cargo-project",
       "package": "fframes",

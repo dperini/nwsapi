@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../lib/cli/arguments.mts'
 import { gunzipSync, gzipSync } from 'node:zlib'
 import { isMainModule } from '../../lib/run-node.mts'
 import { DOCUMENTS } from '../documents.mts'

@@ -11,7 +11,10 @@ vi.mock('node:fs', () => ({
   readFileSync: mocks.read,
   writeFileSync: mocks.write,
 }))
-vi.mock('node:util', () => ({ parseArgs: () => ({ values: mocks.values }) }))
+vi.mock('../../../../scripts/repo/lib/cli/parser.mts', () => ({
+  HELP_SHOWN: Symbol('help shown'),
+  runCli: () => mocks.values,
+}))
 vi.mock('../../e2e/upstream/manifest.mts', () => ({
   manifest: [{ path: '/b' }, { path: '/a' }],
 }))

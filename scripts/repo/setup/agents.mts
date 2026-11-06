@@ -6,7 +6,11 @@ import {
   writeFileSync,
 } from 'node:fs'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { withDefault } from '@optique/core/modifiers'
+import { flag } from '@optique/core/primitives'
+import { HELP_SHOWN, runCli } from '../lib/cli/parser.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
 
@@ -185,21 +189,22 @@ export function main(
   root = REPO_ROOT,
   log = console.log,
 ) {
-  const { values } = parseArgs({
-    args: args[0] === '--' ? args.slice(1) : args,
-    options: {
-      check: { type: 'boolean' },
-      optional: { type: 'boolean' },
-      help: { type: 'boolean', short: 'h' },
-      json: { type: 'boolean' },
-      describe: { type: 'boolean' },
-      'dry-run': { type: 'boolean' },
+  const values = runCli(
+    object({
+      check: withDefault(flag('--check'), false),
+      optional: withDefault(flag('--optional'), false),
+      json: withDefault(flag('--json'), false),
+      describe: withDefault(flag('--describe'), false),
+      'dry-run': withDefault(flag('--dry-run'), false),
+    }),
+    'setup:agents',
+    args[0] === '--' ? args.slice(1) : args,
+    {
+      brief: message`Create ignored Claude and agent skill aliases from shared guidance.`,
+      footer: message`--check reports stale aliases; --dry-run previews paths; --optional reports conflicts without failing package preparation.`,
     },
-  })
-  if (values.help) {
-    log(
-      'Usage: pnpm run setup:agents [--check] [--dry-run]\nCreates ignored Claude instructions and shared Codex/OpenCode skill aliases.\n--check reports missing or stale aliases without writing.\n--dry-run lists alias paths without writing.\n--optional reports conflicts without failing package preparation.',
-    )
+  )
+  if (values === HELP_SHOWN) {
     return 0
   }
   const protocolResult = handleAgentProtocol(values, root, log)

@@ -1,6 +1,11 @@
 import { rm } from 'node:fs/promises'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { withDefault } from '@optique/core/modifiers'
+import { flag, option } from '@optique/core/primitives'
+import { choice } from '@optique/core/valueparser'
+import { HELP_SHOWN, runCli } from './lib/cli/parser.mts'
 import { REPO_ROOT } from './lib/paths.mts'
 import { isMainModule } from './lib/run-node.mts'
 
@@ -45,21 +50,26 @@ export async function main(
   log = console.log,
   root = REPO_ROOT,
 ) {
-  const { values } = parseArgs({
-    args: args.filter(arg => arg !== '--'),
-    options: {
-      scope: { type: 'string', default: 'outputs' },
-      apply: { type: 'boolean' },
-      'dry-run': { type: 'boolean' },
-      json: { type: 'boolean' },
-      describe: { type: 'boolean' },
-      help: { type: 'boolean', short: 'h' },
-    },
+  const parser = object({
+    scope: withDefault(
+      option('--scope', choice(['outputs', 'dependencies', 'tools'])),
+      'outputs',
+    ),
+    apply: withDefault(flag('--apply'), false),
+    dryRun: withDefault(flag('--dry-run'), false),
+    json: withDefault(flag('--json'), false),
+    describe: withDefault(flag('--describe'), false),
   })
-  if (values.help) {
-    log(
-      'Usage: npm run clean [-- --dry-run]\nRemoves generated outputs.\nTo preview a reset: npm run reset:dependencies or npm run reset:tools\nAdd -- --apply to a reset command to remove the listed files.',
-    )
+  const values = runCli(
+    parser,
+    'clean',
+    args.filter(arg => arg !== '--'),
+    {
+      brief: message`Remove generated outputs or preview a dependency/tool reset.`,
+      showDefault: true,
+    },
+  )
+  if (values === HELP_SHOWN) {
     return
   }
   if (values.describe) {
@@ -71,11 +81,8 @@ export async function main(
     )
     return
   }
-  const scope = values.scope as Scope
-  if (!Object.hasOwn(scopes, scope)) {
-    throw new Error('Choose --scope outputs, dependencies, or tools.')
-  }
-  const preview = values['dry-run'] || (scope !== 'outputs' && !values.apply)
+  const scope: Scope = values.scope
+  const preview = values.dryRun || (scope !== 'outputs' && !values.apply)
   const plan = cleanPlan(scope, root)
   if (preview) {
     log(values.json ? JSON.stringify(plan) : formatCleanPlan(plan))

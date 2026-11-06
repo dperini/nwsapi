@@ -1,10 +1,16 @@
+import { message } from '@optique/core/message'
 import { checkExternalTools } from '../external-tools.mts'
+import { runHelpOnlyCli } from '../lib/cli/parser.mts'
 import { isMainModule } from '../lib/run-node.mts'
 
 if (isMainModule(import.meta.url)) {
-  if (process.argv.includes('--help')) {
-    console.log('Usage: pnpm run external-tools:check')
-  } else {
+  if (
+    !runHelpOnlyCli(
+      'external-tools:check',
+      process.argv.slice(2),
+      message`Verify pinned external tool metadata.`,
+    )
+  ) {
     checkExternalTools()
   }
 }

@@ -1,14 +1,19 @@
 import { fileURLToPath } from 'node:url'
+import { message } from '@optique/core/message'
+import { HELP_SHOWN, runForwardingCli } from '../../lib/cli/parser.mts'
 import { isMainModule, runNode } from '../../lib/run-node.mts'
 export * from '../../check/wpt/inventory.mts'
 
 if (isMainModule(import.meta.url)) {
-  if (process.argv.includes('--help')) {
-    console.log('Usage: pnpm run wpt-inventory:check')
-  } else {
+  const args = runForwardingCli(
+    'wpt-inventory:check',
+    process.argv.slice(2),
+    message`Check the pinned WPT test inventory.`,
+  )
+  if (args !== HELP_SHOWN) {
     runNode(
       fileURLToPath(new URL('../../check/wpt/inventory.mts', import.meta.url)),
-      process.argv.slice(2),
+      [...args.forwardedArgs],
       { externalGit: true },
     )
   }

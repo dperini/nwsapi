@@ -3,7 +3,7 @@ import crypto from 'node:crypto'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../lib/cli/arguments.mts'
 import {
   externalGitEnvironment,
   targetsWptRepository,

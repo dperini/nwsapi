@@ -8,6 +8,8 @@ import type {
 } from 'acorn'
 import { parse } from 'acorn'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { message } from '@optique/core/message'
+import { HELP_SHOWN, runCheckCli } from '../../lib/cli/parser.mts'
 import { stripTypeScriptTypes } from 'node:module'
 import {
   ADAPTER_SOURCE_PATH,
@@ -402,16 +404,21 @@ export function writeApiMarkdown(
 }
 
 if (isMainModule(import.meta.url)) {
-  const args = process.argv.slice(2)
-  if (args.some(arg => arg !== '--check')) {
-    throw new Error('Usage: pnpm run gen:api [--check]')
-  }
-  writeApiMarkdown(
-    renderApiMarkdown(
-      readFileSync(ENGINE_SOURCE_PATH, 'utf8'),
-      readFileSync(ADAPTER_SOURCE_PATH, 'utf8'),
-    ),
-    API_DOC_PATH,
-    args.includes('--check'),
+  const options = runCheckCli(
+    'gen:api',
+    process.argv.slice(2),
+    message`Generate the API reference from source comments.`,
   )
+  if (options === HELP_SHOWN) {
+    process.exitCode = 0
+  } else {
+    writeApiMarkdown(
+      renderApiMarkdown(
+        readFileSync(ENGINE_SOURCE_PATH, 'utf8'),
+        readFileSync(ADAPTER_SOURCE_PATH, 'utf8'),
+      ),
+      API_DOC_PATH,
+      options.check,
+    )
+  }
 }

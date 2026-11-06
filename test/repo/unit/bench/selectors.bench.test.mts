@@ -79,7 +79,7 @@ beforeEach(() => {
   })
 })
 afterEach(() => {
-  vi.doUnmock('node:util')
+  vi.doUnmock('../../../../scripts/repo/lib/cli/arguments.mts')
   vi.unstubAllGlobals()
 })
 async function invoke(args: string[]) {
@@ -128,8 +128,8 @@ test.each([
   await expect(invoke(args)).rejects.toMatchObject({ code: 'ERR_TEST_EXIT' })
 })
 test('non-Error parser and matcher failures still produce a failing status', async () => {
-  vi.doMock('node:util', () => ({
-    parseArgs: () => {
+  vi.doMock('../../../../scripts/repo/lib/cli/arguments.mts', () => ({
+    parseCliArgs: () => {
       throw 'parse failed'
     },
   }))

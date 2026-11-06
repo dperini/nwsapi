@@ -1,5 +1,10 @@
 import manifest from '../../../package.json' with { type: 'json' }
-import { parseArgs } from 'node:util'
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { optional, withDefault } from '@optique/core/modifiers'
+import { argument, flag } from '@optique/core/primitives'
+import { choice } from '@optique/core/valueparser'
+import { HELP_SHOWN, runCli } from '../lib/cli/parser.mts'
 import { planAdd, planRemove } from './jsdom/config.mts'
 import { installProject } from './jsdom/manager.mts'
 import { resolveProject } from './jsdom/project.mts'
@@ -32,8 +37,8 @@ export async function runJsdomCommand(
       ? planAdd(project, alias, requiredPeer('css-tree'), requiredPeer('jsdom'))
       : planRemove(project)
   return executePlan(plan, {
-    dryRun: values['dry-run'] ?? false,
-    json: values.json ?? false,
+    dryRun: values.dryRun,
+    json: values.json,
     action,
     projectRoot: project.root,
     installRequest: {
@@ -47,41 +52,38 @@ export async function runJsdomCommand(
 }
 
 export function parseJsdomCommand(argv: string[]) {
-  const [action, ...args] = argv
-  if (action === '--describe') {
-    return { kind: 'describe' as const, json: args.includes('--json') }
-  }
-  if (!action || action === '--help' || action === '-h') {
+  if (argv.includes('--help') || argv.includes('-h')) {
     return { kind: 'help' as const }
   }
-  if (action !== 'add' && action !== 'remove') {
-    throw new Error(
-      `Unknown jsdom action ${JSON.stringify(action)}. Run nwsapi jsdom --help.`,
-    )
-  }
-  const validAction = action as 'add' | 'remove'
-  const { values, positionals } = parseArgs({
-    args,
-    allowPositionals: true,
-    options: {
-      'dry-run': { type: 'boolean' },
-      describe: { type: 'boolean' },
-      json: { type: 'boolean' },
-      help: { type: 'boolean', short: 'h' },
+  const values = runCli(
+    object({
+      action: optional(argument(choice(['add', 'remove']))),
+      dryRun: withDefault(flag('--dry-run'), false),
+      describe: withDefault(flag('--describe'), false),
+      json: withDefault(flag('--json'), false),
+    }),
+    'nwsapi-jsdom',
+    argv,
+    {
+      brief: message`Manage this project's jsdom selector override.`,
+      footer: message`Run from the target project root. The command changes package-manager configuration and lockfile.`,
     },
-  })
-  if (values.help) {
+  )
+  if (values === HELP_SHOWN) {
     return { kind: 'help' as const }
   }
+  if (!values.action) {
+    return values.describe
+      ? { kind: 'describe' as const, json: values.json }
+      : { kind: 'help' as const }
+  }
+  const validAction = values.action
   if (values.describe) {
     return {
       kind: 'describe' as const,
       action: validAction,
       json: values.json ?? false,
     }
-  }
-  if (positionals.length) {
-    throw new Error('Unexpected jsdom arguments. Run nwsapi jsdom --help.')
   }
   return { kind: 'execute' as const, action: validAction, values }
 }

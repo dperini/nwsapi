@@ -134,3 +134,26 @@ test.each(['--help', '-h'])(
     expect(state.run).not.toHaveBeenCalled()
   },
 )
+
+test('describes the runner as structured JSON without starting tests', async () => {
+  state.argv.push('--describe', '--json')
+  const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+  vi.spyOn(process, 'exit').mockImplementation(() => {
+    throw Object.assign(new Error('exit fixture'), { code: 'ERR_TEST_EXIT' })
+  })
+  await expect(import('../../../scripts/repo/test.mts')).rejects.toMatchObject({
+    code: 'ERR_TEST_EXIT',
+  })
+  expect(JSON.parse(log.mock.calls[0]![0] as string)).toMatchObject({
+    schemaVersion: 1,
+    type: 'command',
+    name: 'test',
+  })
+  expect(state.run).not.toHaveBeenCalled()
+})
+
+test('JSON test output selects the runner JSON reporter', async () => {
+  state.argv.push('integration', '--json')
+  await import('../../../scripts/repo/test.mts')
+  expect(state.run.mock.calls[0]![0]).toContain('--reporter=json')
+})

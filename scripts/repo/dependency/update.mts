@@ -1,4 +1,9 @@
 import { execFileSync, spawnSync } from 'node:child_process'
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { withDefault } from '@optique/core/modifiers'
+import { flag } from '@optique/core/primitives'
+import { HELP_SHOWN, runCli } from '../lib/cli/parser.mts'
 import {
   copyFileSync,
   mkdtempSync,
@@ -173,9 +178,17 @@ export function syncPackageManifest(root = REPO_ROOT) {
 }
 
 if (isMainModule(import.meta.url)) {
-  if (process.argv.slice(2).some(arg => arg !== '--check')) {
-    throw new Error('Usage: pnpm run update [--check]')
+  const options = runCli(
+    object({ check: withDefault(flag('--check'), false) }),
+    'dependency:update',
+    process.argv.slice(2),
+    {
+      brief: message`Update pinned dependencies and external test references.`,
+    },
+  )
+  if (options === HELP_SHOWN) {
+    process.exitCode = 0
+  } else {
+    updateDependencies(options.check, undefined, undefined, undefined, () => {})
   }
-  const check = process.argv.includes('--check')
-  updateDependencies(check, undefined, undefined, undefined, () => {})
 }

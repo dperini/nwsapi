@@ -1,3 +1,9 @@
+import { object } from '@optique/core/constructs'
+import { message as optiqueMessage } from '@optique/core/message'
+import { withDefault } from '@optique/core/modifiers'
+import { argument, flag, passThrough } from '@optique/core/primitives'
+import { choice } from '@optique/core/valueparser'
+import { HELP_SHOWN, runCli, runForwardingCli } from './lib/cli/parser.mts'
 import { testBudget } from './lib/test-budget.mts'
 import { runLocalUnitReview } from './review/unit.mts'
 import {
@@ -7,29 +13,61 @@ import {
   usesLocalUnitShards,
 } from './test/phases.mts'
 
-const isolateCleanCheckout = process.argv.includes(
-  '--ci-isolate-clean-checkout',
-)
-
-if (process.argv.includes('--help') || process.argv.includes('-h')) {
-  console.log(`Usage: node scripts/repo/test.mts [unit|integration|all|upstream] [runner flags]
-Default: unit. The all scope runs unit and integration, not upstream.
-Runner flags are forwarded to Vitest or Playwright. Normal lane budgets remain enforced.
-Examples:
-  pnpm test
-  node scripts/repo/run.mts scripts/repo/test.mts unit --reporter=verbose
-  node scripts/repo/run.mts scripts/repo/test.mts integration --coverage
--h, --help displays this help without starting tests.`)
+const cliArgs = process.argv.slice(2)
+if (cliArgs.some(cliArg => cliArg === '-h' || cliArg === '--help')) {
+  runForwardingCli(
+    'test',
+    cliArgs,
+    optiqueMessage`Run unit, integration, all, or upstream tests.`,
+  )
   process.exit(0)
 }
 
-const [tier = 'unit', ...forwardedArgs] = process.argv.slice(2)
-const args = runnerArguments(forwardedArgs)
-if (!['unit', 'integration', 'all', 'upstream'].includes(tier)) {
-  throw new Error(
-    'Usage: test.mts <unit|integration|all|upstream> [runner flags]',
-  )
+const options = runCli(
+  object({
+    tier: withDefault(
+      argument(choice(['unit', 'integration', 'all', 'upstream'])),
+      'unit',
+    ),
+    ciIsolateCleanCheckout: withDefault(
+      flag('--ci-isolate-clean-checkout'),
+      false,
+    ),
+    json: withDefault(flag('--json'), false),
+    describe: withDefault(flag('--describe'), false),
+    forwardedArgs: passThrough({ format: 'greedy' }),
+  }),
+  'test',
+  cliArgs,
+  {
+    brief: optiqueMessage`Run unit, integration, all, or upstream tests.`,
+    footer: optiqueMessage`Use --json for structured runner output or --describe for command details. Runner flags pass through to Vitest or Playwright. Normal lane budgets remain enforced. The all scope runs unit and integration, not upstream.`,
+  },
+)
+if (options === HELP_SHOWN) {
+  process.exit(0)
 }
+
+const { tier, ciIsolateCleanCheckout: isolateCleanCheckout } = options
+if (options.describe) {
+  const description = {
+    schemaVersion: 1,
+    type: 'command',
+    name: 'test',
+    description: 'Run repository tests with the standard lane budgets.',
+    arguments: ['unit', 'integration', 'all', 'upstream'],
+    options: ['--describe', '--json', '--ci-isolate-clean-checkout'],
+    mutates: false,
+  }
+  console.log(
+    options.json ? JSON.stringify(description) : description.description,
+  )
+  process.exit(0)
+}
+const args = runnerArguments([
+  ...options.forwardedArgs,
+  ...(options.json ? ['--reporter=json'] : []),
+])
 if (isolateCleanCheckout && tier !== 'integration') {
   throw new Error('--ci-isolate-clean-checkout requires the integration tier.')
 }
@@ -41,7 +79,7 @@ export async function runLane(
   coverage: boolean,
 ) {
   const phasedArgs = runnerArgs.filter(
-    argument => argument !== '--ci-isolate-clean-checkout',
+    item => item !== '--ci-isolate-clean-checkout',
   )
   const phases = testPhases(
     lane,

@@ -16,6 +16,7 @@
 !/package-lock.json
 !/portless.json
 !/tak.toml
+!/mise.toml
 !/pnpm-lock.yaml
 !/pnpm-workspace.yaml
 !/vitest.config.mts
@@ -70,6 +71,7 @@
 !/docs/repo/perf/pytorch-has-routing/*.css
 !/scripts/**/*.mts
 !/scripts/**/*.py
+!/scripts/**/*.zsh
 !/src/**/*.mts
 !/src/**/*.d.ts
 !/test/**/*.LICENSE
@@ -127,13 +129,23 @@ yarn.lock
 !/docs/repo/development/video.html
 
 # Authored shared guidance. Generated aliases and local agent state stay ignored.
+!/.claude/settings.json
+!/.jouet/project.toml
+!/.jouet/map.md
+!/.opencode/commands/*.md
+!/.opencode/agents/*.md
 !/.claude/skills/ui-usability/SKILL.md
 !/.claude/skills/developer-flow-usability/SKILL.md
 !/.claude/skills/rust-engineering/SKILL.md
 /CLAUDE.md
 /.agents/
 /.codex/
+!/.codex/
+!/.codex/hooks.json
 /.opencode/
+!/.opencode/
+!/.opencode/commands/
+!/.opencode/agents/
 /.claude/plans/
 /.claude/reports/
 /.claude/cache/

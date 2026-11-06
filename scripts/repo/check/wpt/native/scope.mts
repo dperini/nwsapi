@@ -7,7 +7,7 @@ import { inferScripts, inferCase, type Inference } from './inference.mts'
 export { manifestSources } from './metadata.mts'
 import { readFileSync, writeFileSync, existsSync, statSync } from 'node:fs'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../../lib/cli/arguments.mts'
 import {
   narrowUniverse,
   nativePins,

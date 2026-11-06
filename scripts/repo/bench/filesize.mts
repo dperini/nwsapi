@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { gzipSync, brotliCompressSync, constants } from 'node:zlib'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../lib/cli/arguments.mts'
 import path from 'node:path'
 import { rolldown } from 'rolldown'
 import {

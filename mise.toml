@@ -1,0 +1,23 @@
+[tasks.test]
+description = "Run the complete Node unit and integration test suites"
+run = "pnpm run test:node"
+
+[tasks.lint]
+description = "Run the repository lint check"
+run = "pnpm run lint"
+
+[tasks.check]
+description = "Run repository checks, including lint and generated-file checks"
+run = "pnpm run check"
+
+[tasks.security]
+description = "Audit dependencies, workflows, and agent configuration"
+run = "pnpm run security"
+
+[tasks."test:browser"]
+description = "Run browser end-to-end tests"
+run = "pnpm run test:browser"
+
+[tasks."test:wpt"]
+description = "Run selected Web Platform Tests"
+run = "pnpm run test:wpt"

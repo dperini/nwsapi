@@ -1,4 +1,4 @@
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../../../repo/lib/cli/arguments.mts'
 
 const millisecondsPerUnit: Record<string, number> = {
   h: 3_600_000,

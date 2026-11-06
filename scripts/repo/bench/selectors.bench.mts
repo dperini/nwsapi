@@ -19,7 +19,7 @@
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../lib/cli/arguments.mts'
 import { fileURLToPath } from 'node:url'
 
 import { JSDOM } from 'jsdom'

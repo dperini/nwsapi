@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { Session } from 'node:inspector/promises'
 import { createRequire } from 'node:module'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../lib/cli/arguments.mts'
 import { JSDOM } from 'jsdom'
 import { median } from '../timing.mts'
 

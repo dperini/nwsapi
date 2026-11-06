@@ -1,5 +1,10 @@
 import { REPO_ROOT, DEVELOPER_MENU_COMMAND } from '../lib/paths.mts'
-import { parseArgs } from 'node:util'
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { optional, withDefault } from '@optique/core/modifiers'
+import { flag, option } from '@optique/core/primitives'
+import { string } from '@optique/core/valueparser'
+import { HELP_SHOWN, runCli } from '../lib/cli/parser.mts'
 import { toolVersions } from '../external-tools.mts'
 import { isMainModule } from '../lib/run-node.mts'
 import {
@@ -138,9 +143,8 @@ export async function main(
   log = console.log,
   voiceOverProbe = preflightVoiceOver,
 ) {
-  const { values } = parseDoctorArgs(args)
-  if (values.help) {
-    log(DOCTOR_HELP)
+  const values = parseDoctorArgs(args)
+  if (values === HELP_SHOWN) {
     return 0
   }
   const taskId = values.task
@@ -152,18 +156,18 @@ export async function main(
   return reportReadiness(requestedTask, values.details, log, voiceOverProbe)
 }
 
-const DOCTOR_HELP =
-  'Usage: node scripts/repo/setup/doctor.mts [--details] [--task guide|review]\nReports readiness without changing tools or shell settings. Default checks pinned tools and installed dependencies.'
-
 export function parseDoctorArgs(args: string[]) {
-  return parseArgs({
-    args: args[0] === '--' ? args.slice(1) : args,
-    options: {
-      details: { type: 'boolean' },
-      help: { type: 'boolean', short: 'h' },
-      task: { type: 'string' },
+  return runCli(
+    object({
+      details: withDefault(flag('--details'), false),
+      task: optional(option('--task', string())),
+    }),
+    'setup:check',
+    args[0] === '--' ? args.slice(1) : args,
+    {
+      brief: message`Report setup readiness without changing tools or shell settings.`,
     },
-  })
+  )
 }
 
 export async function reportReadiness(

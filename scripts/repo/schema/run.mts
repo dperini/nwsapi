@@ -2,6 +2,8 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 import { execFileSync } from 'node:child_process'
+import { message } from '@optique/core/message'
+import { HELP_SHOWN, runCheckCli } from '../lib/cli/parser.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
 import { ToolsSchema } from './tools.mts'
@@ -94,14 +96,15 @@ export function generateSchemas(check = false, root = REPO_ROOT) {
 }
 
 export function main(args = process.argv.slice(2)) {
-  if (args.includes('--help') || args.includes('-h')) {
-    console.log('Usage: pnpm run gen:schemas [--check]')
+  const options = runCheckCli(
+    'gen:schemas',
+    args,
+    message`Generate the pinned JSON schemas and validators.`,
+  )
+  if (options === HELP_SHOWN) {
     return
   }
-  if (args.some(arg => arg !== '--check')) {
-    throw new Error('Usage: pnpm run gen:schemas [--check]')
-  }
-  generateSchemas(args.includes('--check'))
+  generateSchemas(options.check)
 }
 
 if (isMainModule(import.meta.url)) {

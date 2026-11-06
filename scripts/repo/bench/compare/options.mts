@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { cpus, release } from 'node:os'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../lib/cli/arguments.mts'
 import type { Layout, Scenario } from './fixture.mts'
 
 const require = createRequire(import.meta.url)

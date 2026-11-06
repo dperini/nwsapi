@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../lib/cli/arguments.mts'
 import { isMainModule } from '../../lib/run-node.mts'
 
 export type OnboardingManager = 'npm' | 'pnpm'

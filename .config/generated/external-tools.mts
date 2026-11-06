@@ -167,6 +167,16 @@ const _es248 = new Set([
   'win32-arm64',
   'win32-x64',
 ])
+const _es272 = new Set([
+  'darwin-arm64',
+  'darwin-x64',
+  'linux-arm64',
+  'linux-x64',
+  'linux-arm64-musl',
+  'linux-x64-musl',
+  'win32-arm64',
+  'win32-x64',
+])
 const _re6 = new RegExp('^\\d+\\.\\d+\\.\\d+$')
 const _re10 = new RegExp('^[A-Za-z0-9_][A-Za-z0-9_.-]*$')
 const _re12 = new RegExp(
@@ -1111,6 +1121,107 @@ function _pf12(d) {
   return true
 }
 function _pf13(d) {
+  const _pk257 =
+    typeof d === 'object' && d !== null && (_PN ? d.__proto__ : _gp(d)) === _OP
+  if (typeof d !== 'object' || d === null || Array.isArray(d)) return false
+  if (!_pk257 && !_hall(d, ['origin', 'repository', 'version', 'platforms']))
+    return false
+  if (typeof d['origin'] !== 'string') return false
+  if (d['origin'] !== 'gh-asset') return false
+  {
+    const _r258 = d['repository']
+    if (typeof _r258 !== 'string') return false
+    if (!_re21.test(_r258)) return false
+  }
+  {
+    const _r259 = d['version']
+    if (typeof _r259 !== 'string') return false
+    if (!_re6.test(_r259)) return false
+  }
+  {
+    const _o260 = d['tag']
+    if (_o260 !== undefined && (_pk257 || _h(d, 'tag'))) {
+      if (typeof _o260 !== 'string') return false
+      if (!_re24.test(_o260)) return false
+    }
+  }
+  {
+    const _r261 = d['platforms']
+    if (typeof _r261 !== 'object' || _r261 === null || Array.isArray(_r261))
+      return false
+    if (Object.keys(_r261).length < 1) return false
+    var _pl269 =
+      _r261 !== null &&
+      typeof _r261 === 'object' &&
+      (_PN ? _r261.__proto__ : _gp(_r261)) === _OP
+    for (var _k15 in _r261)
+      if (!_pl269 && !_hop.call(_r261, _k15)) continue
+      else {
+        const _av15 = _r261[_k15]
+        const _pk263 =
+          typeof _av15 === 'object' &&
+          _av15 !== null &&
+          (_PN ? _av15.__proto__ : _gp(_av15)) === _OP
+        if (typeof _av15 !== 'object' || _av15 === null || Array.isArray(_av15))
+          return false
+        if (!_pk263 && !_hall(_av15, ['asset', 'binary', 'integrity']))
+          return false
+        for (var _k in _av15)
+          if (
+            _k !== 'asset' &&
+            _k !== 'binary' &&
+            _k !== 'integrity' &&
+            _k !== 'format' &&
+            _ok(_av15, _k)
+          )
+            return false
+        {
+          const _r264 = _av15['asset']
+          if (typeof _r264 !== 'string') return false
+          if (!_re10.test(_r264)) return false
+        }
+        {
+          const _r265 = _av15['binary']
+          if (typeof _r265 !== 'string') return false
+          if (!_re12.test(_r265)) return false
+        }
+        {
+          const _r266 = _av15['integrity']
+          if (typeof _r266 !== 'string') return false
+          if (!_re14.test(_r266)) return false
+        }
+        {
+          const _o267 = _av15['format']
+          if (_o267 !== undefined && (_pk263 || _h(_av15, 'format'))) {
+            if (!(_af16_b0(_o267) || _af16_b1(_o267))) return false
+          }
+        }
+      }
+    {
+      var _pl271 =
+        _r261 !== null &&
+        typeof _r261 === 'object' &&
+        (_PN ? _r261.__proto__ : _gp(_r261)) === _OP
+      for (const _k270 in _r261)
+        if (!_pl271 && !_hop.call(_r261, _k270)) continue
+        else {
+          if (!_es272.has(_k270)) return false
+        }
+    }
+  }
+  for (var _k in d)
+    if (
+      _k !== 'origin' &&
+      _k !== 'repository' &&
+      _k !== 'version' &&
+      _k !== 'tag' &&
+      _k !== 'platforms' &&
+      _ok(d, _k)
+    )
+      return false
+  return true
+}
+function _pf14(d) {
   const _pk2 =
     typeof d === 'object' && d !== null && (_PN ? d.__proto__ : _gp(d)) === _OP
   if (typeof d !== 'object' || d === null || Array.isArray(d)) return false
@@ -1877,7 +1988,38 @@ function _pf13(d) {
   if (!_pf10(d['skillspector'])) return false
   if (!_pf11(d['fframes'])) return false
   if (!_pf12(d['pytorch'])) return false
-  if (Object.keys(d).length !== 20) return false
+  {
+    const _o273 = d['jouet']
+    if (_o273 !== undefined && (_pk2 || _h(d, 'jouet'))) {
+      if (!_pf13(_o273)) return false
+    }
+  }
+  for (var _k in d)
+    if (
+      _k !== 'node' &&
+      _k !== 'npm' &&
+      _k !== 'pnpm' &&
+      _k !== 'nub' &&
+      _k !== 'mise' &&
+      _k !== 'sfw' &&
+      _k !== 'uv' &&
+      _k !== 'zizmor' &&
+      _k !== 'actionlint' &&
+      _k !== 'cdxgen' &&
+      _k !== 'opengrep' &&
+      _k !== 'trivy' &&
+      _k !== 'trufflehog' &&
+      _k !== 'mold' &&
+      _k !== 'tak' &&
+      _k !== 'agentshield' &&
+      _k !== 'skill-scanner' &&
+      _k !== 'skillspector' &&
+      _k !== 'fframes' &&
+      _k !== 'pytorch' &&
+      _k !== 'jouet' &&
+      _ok(d, _k)
+    )
+      return false
   return true
 }
 
@@ -1892,7 +2034,7 @@ const _fn = function (d) {
       if (typeof _o1 !== 'string') return false
     }
   }
-  if (!_pf13(d['tools'])) return false
+  if (!_pf14(d['tools'])) return false
   for (var _k in d)
     if (_k !== '$schema' && _k !== 'tools' && _ok(d, _k)) return false
   return true
@@ -1926,6 +2068,7 @@ const _mkErr = function () {
     'skillspector',
     'fframes',
     'pytorch',
+    'jouet',
   ])
   const _a7 = new Set(['origin', 'version'])
   const _re9 = new RegExp('^\\d+\\.\\d+\\.\\d+$')
@@ -13344,7 +13487,746 @@ const _mkErr = function () {
       }
     }
   }
+  const _a214 = new Set(['origin', 'repository', 'version', 'tag', 'platforms'])
+  const _a220 = new Set(['asset', 'binary', 'integrity', 'format'])
+  const _brf222 = [
+    function (_bv, _bpth, _all) {
+      const _e = []
+      if (!(typeof _bv === 'string')) {
+        _e.push({
+          code: 'ATA1001',
+          keyword: 'type',
+          instancePath: _bpth,
+          schemaPath:
+            '#/properties/tools/properties/jouet/properties/platforms/additionalProperties/properties/format/anyOf/0/type',
+          params: { type: 'string' },
+          message: 'must be string',
+          docUrl: 'https://ata-validator.com/e/ATA1001',
+        })
+        if (!_all) return { valid: false, errors: _e }
+      }
+      if (_bv !== 'archive') {
+        _e.push({
+          code: 'ATA6002',
+          keyword: 'const',
+          instancePath: _bpth,
+          schemaPath:
+            '#/properties/tools/properties/jouet/properties/platforms/additionalProperties/properties/format/anyOf/0/const',
+          params: { allowedValue: 'archive' },
+          message: 'must be equal to constant',
+          docUrl: 'https://ata-validator.com/e/ATA6002',
+        })
+        if (!_all) return { valid: false, errors: _e }
+      }
+      return { valid: _e.length === 0, errors: _e }
+    },
+    function (_bv, _bpth, _all) {
+      const _e = []
+      if (!(typeof _bv === 'string')) {
+        _e.push({
+          code: 'ATA1001',
+          keyword: 'type',
+          instancePath: _bpth,
+          schemaPath:
+            '#/properties/tools/properties/jouet/properties/platforms/additionalProperties/properties/format/anyOf/1/type',
+          params: { type: 'string' },
+          message: 'must be string',
+          docUrl: 'https://ata-validator.com/e/ATA1001',
+        })
+        if (!_all) return { valid: false, errors: _e }
+      }
+      if (_bv !== 'binary') {
+        _e.push({
+          code: 'ATA6002',
+          keyword: 'const',
+          instancePath: _bpth,
+          schemaPath:
+            '#/properties/tools/properties/jouet/properties/platforms/additionalProperties/properties/format/anyOf/1/const',
+          params: { allowedValue: 'binary' },
+          message: 'must be equal to constant',
+          docUrl: 'https://ata-validator.com/e/ATA6002',
+        })
+        if (!_all) return { valid: false, errors: _e }
+      }
+      return { valid: _e.length === 0, errors: _e }
+    },
+  ]
+  const _bt222 = ['', '']
+  const _bvf222_0 = function (_bv) {
+    if (typeof _bv !== 'string') return false
+    if (_bv !== 'archive') return false
+    return true
+  }
+  const _bvf222_1 = function (_bv) {
+    if (typeof _bv !== 'string') return false
+    if (_bv !== 'binary') return false
+    return true
+  }
+  const _es225 = new Set([
+    'darwin-arm64',
+    'darwin-x64',
+    'linux-arm64',
+    'linux-x64',
+    'linux-arm64-musl',
+    'linux-x64-musl',
+    'win32-arm64',
+    'win32-x64',
+  ])
   function _pe19(d, _p, _all, _e) {
+    const _pk213 =
+      typeof d === 'object' &&
+      d !== null &&
+      (_PN ? d.__proto__ : _gp(d)) === _OP
+    if (!(typeof d === 'object' && d !== null && !Array.isArray(d))) {
+      _e.push({
+        code: 'ATA1001',
+        keyword: 'type',
+        instancePath: _p,
+        schemaPath: '#/properties/tools/properties/jouet/type',
+        params: { type: 'object' },
+        message: 'must be object',
+        docUrl: 'https://ata-validator.com/e/ATA1001',
+      })
+      if (!_all) return { valid: false, errors: _e }
+    }
+    if (
+      typeof d === 'object' &&
+      d !== null &&
+      !Array.isArray(d) &&
+      (d['origin'] === undefined || !(_pk213 || _h(d, 'origin')))
+    ) {
+      _e.push({
+        code: 'ATA7001',
+        keyword: 'required',
+        instancePath: _p,
+        schemaPath: '#/properties/tools/properties/jouet/required',
+        params: { missingProperty: 'origin' },
+        message: "must have required property 'origin'",
+        docUrl: 'https://ata-validator.com/e/ATA7001',
+      })
+      if (!_all) return { valid: false, errors: _e }
+    }
+    if (
+      typeof d === 'object' &&
+      d !== null &&
+      !Array.isArray(d) &&
+      (d['repository'] === undefined || !(_pk213 || _h(d, 'repository')))
+    ) {
+      _e.push({
+        code: 'ATA7001',
+        keyword: 'required',
+        instancePath: _p,
+        schemaPath: '#/properties/tools/properties/jouet/required',
+        params: { missingProperty: 'repository' },
+        message: "must have required property 'repository'",
+        docUrl: 'https://ata-validator.com/e/ATA7001',
+      })
+      if (!_all) return { valid: false, errors: _e }
+    }
+    if (
+      typeof d === 'object' &&
+      d !== null &&
+      !Array.isArray(d) &&
+      (d['version'] === undefined || !(_pk213 || _h(d, 'version')))
+    ) {
+      _e.push({
+        code: 'ATA7001',
+        keyword: 'required',
+        instancePath: _p,
+        schemaPath: '#/properties/tools/properties/jouet/required',
+        params: { missingProperty: 'version' },
+        message: "must have required property 'version'",
+        docUrl: 'https://ata-validator.com/e/ATA7001',
+      })
+      if (!_all) return { valid: false, errors: _e }
+    }
+    if (
+      typeof d === 'object' &&
+      d !== null &&
+      !Array.isArray(d) &&
+      (d['platforms'] === undefined || !(_pk213 || _h(d, 'platforms')))
+    ) {
+      _e.push({
+        code: 'ATA7001',
+        keyword: 'required',
+        instancePath: _p,
+        schemaPath: '#/properties/tools/properties/jouet/required',
+        params: { missingProperty: 'platforms' },
+        message: "must have required property 'platforms'",
+        docUrl: 'https://ata-validator.com/e/ATA7001',
+      })
+      if (!_all) return { valid: false, errors: _e }
+    }
+    if (typeof d === 'object' && d !== null && !Array.isArray(d)) {
+      let _x214 = 0
+      var _pl215 =
+        d !== null &&
+        typeof d === 'object' &&
+        (_PN ? d.__proto__ : _gp(d)) === _OP
+      for (const _f214 in d)
+        if (!_pl215 && !_hop.call(d, _f214)) continue
+        else {
+          if (!_a214.has(_f214)) {
+            _x214 = 1
+            break
+          }
+        }
+      if (_x214) {
+        const _k214 = Object.keys(d)
+        for (let _i = 0; _i < _k214.length; _i++) {
+          if (!_a214.has(_k214[_i])) {
+            _e.push({
+              code: 'ATA7002',
+              keyword: 'additionalProperties',
+              instancePath: _p,
+              schemaPath:
+                '#/properties/tools/properties/jouet/additionalProperties',
+              params: { additionalProperty: _k214[_i] },
+              message: 'must NOT have additional properties',
+              docUrl: 'https://ata-validator.com/e/ATA7002',
+            })
+            if (!_all) return { valid: false, errors: _e }
+          }
+        }
+      }
+    }
+    if (
+      typeof d === 'object' &&
+      d !== null &&
+      !Array.isArray(d) &&
+      d['origin'] !== undefined &&
+      (_pk213 ? 'origin' in d : _h(d, 'origin'))
+    ) {
+      if (!(typeof d['origin'] === 'string')) {
+        _e.push({
+          code: 'ATA1001',
+          keyword: 'type',
+          instancePath: _p + '/origin',
+          schemaPath:
+            '#/properties/tools/properties/jouet/properties/origin/type',
+          params: { type: 'string' },
+          message: 'must be string',
+          docUrl: 'https://ata-validator.com/e/ATA1001',
+        })
+        if (!_all) return { valid: false, errors: _e }
+      }
+      if (d['origin'] !== 'gh-asset') {
+        _e.push({
+          code: 'ATA6002',
+          keyword: 'const',
+          instancePath: _p + '/origin',
+          schemaPath:
+            '#/properties/tools/properties/jouet/properties/origin/const',
+          params: { allowedValue: 'gh-asset' },
+          message: 'must be equal to constant',
+          docUrl: 'https://ata-validator.com/e/ATA6002',
+        })
+        if (!_all) return { valid: false, errors: _e }
+      }
+    }
+    if (
+      typeof d === 'object' &&
+      d !== null &&
+      !Array.isArray(d) &&
+      d['repository'] !== undefined &&
+      (_pk213 ? 'repository' in d : _h(d, 'repository'))
+    ) {
+      if (!(typeof d['repository'] === 'string')) {
+        _e.push({
+          code: 'ATA1001',
+          keyword: 'type',
+          instancePath: _p + '/repository',
+          schemaPath:
+            '#/properties/tools/properties/jouet/properties/repository/type',
+          params: { type: 'string' },
+          message: 'must be string',
+          docUrl: 'https://ata-validator.com/e/ATA1001',
+        })
+        if (!_all) return { valid: false, errors: _e }
+      }
+      if (typeof d['repository'] === 'string' && !_re20.test(d['repository'])) {
+        _e.push({
+          code: 'ATA2013',
+          keyword: 'pattern',
+          instancePath: _p + '/repository',
+          schemaPath:
+            '#/properties/tools/properties/jouet/properties/repository/pattern',
+          params: { pattern: '^github:[\\w-]+/[\\w.-]+$' },
+          message: 'must match pattern "^github:[\\w-]+/[\\w.-]+$"',
+          docUrl: 'https://ata-validator.com/e/ATA2013',
+        })
+        if (!_all) return { valid: false, errors: _e }
+      }
+    }
+    if (
+      typeof d === 'object' &&
+      d !== null &&
+      !Array.isArray(d) &&
+      d['version'] !== undefined &&
+      (_pk213 ? 'version' in d : _h(d, 'version'))
+    ) {
+      if (!(typeof d['version'] === 'string')) {
+        _e.push({
+          code: 'ATA1001',
+          keyword: 'type',
+          instancePath: _p + '/version',
+          schemaPath:
+            '#/properties/tools/properties/jouet/properties/version/type',
+          params: { type: 'string' },
+          message: 'must be string',
+          docUrl: 'https://ata-validator.com/e/ATA1001',
+        })
+        if (!_all) return { valid: false, errors: _e }
+      }
+      if (typeof d['version'] === 'string' && !_re9.test(d['version'])) {
+        _e.push({
+          code: 'ATA2013',
+          keyword: 'pattern',
+          instancePath: _p + '/version',
+          schemaPath:
+            '#/properties/tools/properties/jouet/properties/version/pattern',
+          params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
+          message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
+          docUrl: 'https://ata-validator.com/e/ATA2013',
+        })
+        if (!_all) return { valid: false, errors: _e }
+      }
+    }
+    if (
+      typeof d === 'object' &&
+      d !== null &&
+      !Array.isArray(d) &&
+      d['tag'] !== undefined &&
+      (_pk213 ? 'tag' in d : _h(d, 'tag'))
+    ) {
+      if (!(typeof d['tag'] === 'string')) {
+        _e.push({
+          code: 'ATA1001',
+          keyword: 'type',
+          instancePath: _p + '/tag',
+          schemaPath: '#/properties/tools/properties/jouet/properties/tag/type',
+          params: { type: 'string' },
+          message: 'must be string',
+          docUrl: 'https://ata-validator.com/e/ATA1001',
+        })
+        if (!_all) return { valid: false, errors: _e }
+      }
+      if (typeof d['tag'] === 'string' && !_re21.test(d['tag'])) {
+        _e.push({
+          code: 'ATA2013',
+          keyword: 'pattern',
+          instancePath: _p + '/tag',
+          schemaPath:
+            '#/properties/tools/properties/jouet/properties/tag/pattern',
+          params: { pattern: '^[\\w.-]+$' },
+          message: 'must match pattern "^[\\w.-]+$"',
+          docUrl: 'https://ata-validator.com/e/ATA2013',
+        })
+        if (!_all) return { valid: false, errors: _e }
+      }
+    }
+    if (
+      typeof d === 'object' &&
+      d !== null &&
+      !Array.isArray(d) &&
+      d['platforms'] !== undefined &&
+      (_pk213 ? 'platforms' in d : _h(d, 'platforms'))
+    ) {
+      if (
+        !(
+          typeof d['platforms'] === 'object' &&
+          d['platforms'] !== null &&
+          !Array.isArray(d['platforms'])
+        )
+      ) {
+        _e.push({
+          code: 'ATA1001',
+          keyword: 'type',
+          instancePath: _p + '/platforms',
+          schemaPath:
+            '#/properties/tools/properties/jouet/properties/platforms/type',
+          params: { type: 'object' },
+          message: 'must be object',
+          docUrl: 'https://ata-validator.com/e/ATA1001',
+        })
+        if (!_all) return { valid: false, errors: _e }
+      }
+      if (
+        typeof d['platforms'] === 'object' &&
+        d['platforms'] !== null &&
+        !Array.isArray(d['platforms']) &&
+        Object.keys(d['platforms']).length < 1
+      ) {
+        _e.push({
+          code: 'ATA2010',
+          keyword: 'minProperties',
+          instancePath: _p + '/platforms',
+          schemaPath:
+            '#/properties/tools/properties/jouet/properties/platforms/minProperties',
+          params: { limit: 1 },
+          message: 'must NOT have fewer than 1 properties',
+          docUrl: 'https://ata-validator.com/e/ATA2010',
+        })
+        if (!_all) return { valid: false, errors: _e }
+      }
+      if (
+        typeof d['platforms'] === 'object' &&
+        d['platforms'] !== null &&
+        !Array.isArray(d['platforms'])
+      ) {
+        var _pl218 =
+          d['platforms'] !== null &&
+          typeof d['platforms'] === 'object' &&
+          (_PN ? d['platforms'].__proto__ : _gp(d['platforms'])) === _OP
+        for (const _k217 in d['platforms'])
+          if (!_pl218 && !_hop.call(d['platforms'], _k217)) continue
+          else {
+            {
+              const _pk219 =
+                typeof d['platforms'][_k217] === 'object' &&
+                d['platforms'][_k217] !== null &&
+                (_PN
+                  ? d['platforms'][_k217].__proto__
+                  : _gp(d['platforms'][_k217])) === _OP
+              if (
+                !(
+                  typeof d['platforms'][_k217] === 'object' &&
+                  d['platforms'][_k217] !== null &&
+                  !Array.isArray(d['platforms'][_k217])
+                )
+              ) {
+                _e.push({
+                  code: 'ATA1001',
+                  keyword: 'type',
+                  instancePath: _p + '/platforms' + '/' + _pe(_k217),
+                  schemaPath:
+                    '#/properties/tools/properties/jouet/properties/platforms/additionalProperties/type',
+                  params: { type: 'object' },
+                  message: 'must be object',
+                  docUrl: 'https://ata-validator.com/e/ATA1001',
+                })
+                if (!_all) return { valid: false, errors: _e }
+              }
+              if (
+                typeof d['platforms'][_k217] === 'object' &&
+                d['platforms'][_k217] !== null &&
+                !Array.isArray(d['platforms'][_k217]) &&
+                (d['platforms'][_k217]['asset'] === undefined ||
+                  !(_pk219 || _h(d['platforms'][_k217], 'asset')))
+              ) {
+                _e.push({
+                  code: 'ATA7001',
+                  keyword: 'required',
+                  instancePath: _p + '/platforms' + '/' + _pe(_k217),
+                  schemaPath:
+                    '#/properties/tools/properties/jouet/properties/platforms/additionalProperties/required',
+                  params: { missingProperty: 'asset' },
+                  message: "must have required property 'asset'",
+                  docUrl: 'https://ata-validator.com/e/ATA7001',
+                })
+                if (!_all) return { valid: false, errors: _e }
+              }
+              if (
+                typeof d['platforms'][_k217] === 'object' &&
+                d['platforms'][_k217] !== null &&
+                !Array.isArray(d['platforms'][_k217]) &&
+                (d['platforms'][_k217]['binary'] === undefined ||
+                  !(_pk219 || _h(d['platforms'][_k217], 'binary')))
+              ) {
+                _e.push({
+                  code: 'ATA7001',
+                  keyword: 'required',
+                  instancePath: _p + '/platforms' + '/' + _pe(_k217),
+                  schemaPath:
+                    '#/properties/tools/properties/jouet/properties/platforms/additionalProperties/required',
+                  params: { missingProperty: 'binary' },
+                  message: "must have required property 'binary'",
+                  docUrl: 'https://ata-validator.com/e/ATA7001',
+                })
+                if (!_all) return { valid: false, errors: _e }
+              }
+              if (
+                typeof d['platforms'][_k217] === 'object' &&
+                d['platforms'][_k217] !== null &&
+                !Array.isArray(d['platforms'][_k217]) &&
+                (d['platforms'][_k217]['integrity'] === undefined ||
+                  !(_pk219 || _h(d['platforms'][_k217], 'integrity')))
+              ) {
+                _e.push({
+                  code: 'ATA7001',
+                  keyword: 'required',
+                  instancePath: _p + '/platforms' + '/' + _pe(_k217),
+                  schemaPath:
+                    '#/properties/tools/properties/jouet/properties/platforms/additionalProperties/required',
+                  params: { missingProperty: 'integrity' },
+                  message: "must have required property 'integrity'",
+                  docUrl: 'https://ata-validator.com/e/ATA7001',
+                })
+                if (!_all) return { valid: false, errors: _e }
+              }
+              if (
+                typeof d['platforms'][_k217] === 'object' &&
+                d['platforms'][_k217] !== null &&
+                !Array.isArray(d['platforms'][_k217])
+              ) {
+                let _x220 = 0
+                var _pl221 =
+                  d['platforms'][_k217] !== null &&
+                  typeof d['platforms'][_k217] === 'object' &&
+                  (_PN
+                    ? d['platforms'][_k217].__proto__
+                    : _gp(d['platforms'][_k217])) === _OP
+                for (const _f220 in d['platforms'][_k217])
+                  if (!_pl221 && !_hop.call(d['platforms'][_k217], _f220))
+                    continue
+                  else {
+                    if (!_a220.has(_f220)) {
+                      _x220 = 1
+                      break
+                    }
+                  }
+                if (_x220) {
+                  const _k220 = Object.keys(d['platforms'][_k217])
+                  for (let _i = 0; _i < _k220.length; _i++) {
+                    if (!_a220.has(_k220[_i])) {
+                      _e.push({
+                        code: 'ATA7002',
+                        keyword: 'additionalProperties',
+                        instancePath: _p + '/platforms' + '/' + _pe(_k217),
+                        schemaPath:
+                          '#/properties/tools/properties/jouet/properties/platforms/additionalProperties/additionalProperties',
+                        params: { additionalProperty: _k220[_i] },
+                        message: 'must NOT have additional properties',
+                        docUrl: 'https://ata-validator.com/e/ATA7002',
+                      })
+                      if (!_all) return { valid: false, errors: _e }
+                    }
+                  }
+                }
+              }
+              if (
+                typeof d['platforms'][_k217] === 'object' &&
+                d['platforms'][_k217] !== null &&
+                !Array.isArray(d['platforms'][_k217]) &&
+                d['platforms'][_k217]['asset'] !== undefined &&
+                (_pk219
+                  ? 'asset' in d['platforms'][_k217]
+                  : _h(d['platforms'][_k217], 'asset'))
+              ) {
+                if (!(typeof d['platforms'][_k217]['asset'] === 'string')) {
+                  _e.push({
+                    code: 'ATA1001',
+                    keyword: 'type',
+                    instancePath:
+                      _p + '/platforms' + '/' + _pe(_k217) + '/asset',
+                    schemaPath:
+                      '#/properties/tools/properties/jouet/properties/platforms/additionalProperties/properties/asset/type',
+                    params: { type: 'string' },
+                    message: 'must be string',
+                    docUrl: 'https://ata-validator.com/e/ATA1001',
+                  })
+                  if (!_all) return { valid: false, errors: _e }
+                }
+                if (
+                  typeof d['platforms'][_k217]['asset'] === 'string' &&
+                  !_re13.test(d['platforms'][_k217]['asset'])
+                ) {
+                  _e.push({
+                    code: 'ATA2013',
+                    keyword: 'pattern',
+                    instancePath:
+                      _p + '/platforms' + '/' + _pe(_k217) + '/asset',
+                    schemaPath:
+                      '#/properties/tools/properties/jouet/properties/platforms/additionalProperties/properties/asset/pattern',
+                    params: { pattern: '^[A-Za-z0-9_][A-Za-z0-9_.-]*$' },
+                    message:
+                      'must match pattern "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"',
+                    docUrl: 'https://ata-validator.com/e/ATA2013',
+                  })
+                  if (!_all) return { valid: false, errors: _e }
+                }
+              }
+              if (
+                typeof d['platforms'][_k217] === 'object' &&
+                d['platforms'][_k217] !== null &&
+                !Array.isArray(d['platforms'][_k217]) &&
+                d['platforms'][_k217]['binary'] !== undefined &&
+                (_pk219
+                  ? 'binary' in d['platforms'][_k217]
+                  : _h(d['platforms'][_k217], 'binary'))
+              ) {
+                if (!(typeof d['platforms'][_k217]['binary'] === 'string')) {
+                  _e.push({
+                    code: 'ATA1001',
+                    keyword: 'type',
+                    instancePath:
+                      _p + '/platforms' + '/' + _pe(_k217) + '/binary',
+                    schemaPath:
+                      '#/properties/tools/properties/jouet/properties/platforms/additionalProperties/properties/binary/type',
+                    params: { type: 'string' },
+                    message: 'must be string',
+                    docUrl: 'https://ata-validator.com/e/ATA1001',
+                  })
+                  if (!_all) return { valid: false, errors: _e }
+                }
+                if (
+                  typeof d['platforms'][_k217]['binary'] === 'string' &&
+                  !_re14.test(d['platforms'][_k217]['binary'])
+                ) {
+                  _e.push({
+                    code: 'ATA2013',
+                    keyword: 'pattern',
+                    instancePath:
+                      _p + '/platforms' + '/' + _pe(_k217) + '/binary',
+                    schemaPath:
+                      '#/properties/tools/properties/jouet/properties/platforms/additionalProperties/properties/binary/pattern',
+                    params: {
+                      pattern:
+                        '^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$',
+                    },
+                    message:
+                      'must match pattern "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"',
+                    docUrl: 'https://ata-validator.com/e/ATA2013',
+                  })
+                  if (!_all) return { valid: false, errors: _e }
+                }
+              }
+              if (
+                typeof d['platforms'][_k217] === 'object' &&
+                d['platforms'][_k217] !== null &&
+                !Array.isArray(d['platforms'][_k217]) &&
+                d['platforms'][_k217]['integrity'] !== undefined &&
+                (_pk219
+                  ? 'integrity' in d['platforms'][_k217]
+                  : _h(d['platforms'][_k217], 'integrity'))
+              ) {
+                if (!(typeof d['platforms'][_k217]['integrity'] === 'string')) {
+                  _e.push({
+                    code: 'ATA1001',
+                    keyword: 'type',
+                    instancePath:
+                      _p + '/platforms' + '/' + _pe(_k217) + '/integrity',
+                    schemaPath:
+                      '#/properties/tools/properties/jouet/properties/platforms/additionalProperties/properties/integrity/type',
+                    params: { type: 'string' },
+                    message: 'must be string',
+                    docUrl: 'https://ata-validator.com/e/ATA1001',
+                  })
+                  if (!_all) return { valid: false, errors: _e }
+                }
+                if (
+                  typeof d['platforms'][_k217]['integrity'] === 'string' &&
+                  !_re15.test(d['platforms'][_k217]['integrity'])
+                ) {
+                  _e.push({
+                    code: 'ATA2013',
+                    keyword: 'pattern',
+                    instancePath:
+                      _p + '/platforms' + '/' + _pe(_k217) + '/integrity',
+                    schemaPath:
+                      '#/properties/tools/properties/jouet/properties/platforms/additionalProperties/properties/integrity/pattern',
+                    params: {
+                      pattern: '^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$',
+                    },
+                    message:
+                      'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
+                    docUrl: 'https://ata-validator.com/e/ATA2013',
+                  })
+                  if (!_all) return { valid: false, errors: _e }
+                }
+              }
+              if (
+                typeof d['platforms'][_k217] === 'object' &&
+                d['platforms'][_k217] !== null &&
+                !Array.isArray(d['platforms'][_k217]) &&
+                d['platforms'][_k217]['format'] !== undefined &&
+                (_pk219
+                  ? 'format' in d['platforms'][_k217]
+                  : _h(d['platforms'][_k217], 'format'))
+              ) {
+                {
+                  const _pp222 =
+                    _p + '/platforms' + '/' + _pe(_k217) + '/format'
+                  if (
+                    !(
+                      _bvf222_0(d['platforms'][_k217]['format']) ||
+                      _bvf222_1(d['platforms'][_k217]['format'])
+                    )
+                  ) {
+                    /*CB*/ if (_all === 0) {
+                      _e.push(null)
+                      return { valid: false, errors: _e }
+                    }
+                    const _brr222 = []
+                    for (let _bi = 0; _bi < 2; _bi++) {
+                      const _br = _brf222[_bi](
+                        d['platforms'][_k217]['format'],
+                        _pp222,
+                        _all,
+                      )
+                      _brr222.push(
+                        _br.valid ? { valid: false, errors: _br.errors } : _br,
+                      )
+                    }
+                    const _brc222 = __ataCollapse(
+                      'anyOf',
+                      _brr222,
+                      _pp222,
+                      '#/properties/tools/properties/jouet/properties/platforms/additionalProperties/properties/format/anyOf',
+                      null,
+                      _bt222,
+                    )
+                    if (_brc222) {
+                      _e.push(_brc222)
+                      if (!_all) return { valid: false, errors: _e }
+                    } /*CE*/
+                  }
+                }
+              }
+            }
+          }
+      }
+      if (
+        typeof d['platforms'] === 'object' &&
+        d['platforms'] !== null &&
+        !Array.isArray(d['platforms'])
+      ) {
+        var _pl224 =
+          d['platforms'] !== null &&
+          typeof d['platforms'] === 'object' &&
+          (_PN ? d['platforms'].__proto__ : _gp(d['platforms'])) === _OP
+        for (const _k223 in d['platforms'])
+          if (!_pl224 && !_hop.call(d['platforms'], _k223)) continue
+          else {
+            if (!_es225.has(_k223)) {
+              _e.push({
+                code: 'ATA6001',
+                keyword: 'enum',
+                instancePath: _p + '/platforms',
+                schemaPath:
+                  '#/properties/tools/properties/jouet/properties/platforms/propertyNames/enum',
+                params: {
+                  allowedValues: [
+                    'darwin-arm64',
+                    'darwin-x64',
+                    'linux-arm64',
+                    'linux-x64',
+                    'linux-arm64-musl',
+                    'linux-x64-musl',
+                    'win32-arm64',
+                    'win32-x64',
+                  ],
+                },
+                message: 'must be equal to one of the allowed values',
+                docUrl: 'https://ata-validator.com/e/ATA6001',
+              })
+              if (!_all) return { valid: false, errors: _e }
+            }
+          }
+      }
+    }
+  }
+  function _pe20(d, _p, _all, _e) {
     const _pk3 =
       typeof d === 'object' &&
       d !== null &&
@@ -14515,6 +15397,16 @@ const _mkErr = function () {
       _pe18(d['pytorch'], _p + '/pytorch', _all, _e)
       if (!_all && _e.length) return { valid: false, errors: _e }
     }
+    if (
+      typeof d === 'object' &&
+      d !== null &&
+      !Array.isArray(d) &&
+      d['jouet'] !== undefined &&
+      (_pk3 ? 'jouet' in d : _h(d, 'jouet'))
+    ) {
+      _pe19(d['jouet'], _p + '/jouet', _all, _e)
+      if (!_all && _e.length) return { valid: false, errors: _e }
+    }
   }
   const __ATA_SEVERITY = {
     type: 10,
@@ -14695,7 +15587,7 @@ const _mkErr = function () {
       d['tools'] !== undefined &&
       (_pk0 ? 'tools' in d : _h(d, 'tools'))
     ) {
-      _pe19(d['tools'], '/tools', _all, _e)
+      _pe20(d['tools'], '/tools', _all, _e)
       if (!_all && _e.length) return { valid: false, errors: _e }
     }
     return { valid: _e.length === 0, errors: _e }
@@ -14711,7 +15603,7 @@ function isValid(data) {
 function validate(data) {
   return _fn(data) ? VALID : { valid: false, errors: errFn(data, true).errors }
 }
-const schemaHash = 'a76e097725fbecb4'
+const schemaHash = 'a5b3096984619394'
 const ataVersion = '1.56.0'
 export { validate, isValid, schemaHash, ataVersion }
 export default { validate, isValid, schemaHash, ataVersion }

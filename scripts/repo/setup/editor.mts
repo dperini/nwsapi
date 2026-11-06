@@ -6,7 +6,8 @@ import {
   writeFileSync,
 } from 'node:fs'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { message as optiqueMessage } from '@optique/core/message'
+import { HELP_SHOWN, runSetupCli } from '../lib/cli/parser.mts'
 import { isMainModule } from '../lib/run-node.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 
@@ -198,17 +199,12 @@ export function editorSetupPlan(
 }
 
 export async function main(args = process.argv.slice(2)) {
-  const { values } = parseArgs({
-    args: args[0] === '--' ? args.slice(1) : args,
-    options: {
-      help: { type: 'boolean', short: 'h' },
-      json: { type: 'boolean' },
-      describe: { type: 'boolean' },
-      'dry-run': { type: 'boolean' },
-    },
-  })
-  if (values.help) {
-    console.log('Usage: pnpm run setup:editor [--dry-run]')
+  const values = runSetupCli(
+    'setup:editor',
+    args[0] === '--' ? args.slice(1) : args,
+    optiqueMessage`Configure the recommended editor language-server extension.`,
+  )
+  if (values === HELP_SHOWN) {
     return
   }
   if (values.describe) {
@@ -218,7 +214,7 @@ export async function main(args = process.argv.slice(2)) {
     )
     return
   }
-  if (values['dry-run']) {
+  if (values.dryRun) {
     const plan = editorSetupPlan()
     console.log(
       values.json ? JSON.stringify(plan) : formatEditorSetupPlan(plan),

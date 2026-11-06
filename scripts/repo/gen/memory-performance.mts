@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
-import { parseArgs } from 'node:util'
+import { message as optiqueMessage } from '@optique/core/message'
+import { HELP_SHOWN, runCheckCli } from '../lib/cli/parser.mts'
 
 interface Profile {
   engineSha256: string
@@ -27,7 +28,14 @@ interface Observations {
   notes: string[]
   experiments: Record<string, Experiment>
 }
-const { values } = parseArgs({ options: { check: { type: 'boolean' } } })
+const values = runCheckCli(
+  'gen:memory-performance',
+  process.argv.slice(2),
+  optiqueMessage`Generate or check memory benchmark summaries.`,
+)
+if (values === HELP_SHOWN) {
+  process.exit(0)
+}
 const input = new URL(
   '../../../assets/repo/bench/memory-observations.json',
   import.meta.url,

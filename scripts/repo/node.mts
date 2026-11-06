@@ -3,7 +3,6 @@ import type { ExecFileSyncOptionsWithStringEncoding } from 'node:child_process'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
 import manifest from '../../.config/node-interop.json' with { type: 'json' }
 import { toolExecutable } from './external-tools.mts'
 import { isMainModule } from './lib/run-node.mts'
@@ -65,18 +64,28 @@ export function describeNodeSetup() {
   }
 }
 
-export function main(args = process.argv.slice(2)) {
-  const { values } = parseArgs({
-    args: args[0] === '--' ? args.slice(1) : args,
-    options: {
-      help: { type: 'boolean', short: 'h' },
-      json: { type: 'boolean' },
-      describe: { type: 'boolean' },
-      'dry-run': { type: 'boolean' },
+export async function main(args = process.argv.slice(2)) {
+  const [{ object }, { message }, { withDefault }, { flag }, { runCli }] =
+    await Promise.all([
+      import('@optique/core/constructs'),
+      import('@optique/core/message'),
+      import('@optique/core/modifiers'),
+      import('@optique/core/primitives'),
+      import('./lib/cli/parser.mts'),
+    ])
+  const values = runCli(
+    object({
+      json: withDefault(flag('--json'), false),
+      describe: withDefault(flag('--describe'), false),
+      dryRun: withDefault(flag('--dry-run'), false),
+    }),
+    'setup:node',
+    args[0] === '--' ? args.slice(1) : args,
+    {
+      brief: message`Install the exact Node versions used by interoperability tests.`,
     },
-  })
-  if (values.help) {
-    console.log('Usage: pnpm run setup:node [--dry-run]')
+  )
+  if (typeof values === 'symbol') {
     return
   }
   if (values.describe) {
@@ -86,7 +95,7 @@ export function main(args = process.argv.slice(2)) {
     )
     return
   }
-  if (values['dry-run']) {
+  if (values.dryRun) {
     const plan = nodeSetupPlan()
     console.log(
       values.json
@@ -125,5 +134,5 @@ export function resolveNodeRuntime(version: string) {
 }
 
 if (isMainModule(import.meta.url)) {
-  main()
+  await main()
 }

@@ -1,4 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs'
+import { message } from '@optique/core/message'
+import { HELP_SHOWN, runCheckCli } from '../../lib/cli/parser.mts'
 import path from 'node:path'
 import { checkNativeContract, nativeCachePath } from './contract/check.mts'
 import { nativePins, type NativePins } from '../../check/wpt/native/pool.mts'
@@ -47,8 +49,14 @@ export function updateNative(
 }
 
 if (isMainModule(import.meta.url)) {
-  if (process.argv.slice(2).some(arg => arg !== '--check')) {
-    throw new Error('Usage: update/native.mts [--check]')
+  const options = runCheckCli(
+    'wpt-native:update',
+    process.argv.slice(2),
+    message`Refresh native WPT selector support evidence.`,
+  )
+  if (options === HELP_SHOWN) {
+    process.exitCode = 0
+  } else {
+    updateNative(options.check)
   }
-  updateNative(process.argv.includes('--check'))
 }

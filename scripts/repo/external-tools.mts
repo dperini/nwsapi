@@ -63,11 +63,12 @@ export interface ExternalTools {
       python: string
       project: string
     }
+    jouet?: GithubToolPin
     npm: ToolPin & AssetPin & { repository: string }
   }
 }
 
-export type DownloadTool = 'npm' | GithubTool
+export type DownloadTool = 'npm' | GithubTool | 'jouet'
 export interface ToolPlan extends AssetPin {
   name: DownloadTool
   version: string
@@ -100,10 +101,15 @@ export function toolchainStatePath(directory = TOOL_BIN) {
 
 export function toolchainState() {
   const names = ['nub', 'pnpm', 'npm', 'sfw', 'mise'] as const
+  const platform = toolPlatform()
+  const tools = names.map(name => toolPlan(name))
+  if (manifest.tools.jouet && platform in manifest.tools.jouet.platforms) {
+    tools.push(toolPlan('jouet', platform))
+  }
   return JSON.stringify({
     manager: 'pnpm',
     node: toolVersions()['node'],
-    tools: names.map(name => toolPlan(name)),
+    tools,
   })
 }
 
@@ -124,6 +130,16 @@ export function toolVersions(data: ExternalTools = manifest) {
       throw new Error(`Invalid external tool configuration: ${name}`)
     }
     versions[name] = tool.version
+  }
+  if (data.tools['jouet']) {
+    if (
+      data.tools['jouet'].origin !== 'gh-asset' ||
+      typeof data.tools['jouet'].version !== 'string' ||
+      !/^\d+\.\d+\.\d+$/.test(data.tools['jouet'].version)
+    ) {
+      throw new Error('Invalid external tool configuration: jouet')
+    }
+    versions['jouet'] = data.tools['jouet'].version
   }
   return versions
 }
@@ -170,7 +186,10 @@ export function toolPlan(
   data: ExternalTools = manifest,
 ): ToolPlan {
   toolVersions(data)
-  const tool = data.tools[name]
+  const tool = name === 'jouet' ? data.tools.jouet : data.tools[name]
+  if (!tool) {
+    throw new Error('Missing external tool configuration: jouet')
+  }
   const pin = 'platforms' in tool ? tool.platforms[platform] : tool
   validateAsset(pin)
   const repository = tool.repository
@@ -229,6 +248,11 @@ export function checkExternalTools(data: ExternalTools = manifest) {
     }
     for (const platform of Object.keys(data.tools[name].platforms)) {
       toolPlan(name, platform, data)
+    }
+  }
+  if (data.tools.jouet) {
+    for (const platform of Object.keys(data.tools.jouet.platforms)) {
+      toolPlan('jouet', platform, data)
     }
   }
 }

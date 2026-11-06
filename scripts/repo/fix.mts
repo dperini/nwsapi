@@ -1,3 +1,8 @@
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { withDefault } from '@optique/core/modifiers'
+import { flag } from '@optique/core/primitives'
+import { HELP_SHOWN, runCli } from './lib/cli/parser.mts'
 import { checkCode } from './check.mts'
 import {
   API_SCRIPT_PATH,
@@ -21,8 +26,17 @@ export function fixCode(run = runNode) {
 }
 
 if (isMainModule(import.meta.url)) {
-  if (process.argv.slice(2).some(arg => arg !== '--all')) {
-    throw new Error('Usage: pnpm run fix [--all]')
+  const options = runCli(
+    object({ all: withDefault(flag('--all'), false) }),
+    'fix',
+    process.argv.slice(2),
+    {
+      brief: message`Fix formatting, lint, generated API output, and SVGs.`,
+    },
+  )
+  if (options === HELP_SHOWN) {
+    process.exitCode = 0
+  } else {
+    fixCode()
   }
-  fixCode()
 }

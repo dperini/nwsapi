@@ -206,6 +206,12 @@ importers:
       '@opentui/core':
         specifier: 0.6.6
         version: 0.6.6(typescript@5.9.3)(web-tree-sitter@0.25.10)
+      '@optique/core':
+        specifier: 1.3.6
+        version: 1.3.6
+      '@optique/run':
+        specifier: 1.3.6
+        version: 1.3.6
       '@pierre/highlights':
         specifier: 0.2.0
         version: 0.2.0
@@ -1145,8 +1151,16 @@ packages:
     resolution: {integrity: sha512-eBqai76tHiFDoShlTNXN9AAPs9XznCJRrk4qmGhjZUSMmePCF9o1XU3okUHxHdDXXCHj4auKoIvCN79KNKErxA==}
     engines: {bun: '>=1.2.0', deno: '>=2.3.0', node: '>=20.0.0'}
 
+  '@optique/core@1.3.6':
+    resolution: {integrity: sha512-BXVuVyxP9bg8FbyvBYrSHisnAeG3XTf1xcuUjAWgDWKfzZssMGbSrMdiv4tA+BK3+CrSo6no+uHWpiHh4HMKeg==}
+    engines: {bun: '>=1.2.0', deno: '>=2.3.0', node: '>=20.0.0'}
+
   '@optique/run@1.1.0':
     resolution: {integrity: sha512-dcuqqqU1Cpm9CLGEkCkpT/cpJ6H6a+hs0rP+iD8Tgwb+CPPZtX/hCfdIrqYyZ2RtYLxgc3S6KqC81AZAwEUPew==}
+    engines: {bun: '>=1.2.0', deno: '>=2.3.0', node: '>=20.0.0'}
+
+  '@optique/run@1.3.6':
+    resolution: {integrity: sha512-uxlHO8vG/5ni1V+t+jdmYqiyYYY5uOevO/6U866oBpnlOxOGn2ZWIlPpDXAU3e5GRu4VecbeXoNff18yRDGoQw==}
     engines: {bun: '>=1.2.0', deno: '>=2.3.0', node: '>=20.0.0'}
 
   '@oxc-project/types@0.153.0':
@@ -4577,9 +4591,15 @@ snapshots:
 
   '@optique/core@1.1.0': {}
 
+  '@optique/core@1.3.6': {}
+
   '@optique/run@1.1.0':
     dependencies:
       '@optique/core': 1.1.0
+
+  '@optique/run@1.3.6':
+    dependencies:
+      '@optique/core': 1.3.6
 
   '@oxc-project/types@0.153.0': {}
 

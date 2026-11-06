@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { message } from '@optique/core/message'
+import { HELP_SHOWN, runSetupCli } from '../lib/cli/parser.mts'
 import { isMainModule } from '../lib/run-node.mts'
 import manifest from '../../../.config/external-tools.json' with { type: 'json' }
 import { toolPlan, toolPlatform, toolVersions } from '../external-tools.mts'
@@ -52,17 +53,12 @@ export function describeTakSetup() {
 }
 
 export async function main(args = process.argv.slice(2)) {
-  const { values } = parseArgs({
-    args: args[0] === '--' ? args.slice(1) : args,
-    options: {
-      help: { type: 'boolean', short: 'h' },
-      json: { type: 'boolean' },
-      describe: { type: 'boolean' },
-      'dry-run': { type: 'boolean' },
-    },
-  })
-  if (values.help) {
-    console.log('Usage: pnpm run setup:tak [--dry-run]')
+  const values = runSetupCli(
+    'setup:tak',
+    args[0] === '--' ? args.slice(1) : args,
+    message`Install and verify the pinned performance runner.`,
+  )
+  if (values === HELP_SHOWN) {
     return
   }
   if (values.describe) {
@@ -72,7 +68,7 @@ export async function main(args = process.argv.slice(2)) {
     )
     return
   }
-  if (values['dry-run']) {
+  if (values.dryRun) {
     const plan = takSetupPlan()
     console.log(values.json ? JSON.stringify(plan) : formatTakSetupPlan(plan))
     return

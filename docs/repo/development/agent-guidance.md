@@ -16,7 +16,9 @@ Run `pnpm run setup:agents --check` to report missing or stale aliases without w
 | Codex       | Root `AGENTS.md`                               | Generated `.agents/skills/<name>/SKILL.md`                                         |
 | OpenCode    | Root `AGENTS.md`                               | The same `.agents/skills/` aliases, with `.claude/skills/` compatibility discovery |
 
-Edit `AGENTS.md` or the authored skill. Generated aliases are small copies marked with their owning generator. The skill name stays identical across hosts. There is no extra `.codex` or `.opencode` configuration to maintain, and setup does not modify user-level configuration, authentication, permissions, shell aliases, or MCP settings.
+Edit `AGENTS.md` or the authored skill. Generated aliases are small copies marked with their owning generator. The skill name stays identical across hosts. Shared Jouet hooks live in `.codex/hooks.json` and `.claude/settings.json`; both call only the pinned binary under `.cache/bin` and skip when it is unavailable. Codex may ask users to trust the repository hooks. This Jouet version has no OpenCode hook adapter, so `.opencode/agents/` and `.opencode/commands/` provide OpenCode guidance and local workflows. Setup does not modify user-level configuration, authentication, shell aliases, or MCP settings.
+
+Run `pnpm run docs:translate` without a name to list translatable documents. In zsh, source `scripts/repo/translation/completion.zsh` from the repository root to complete document names for `pnpm run docs:translate` in the current shell.
 
 This follows Wheelhouse's template pattern: authoritative `AGENTS.md`, a generated Claude import, shared skill sources under `.claude`, and a generated flat `.agents/skills` surface. This checkout uses a flat source tree because it has only two skills. It does not import the fleet's larger hook and adapter system.
 

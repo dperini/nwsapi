@@ -11,7 +11,6 @@ import {
   writeFileSync,
 } from 'node:fs'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
 import {
   checkExternalTools,
   TOOL_BIN,
@@ -23,6 +22,7 @@ import {
   toolPlatform,
   toolVersions,
 } from '../external-tools.mts'
+import manifest from '../../../.config/external-tools.json' with { type: 'json' }
 import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
 import {
@@ -95,6 +95,7 @@ export async function setupTools({ full = false } = {}) {
     const name = names[i]!
     executables[name] = await installTool(toolPlan(name))
   }
+  await installJouet()
   registerNub()
   installNodeVersions([
     ...new Set([versions['node']!, ...(full ? NODE_INTEROP_VERSIONS : [])]),
@@ -135,13 +136,51 @@ export async function setupTools({ full = false } = {}) {
   return TOOL_BIN
 }
 
+export async function installJouet({
+  platform = toolPlatform(),
+  install = (plan: ReturnType<typeof toolPlan>) => installTool(plan),
+  verify = (executable: string) =>
+    execFileSync(executable, ['--version'], {
+      cwd: REPO_ROOT,
+      env: nodeInteropEnvironment(),
+      encoding: 'utf8',
+    }).trim(),
+  activate = (executable: string) => activateTool('jouet', executable),
+  log = (text: string) => console.log(text),
+}: {
+  platform?: string
+  install?: (plan: ReturnType<typeof toolPlan>) => Promise<string>
+  verify?: (executable: string) => string
+  activate?: (executable: string) => void
+  log?: (message: string) => void
+} = {}) {
+  const pin = manifest.tools.jouet
+  if (!pin?.platforms[platform as keyof typeof pin.platforms]) {
+    log(
+      `Jouet has no pinned release asset for ${platform}; its hooks will stay inactive here.`,
+    )
+    return
+  }
+  const executable = await install(toolPlan('jouet', platform))
+  const actual = verify(executable)
+  if (!actual.includes(`jouet ${pin.version}`)) {
+    throw new Error(`Expected jouet ${pin.version}, received ${actual}`)
+  }
+  activate(executable)
+}
+
 export function toolSetupPlan(root = REPO_ROOT, platform = process.platform) {
   const names = ['nub', 'pnpm', 'npm', 'sfw', 'mise'] as const
   const platformName = toolPlatform(platform)
   const bin = path.join(root, '.cache/bin')
   const cache = path.join(root, '.cache/external-tools')
   const state = path.join(bin, 'toolchain.json')
-  const tools = names.map(name => {
+  const tools: Array<{
+    name: string
+    version: string
+    asset: string
+    cache: string
+  }> = names.map(name => {
     const plan = toolPlan(name, platformName)
     return {
       name,
@@ -150,6 +189,20 @@ export function toolSetupPlan(root = REPO_ROOT, platform = process.platform) {
       cache: path.relative(root, toolDirectory(plan, cache)),
     }
   })
+  const jouetPin = manifest.tools.jouet
+  if (
+    jouetPin?.platforms[
+      toolPlatform(platform) as keyof typeof jouetPin.platforms
+    ]
+  ) {
+    const plan = toolPlan('jouet', toolPlatform(platform))
+    tools.push({
+      name: 'jouet',
+      version: plan.version,
+      asset: plan.asset,
+      cache: path.relative(root, toolDirectory(plan, cache)),
+    })
+  }
   const suffix = platform === 'win32' ? '.cmd' : ''
   return {
     schemaVersion: 1,
@@ -161,6 +214,11 @@ export function toolSetupPlan(root = REPO_ROOT, platform = process.platform) {
       ...names.map(name =>
         path.relative(root, path.join(bin, `${name}${suffix}`)),
       ),
+      ...(jouetPin?.platforms[
+        toolPlatform(platform) as keyof typeof jouetPin.platforms
+      ]
+        ? [path.relative(root, path.join(bin, `jouet${suffix}`))]
+        : []),
       path.relative(root, managedNodeEntry(bin, platform)),
       path.relative(root, state),
       path.relative(root, cache),
@@ -179,22 +237,10 @@ export function describeToolSetup() {
   }
 }
 
-export async function main(
-  args = process.argv.slice(2),
-  setup = setupTools,
-  log = console.log,
-  env = process.env,
+export function reportToolSetupAction(
+  values: { describe: boolean; json: boolean; 'dry-run': boolean },
+  log: (text: string) => void,
 ) {
-  const { values } = parseArgs({
-    args,
-    options: {
-      'github-path': { type: 'boolean' },
-      full: { type: 'boolean' },
-      'dry-run': { type: 'boolean' },
-      json: { type: 'boolean' },
-      describe: { type: 'boolean' },
-    },
-  })
   if (values.describe) {
     const description = describeToolSetup()
     log(
@@ -202,11 +248,53 @@ export async function main(
         ? JSON.stringify(description)
         : `${description.name}: ${description.description}\nUse --dry-run to list cache and activation paths.`,
     )
-    return TOOL_BIN
+    return true
   }
   if (values['dry-run']) {
     const plan = toolSetupPlan()
     log(values.json ? JSON.stringify(plan) : formatToolSetupPlan(plan))
+    return true
+  }
+  return false
+}
+
+export async function main(
+  args = process.argv.slice(2),
+  setup = setupTools,
+  log = console.log,
+  env = process.env,
+) {
+  const [
+    { object },
+    { message: optiqueMessage },
+    { withDefault },
+    { flag },
+    { runCli },
+  ] = await Promise.all([
+    import('@optique/core/constructs'),
+    import('@optique/core/message'),
+    import('@optique/core/modifiers'),
+    import('@optique/core/primitives'),
+    import('../lib/cli/parser.mts'),
+  ])
+  const values = runCli(
+    object({
+      'github-path': withDefault(flag('--github-path'), false),
+      full: withDefault(flag('--full'), false),
+      'dry-run': withDefault(flag('--dry-run'), false),
+      json: withDefault(flag('--json'), false),
+      describe: withDefault(flag('--describe'), false),
+    }),
+    'setup:tools',
+    args,
+    {
+      brief: optiqueMessage`Install and activate pinned tools in the checkout cache.`,
+    },
+  )
+  if (typeof values === 'symbol') {
+    return TOOL_BIN
+  }
+  if (reportToolSetupAction(values, log)) {
     return TOOL_BIN
   }
   if (values['github-path'] && !env['GITHUB_PATH']) {

@@ -6,9 +6,13 @@ import {
 } from '../lib/paths.mts'
 import { WIN32 } from '../lib/platform.mts'
 if (isMainModule(import.meta.url)) {
-  if (process.argv.includes('--help')) {
-    console.log('Usage: pnpm run type:check')
-  } else {
+  if (
+    !runHelpOnlyCli(
+      'type:check',
+      process.argv.slice(2),
+      message`Check TypeScript types without emitting files.`,
+    )
+  ) {
     runNode(WIN32 ? TSC_CLI_PATH : TSRS_CLI_PATH, [
       '--noEmit',
       '-p',
@@ -16,3 +20,5 @@ if (isMainModule(import.meta.url)) {
     ])
   }
 }
+import { message } from '@optique/core/message'
+import { runHelpOnlyCli } from '../lib/cli/parser.mts'

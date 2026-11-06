@@ -1,4 +1,4 @@
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../lib/cli/arguments.mts'
 import path from 'node:path'
 import { isMainModule } from '../../lib/run-node.mts'
 import { REPO_ROOT } from '../../lib/paths.mts'

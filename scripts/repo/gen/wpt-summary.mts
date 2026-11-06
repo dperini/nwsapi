@@ -1,5 +1,10 @@
 import { readFileSync, writeFileSync } from 'node:fs'
-import { parseArgs } from 'node:util'
+import { object } from '@optique/core/constructs'
+import { message as optiqueMessage } from '@optique/core/message'
+import { optional, withDefault } from '@optique/core/modifiers'
+import { option } from '@optique/core/primitives'
+import { HELP_SHOWN, runCli } from '../lib/cli/parser.mts'
+import { string } from '@optique/core/valueparser'
 import { manifest } from '../../../test/repo/e2e/upstream/manifest.mts'
 
 interface Counts {
@@ -33,15 +38,23 @@ interface Suite {
   }>
 }
 
-const { values } = parseArgs({
-  options: {
-    input: { type: 'string' },
-    output: {
-      type: 'string',
-      default: 'assets/repo/bench/wpt-summary.json',
-    },
+const values = runCli(
+  object({
+    input: optional(option('--input', string())),
+    output: withDefault(
+      option('--output', string()),
+      'assets/repo/bench/wpt-summary.json',
+    ),
+  }),
+  'gen:wpt-summary',
+  process.argv.slice(2),
+  {
+    brief: optiqueMessage`Build a compact WPT report from a complete Playwright JSON report.`,
   },
-})
+)
+if (values === HELP_SHOWN) {
+  process.exit(0)
+}
 if (!values.input) {
   throw new Error('Pass --input with a complete Playwright JSON report.')
 }

@@ -1,6 +1,10 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { object } from '@optique/core/constructs'
+import { message as optiqueMessage } from '@optique/core/message'
+import { withDefault } from '@optique/core/modifiers'
+import { flag } from '@optique/core/primitives'
+import { HELP_SHOWN, runCli } from '../lib/cli/parser.mts'
 import { parse } from '@ultrathink/acorn.rs.wasm'
 import { isMainModule } from '../lib/run-node.mts'
 import { normalizePath, REPO_ROOT } from '../lib/paths.mts'
@@ -50,7 +54,12 @@ export function inspectEntrypointSource(source: string) {
     typescript: true,
   }) as unknown as LooseNode
   let guarded = false
-  let help = false
+  let help =
+    (/\/lib\/cli\/parser\.mts['"]/g.test(source) &&
+      /\brun(?:HelpOnly|Forwarding|Setup|Check)?Cli\s*\(/.test(source)) ||
+    ((source.includes('@optique/core/facade') ||
+      source.includes('@optique/run')) &&
+      /\bhelp\s*:/.test(source))
   walk(ast, node => {
     if (node.type !== 'CallExpression') {
       return
@@ -258,18 +267,19 @@ export function checkScriptEntrypoints(root = REPO_ROOT) {
 }
 
 if (isMainModule(import.meta.url)) {
-  const { values } = parseArgs({
-    options: {
-      check: { type: 'boolean' },
-      help: { type: 'boolean', short: 'h' },
-      json: { type: 'boolean' },
+  const values = runCli(
+    object({
+      check: withDefault(flag('--check'), false),
+      json: withDefault(flag('--json'), false),
+    }),
+    'check:script-entrypoints',
+    process.argv.slice(2),
+    {
+      brief: optiqueMessage`Inspect repository script entrypoints and their help behavior.`,
     },
-  })
-  if (values.help) {
-    console.log(`Usage: pnpm run check:script-entrypoints [options]
---check  Fail when a package command has a missing or unsafe local target.
---json   Print the complete entrypoint inventory as JSON.
--h, --help  Show this help.`)
+  )
+  if (values === HELP_SHOWN) {
+    process.exitCode = 0
   } else {
     const report = values.check
       ? checkScriptEntrypoints()

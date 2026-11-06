@@ -10,6 +10,12 @@ test.each([[], ['--help'], ['-h'], ['compile', '--help']])(
     expect(await runCli(args)).toBeTypeOf('string')
   },
 )
+test.each([['--help'], ['-h']])(
+  'root help shows command usage %#',
+  async (...args) => {
+    expect(await runCli(args)).toContain('Usage: nwsapi <command>')
+  },
+)
 test.each([
   ['unknown'],
   ['compile'],
@@ -18,6 +24,19 @@ test.each([
 ])('invalid CLI inputs reject %#', async (...args) => {
   await expect(runCli(args)).rejects.toThrow()
 })
+test.each([
+  ['--describe', '--json'],
+  ['--json', '--describe'],
+])(
+  'root command descriptions support JSON in either order %#',
+  async (...args) => {
+    const output = await runCli(args)
+    expect(JSON.parse(output)).toMatchObject({
+      schemaVersion: 1,
+      type: 'commands',
+    })
+  },
+)
 test('compile delegates one selector and parsed options', async () => {
   expect(
     await runCli(['compile', '--json', '--legacy', '--mode', 'match', '.a']),

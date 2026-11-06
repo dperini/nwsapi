@@ -2,7 +2,7 @@ import { browserLaunchOptions } from '../../browser.mts'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../lib/cli/arguments.mts'
 import { chromium } from '@playwright/test'
 import type factory from '../../../../dist/nwsapi.js'
 

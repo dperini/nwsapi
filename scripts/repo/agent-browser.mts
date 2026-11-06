@@ -1,6 +1,12 @@
 import { chromium } from '@playwright/test'
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { optional } from '@optique/core/modifiers'
+import { argument } from '@optique/core/primitives'
+import { string } from '@optique/core/valueparser'
 import { browserLaunchOptions } from './browser.mts'
 import { brandAgentBrowser } from './lib/agent-browser.mts'
+import { HELP_SHOWN, runCli } from './lib/cli/parser.mts'
 import { isMainModule } from './lib/run-node.mts'
 
 export function agentBrowserUrl(args: string[]) {
@@ -15,13 +21,16 @@ export function agentBrowserUrl(args: string[]) {
 }
 
 export async function main(args = process.argv.slice(2)) {
-  if (args.includes('--help') || args.includes('-h')) {
-    console.log(
-      'Usage: pnpm run browser:agent [http(s)://URL]\nOpen the pinned browser with the nwbox AI favicon.',
-    )
+  const values = runCli(
+    object({ url: optional(argument(string())) }),
+    'browser:agent',
+    args,
+    { brief: message`Open the pinned browser with the nwbox AI favicon.` },
+  )
+  if (values === HELP_SHOWN) {
     return
   }
-  const url = agentBrowserUrl(args)
+  const url = agentBrowserUrl(values.url ? [values.url] : [])
   const browser = await chromium.launch({
     ...browserLaunchOptions(),
     headless: false,

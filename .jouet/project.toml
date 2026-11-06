@@ -1,0 +1,8 @@
+[checks]
+full = "mise run test"
+lint = "mise run lint"
+before_push = ["mise run check", "mise run security"]
+
+[checks.ci]
+browser = "mise run test:browser"
+upstream = "mise run test:wpt"

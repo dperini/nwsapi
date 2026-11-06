@@ -1,4 +1,7 @@
-import { parseArgs } from 'node:util'
+import { object } from '@optique/core/constructs'
+import { withDefault } from '@optique/core/modifiers'
+import { flag } from '@optique/core/primitives'
+import { runParserSync } from '@optique/core/facade'
 import path from 'node:path'
 import { isMainModule } from '../lib/run-node.mts'
 import { executeManaged, setupNotice } from './manager.mts'
@@ -17,6 +20,7 @@ import {
   toolPlatform,
   toolVersions,
 } from '../external-tools.mts'
+import manifest from '../../../.config/external-tools.json' with { type: 'json' }
 import { recordSetupProgress } from './progress.mts'
 import { setupVoiceOver } from './voiceover/run.mts'
 import type { VoiceOverChoice } from './voiceover/run.mts'
@@ -24,6 +28,16 @@ import { buildRequiredFiles } from './build.mts'
 import { bootstrapNodeIssue } from './node-version.mts'
 
 const TOOL_NAMES = ['nub', 'pnpm', 'npm', 'sfw', 'mise'] as const
+
+const bootstrapParser = object({
+  help: withDefault(flag('-h', '--help'), false),
+  'tools-only': withDefault(flag('--tools-only'), false),
+  voiceover: withDefault(flag('--voiceover'), false),
+  'no-voiceover': withDefault(flag('--no-voiceover'), false),
+  'dry-run': withDefault(flag('--dry-run'), false),
+  json: withDefault(flag('--json'), false),
+  describe: withDefault(flag('--describe'), false),
+})
 
 export function bootstrapPlan(
   toolsOnly = false,
@@ -33,6 +47,11 @@ export function bootstrapPlan(
   const bin = path.join(root, '.cache/bin')
   const cache = path.join(root, '.cache/external-tools')
   const platformName = toolPlatform(platform)
+  const jouet = manifest.tools.jouet?.platforms[
+    platformName as keyof typeof manifest.tools.jouet.platforms
+  ]
+    ? toolPlan('jouet', platformName)
+    : undefined
   const targets = [
     ...TOOL_NAMES.flatMap(name => {
       const plan = toolPlan(name, platformName)
@@ -44,6 +63,15 @@ export function bootstrapPlan(
         ),
       ]
     }),
+    ...(jouet
+      ? [
+          path.relative(root, toolDirectory(jouet, cache)),
+          path.relative(
+            root,
+            path.join(bin, `jouet${platform === 'win32' ? '.cmd' : ''}`),
+          ),
+        ]
+      : []),
     path.relative(root, managedNodeEntry(bin, platform)),
     path.relative(root, path.join(bin, 'toolchain.json')),
   ]
@@ -74,10 +102,15 @@ export function bootstrapPlan(
     type: 'preview',
     command: 'setup/bootstrap',
     root,
-    tools: TOOL_NAMES.map(name => {
-      const plan = toolPlan(name, platformName)
-      return { name, version: plan.version, asset: plan.asset }
-    }),
+    tools: [
+      ...TOOL_NAMES.map(name => {
+        const plan = toolPlan(name, platformName)
+        return { name, version: plan.version, asset: plan.asset }
+      }),
+      ...(jouet
+        ? [{ name: 'jouet', version: jouet.version, asset: jouet.asset }]
+        : []),
+    ],
     steps,
     targets: [...new Set([...targets, ...outputs])].map(target =>
       normalizePath(
@@ -279,18 +312,11 @@ export async function runCoreSetup(
 }
 
 export function parseSetupOptions(args: string[]) {
-  return parseArgs({
-    args: args[0] === '--' ? args.slice(1) : args,
-    options: {
-      help: { type: 'boolean', short: 'h' },
-      'tools-only': { type: 'boolean' },
-      voiceover: { type: 'boolean' },
-      'no-voiceover': { type: 'boolean' },
-      'dry-run': { type: 'boolean' },
-      json: { type: 'boolean' },
-      describe: { type: 'boolean' },
-    },
-  }).values
+  return runParserSync(
+    bootstrapParser,
+    'setup',
+    args[0] === '--' ? args.slice(1) : args,
+  )
 }
 
 export function invalidSetupOptions(

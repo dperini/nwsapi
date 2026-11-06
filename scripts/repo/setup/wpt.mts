@@ -1,5 +1,6 @@
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { message } from '@optique/core/message'
+import { HELP_SHOWN, runSetupCli } from '../lib/cli/parser.mts'
 import { REPO_ROOT, UPSTREAM_HELPER_PATH } from '../lib/paths.mts'
 import { isMainModule, runNode } from '../lib/run-node.mts'
 
@@ -37,17 +38,12 @@ export function describeWptSetup() {
 }
 
 export function main(args = process.argv.slice(2)) {
-  const { values } = parseArgs({
-    args: args[0] === '--' ? args.slice(1) : args,
-    options: {
-      help: { type: 'boolean', short: 'h' },
-      json: { type: 'boolean' },
-      describe: { type: 'boolean' },
-      'dry-run': { type: 'boolean' },
-    },
-  })
-  if (values.help) {
-    console.log('Usage: pnpm run wpt:setup [--dry-run]')
+  const values = runSetupCli(
+    'wpt:setup',
+    args[0] === '--' ? args.slice(1) : args,
+    message`Prepare the pinned Web Platform Tests checkout.`,
+  )
+  if (values === HELP_SHOWN) {
     return
   }
   if (values.describe) {
@@ -57,7 +53,7 @@ export function main(args = process.argv.slice(2)) {
     )
     return
   }
-  if (values['dry-run']) {
+  if (values.dryRun) {
     const plan = wptSetupPlan()
     console.log(
       values.json

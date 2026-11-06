@@ -1,4 +1,6 @@
 import { execFileSync } from 'node:child_process'
+import { message } from '@optique/core/message'
+import { HELP_SHOWN, runCheckCli } from '../lib/cli/parser.mts'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
@@ -160,8 +162,14 @@ export async function updateWpt(check = false, request: typeof fetch = fetch) {
 }
 
 if (isMainModule(import.meta.url)) {
-  if (process.argv.slice(2).some(arg => arg !== '--check')) {
-    throw new Error('Usage: update/wpt.mts [--check]')
+  const options = runCheckCli(
+    'wpt:update',
+    process.argv.slice(2),
+    message`Refresh the external Web Platform Tests checkout.`,
+  )
+  if (options === HELP_SHOWN) {
+    process.exitCode = 0
+  } else {
+    await updateWpt(options.check)
   }
-  await updateWpt(process.argv.includes('--check'))
 }

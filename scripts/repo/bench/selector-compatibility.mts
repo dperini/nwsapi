@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../lib/cli/arguments.mts'
 import { chromium } from '@playwright/test'
 import { rolldown } from 'rolldown'
 import type { NwsapiEngine } from '../../../.config/runtime.d.ts'
@@ -74,7 +74,10 @@ interface Cases {
 const { values } = parseArgs({
   options: {
     browser: { type: 'string' },
-    'expect-major': { type: 'string', default: CHROME_VERSION.split('.')[0] },
+    'expect-major': {
+      type: 'string',
+      default: CHROME_VERSION.split('.')[0]!,
+    },
     competitor: { type: 'string', default: '../domSelector' },
     output: {
       type: 'string',

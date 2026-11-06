@@ -1,15 +1,23 @@
 import { runTasks } from '../lib/task.mts'
 import { isMainModule } from '../lib/run-node.mts'
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { withDefault } from '@optique/core/modifiers'
+import { flag } from '@optique/core/primitives'
+import { HELP_SHOWN, runCli } from '../lib/cli/parser.mts'
 
 if (isMainModule(import.meta.url)) {
-  if (process.argv.includes('--help')) {
-    console.log(
-      'Usage: pnpm run update [--check]. Runs subject/update.mts files and foo:update commands once.',
-    )
+  const options = runCli(
+    object({ check: withDefault(flag('--check'), false) }),
+    'update',
+    process.argv.slice(2),
+    {
+      brief: message`Run subject update scripts and package update commands once.`,
+    },
+  )
+  if (options === HELP_SHOWN) {
+    process.exitCode = 0
   } else {
-    if (process.argv.slice(2).some(arg => arg !== '--check')) {
-      throw new Error('Usage: pnpm run update [--check]')
-    }
-    runTasks('update', process.argv.includes('--check') ? ['--check'] : [])
+    runTasks('update', options.check ? ['--check'] : [])
   }
 }

@@ -108,9 +108,7 @@ test('analyze reuses reports and the default arguments come from the process', a
 })
 
 test('unknown options and failed test commands cannot produce a passing report', async () => {
-  await expect(main(['--unknown'])).rejects.toMatchObject({
-    code: 'ERR_PARSE_ARGS_UNKNOWN_OPTION',
-  })
+  await expect(main(['--unknown'])).rejects.toThrow()
   const execute = vi.fn(() => {
     throw Object.assign(new Error('fixture'), { code: 'ERR_TEST_FIXTURE' })
   })

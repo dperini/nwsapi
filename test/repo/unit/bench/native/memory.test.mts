@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict'
 import type * as fs from 'node:fs'
-import type * as util from 'node:util'
 import { JSDOM } from 'jsdom'
 import { afterEach, test, vi } from 'vitest'
 import type {
@@ -21,9 +20,8 @@ const state = vi.hoisted(() => ({
   launch: vi.fn(),
   page: vi.fn(),
 }))
-vi.mock('node:util', async importOriginal => ({
-  ...(await importOriginal<typeof util>()),
-  parseArgs: () => ({ values: state.values }),
+vi.mock('../../../../../scripts/repo/lib/cli/arguments.mts', () => ({
+  parseCliArgs: () => ({ values: state.values, positionals: [] }),
 }))
 vi.mock('node:fs', async importOriginal => ({
   ...(await importOriginal<typeof fs>()),

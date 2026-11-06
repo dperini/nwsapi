@@ -143,6 +143,7 @@ export const ToolsSchema = Type.Object(
           },
           { additionalProperties: false },
         ),
+        jouet: Type.Optional(GithubToolSchema),
       },
       { additionalProperties: false },
     ),

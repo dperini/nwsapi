@@ -5,7 +5,7 @@ import os from 'node:os'
 import { JSDOM } from 'jsdom'
 import factory from '../../../../dist/nwsapi.js'
 import { components } from '../documents.mts'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../lib/cli/arguments.mts'
 import { sample, sampleFresh, timingEngine } from '../timing.mts'
 
 const require = createRequire(import.meta.url)

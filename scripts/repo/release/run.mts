@@ -1,6 +1,10 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { object } from '@optique/core/constructs'
+import { withDefault, optional } from '@optique/core/modifiers'
+import { argument, flag, option } from '@optique/core/primitives'
+import { choice, string } from '@optique/core/valueparser'
+import { runParserSync } from '@optique/core/facade'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
 import {
@@ -38,36 +42,32 @@ export function releaseArguments(args: string[]) {
   return args[0] === '--' ? args.slice(1) : args
 }
 
+const releaseCommands = [
+  'prepare',
+  'status',
+  'stage',
+  'verify',
+  'approve',
+  'burn',
+  'trust',
+  'login',
+] as const
+
+const releaseParser = object({
+  command: withDefault(argument(choice(releaseCommands)), 'status'),
+  version: optional(argument(string())),
+  stage: optional(option('--stage', string())),
+  apply: withDefault(flag('--apply'), false),
+  help: withDefault(flag('-h', '--help'), false),
+})
+
 export function parseReleaseArgs(args: string[]) {
-  const { values, positionals } = parseArgs({
-    args: releaseArguments(args),
-    allowPositionals: true,
-    options: {
-      apply: { type: 'boolean', default: false },
-      stage: { type: 'string' },
-      help: { type: 'boolean', short: 'h', default: false },
-    },
-  })
-  const [command = 'status', version] = positionals
-  if (
-    positionals.length > 2 ||
-    ![
-      'prepare',
-      'status',
-      'stage',
-      'verify',
-      'approve',
-      'burn',
-      'trust',
-      'login',
-    ].includes(command)
-  ) {
-    throw new Error(HELP)
-  }
+  const values = runParserSync(releaseParser, 'release', releaseArguments(args))
+  const { command, version, apply, stage, help } = values
   if (!values.help) {
-    validateCommandOptions(command, version, values)
+    validateCommandOptions(command, version, { apply, stage })
   }
-  return { command, version, ...values }
+  return { command, version, apply, stage, help }
 }
 
 export function validateCommandOptions(

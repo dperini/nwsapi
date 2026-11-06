@@ -10,7 +10,7 @@ import {
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../lib/cli/arguments.mts'
 import type factory from '../../../../dist/nwsapi.js'
 import { ENGINE_BUILD_PATH } from '../../lib/paths.mts'
 import { positiveInteger } from '../footprint/shared.mts'

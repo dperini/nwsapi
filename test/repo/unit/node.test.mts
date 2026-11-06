@@ -16,9 +16,9 @@ test('Node interoperability plans exact version installs under the managed runti
   })
 })
 
-test('Node setup dry run does not install runtimes', () => {
+test('Node setup dry run does not install runtimes', async () => {
   const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-  main(['--dry-run', '--json'])
+  await main(['--dry-run', '--json'])
   expect(JSON.parse(log.mock.calls[0]![0] as string)).toMatchObject({
     type: 'preview',
     command: 'setup/node',

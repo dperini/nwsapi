@@ -2,7 +2,11 @@ import { execFileSync } from 'node:child_process'
 import type { ExecFileSyncOptions } from 'node:child_process'
 import { mkdirSync, rmSync } from 'node:fs'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { withDefault } from '@optique/core/modifiers'
+import { flag } from '@optique/core/primitives'
+import { HELP_SHOWN, runCli } from '../../lib/cli/parser.mts'
 import { REPO_ROOT } from '../../lib/paths.mts'
 import { isMainModule } from '../../lib/run-node.mts'
 import {
@@ -57,16 +61,18 @@ export function runScriptTests(
 }
 
 export async function main(args = process.argv.slice(2)) {
-  if (args.includes('--help') || args.includes('-h')) {
-    console.log(
-      'Usage: pnpm run cover:scripts [--analyze]\nIncludes every Node repository script and subprocess execution. Requires 98% of each coverage metric.',
-    )
+  const values = runCli(
+    object({ analyze: withDefault(flag('--analyze'), false) }),
+    'cover:scripts',
+    args,
+    {
+      brief: message`Measure and verify coverage for repository scripts.`,
+      footer: message`Requires 98% of each coverage metric.`,
+    },
+  )
+  if (values === HELP_SHOWN) {
     return
   }
-  const { values } = parseArgs({
-    args,
-    options: { analyze: { type: 'boolean', default: false } },
-  })
   const directory = path.join(REPO_ROOT, 'coverage/scripts')
   if (!values.analyze) {
     runScriptTests(REPO_ROOT, directory)

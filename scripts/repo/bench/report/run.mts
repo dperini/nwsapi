@@ -1,7 +1,7 @@
 import { browserLaunchOptions } from '../../browser.mts'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../lib/cli/arguments.mts'
 import { chromium } from '@playwright/test'
 import { DOCUMENTS, components } from '../documents.mts'
 import { cases } from '../cases.mts'

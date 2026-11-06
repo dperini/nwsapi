@@ -12,7 +12,7 @@ import {
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../../lib/cli/arguments.mts'
 import { Browser, install } from '@puppeteer/browsers'
 import { externalGitEnvironment } from '../../../lib/external-git-environment.mts'
 import {

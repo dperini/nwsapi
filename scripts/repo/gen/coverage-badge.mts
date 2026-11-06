@@ -6,6 +6,11 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { withDefault } from '@optique/core/modifiers'
+import { flag } from '@optique/core/primitives'
+import { HELP_SHOWN, runCli } from '../lib/cli/parser.mts'
 
 import { fileURLToPath } from 'node:url'
 
@@ -111,21 +116,40 @@ export function makeCoverageBadge(config: MakeCoverageBadgeConfig): number {
   return 0
 }
 
-export function main(): void {
+export function main(check = false): void {
   process.exitCode = makeCoverageBadge({
-    check: process.argv.includes('--check'),
+    check,
     repoRoot: REPO_ROOT,
   })
+}
+
+export function parseCoverageBadgeArgs(args: string[]) {
+  return runCli(
+    object({ check: withDefault(flag('--check'), false) }),
+    'gen:coverage-badge',
+    args,
+    {
+      brief: message`Generate or verify the README coverage badge.`,
+    },
+  )
 }
 
 if (
   process.argv[1] &&
   fileURLToPath(import.meta.url) === path.resolve(process.argv[1])
 ) {
-  if (process.argv.slice(2).some(arg => arg !== '--check')) {
-    console.error('Usage: node scripts/repo/gen/coverage-badge.mts [--check]')
+  let options:
+    | ReturnType<typeof parseCoverageBadgeArgs>
+    | typeof HELP_SHOWN
+    | undefined
+  try {
+    options = parseCoverageBadgeArgs(process.argv.slice(2))
+  } catch {
     process.exitCode = 1
-  } else {
-    main()
+  }
+  if (options === HELP_SHOWN) {
+    process.exitCode = 0
+  } else if (options) {
+    main(options.check)
   }
 }

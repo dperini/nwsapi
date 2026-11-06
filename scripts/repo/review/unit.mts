@@ -3,6 +3,8 @@ import { globSync, mkdtempSync, readFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
+import { message } from '@optique/core/message'
+import { runHelpOnlyCli } from '../lib/cli/parser.mts'
 import { isMainModule } from '../lib/run-node.mts'
 import { normalizePath, REPO_ROOT } from '../lib/paths.mts'
 import { UNIT_CI_SHARD_COUNT } from '../test/shard/report.mts'
@@ -250,9 +252,13 @@ export async function runLocalUnitReview() {
 }
 
 if (isMainModule(import.meta.url)) {
-  if (process.argv.includes('--help') || process.argv.includes('-h')) {
-    console.log('Usage: node scripts/repo/run.mts scripts/repo/review/unit.mts')
-  } else {
+  if (
+    !runHelpOnlyCli(
+      'review:unit',
+      process.argv.slice(2),
+      message`Run the local unit test review workflow.`,
+    )
+  ) {
     await runLocalUnitReview()
   }
 }

@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { setImmediate } from 'node:timers/promises'
-import { parseArgs } from 'node:util'
+import { parseCliArgs as parseArgs } from '../../../lib/cli/arguments.mts'
 import { gzipSync } from 'node:zlib'
 import { JSDOM } from 'jsdom'
 import { chromium } from '@playwright/test'

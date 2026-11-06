@@ -2,6 +2,11 @@ import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { existsSync, globSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { withDefault } from '@optique/core/modifiers'
+import { flag } from '@optique/core/primitives'
+import { HELP_SHOWN, runCli } from '../../lib/cli/parser.mts'
 import { manifest } from '../../../../test/repo/e2e/upstream/manifest.mts'
 import { normalizePath, REPO_ROOT } from '../../lib/paths.mts'
 import { externalGitEnvironment } from '../../lib/external-git-environment.mts'
@@ -110,8 +115,17 @@ export function checkCandidates(write = false) {
 }
 
 if (isMainModule(import.meta.url)) {
-  if (process.argv.slice(2).some(arg => arg !== '--write')) {
-    throw new Error('Usage: check:wpt-candidates [--write]')
+  const options = runCli(
+    object({ write: withDefault(flag('--write'), false) }),
+    'check:wpt-candidates',
+    process.argv.slice(2),
+    {
+      brief: message`Review and update the WPT candidate inventory.`,
+    },
+  )
+  if (options === HELP_SHOWN) {
+    process.exitCode = 0
+  } else {
+    checkCandidates(options.write)
   }
-  checkCandidates(process.argv.includes('--write'))
 }

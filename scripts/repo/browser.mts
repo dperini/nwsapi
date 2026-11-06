@@ -3,7 +3,11 @@ import { existsSync, readFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { Browser, computeExecutablePath, install } from '@puppeteer/browsers'
-import { parseArgs } from 'node:util'
+import { object } from '@optique/core/constructs'
+import { message } from '@optique/core/message'
+import { withDefault } from '@optique/core/modifiers'
+import { flag } from '@optique/core/primitives'
+import { HELP_SHOWN, runCli } from './lib/cli/parser.mts'
 import { isMainModule } from './lib/run-node.mts'
 
 // Updating this pin changes the browser used by WPT, browser tests, and benchmarks.
@@ -80,19 +84,19 @@ export function describeBrowserSetup() {
 }
 
 export async function main(args = process.argv.slice(2)) {
-  const { values } = parseArgs({
-    args: args[0] === '--' ? args.slice(1) : args,
-    options: {
-      help: { type: 'boolean', short: 'h' },
-      json: { type: 'boolean' },
-      describe: { type: 'boolean' },
-      'dry-run': { type: 'boolean' },
+  const values = runCli(
+    object({
+      json: withDefault(flag('--json'), false),
+      describe: withDefault(flag('--describe'), false),
+      dryRun: withDefault(flag('--dry-run'), false),
+    }),
+    'setup:browser',
+    args[0] === '--' ? args.slice(1) : args,
+    {
+      brief: message`Install the pinned Chrome for Testing build.`,
     },
-  })
-  if (values.help) {
-    console.log(`Usage: pnpm run setup:browser
-Installs the pinned Chrome for Testing release used by browser tests, WPT, and benchmarks.
--h, --help  Show this help without installing Chrome.`)
+  )
+  if (values === HELP_SHOWN) {
     return
   }
   if (values.describe) {
@@ -102,7 +106,7 @@ Installs the pinned Chrome for Testing release used by browser tests, WPT, and b
     )
     return
   }
-  if (values['dry-run']) {
+  if (values.dryRun) {
     const plan = browserInstallPlan()
     console.log(
       values.json
