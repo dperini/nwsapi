@@ -6,7 +6,7 @@ Run the bootstrap from the checkout root with a patched Node release: 22.23.4, 2
 node scripts/repo/setup/bootstrap.mts
 ```
 
-The direct Node entry point works before the pinned package manager is installed. After setup, use `node scripts/repo/develop/run.mts` for guided tasks or `.cache/bin/pnpm` for repository commands (`.cache/bin/pnpm.cmd` on Windows). `pnpm go` and `npm run go` rerun the checkout bootstrap with the manager pinned for this branch and its frozen lockfile. Add `--tools-only` to provision tools without installing dependencies. No shell configuration is required.
+The direct Node entry point works before the pinned package manager is installed. After setup, use `node scripts/repo/develop/run.mts` for guided tasks or `.cache/bin/pnpm` for repository commands (`.cache/bin/pnpm.cmd` on Windows). `pnpm go` and `npm run go` rerun the checkout bootstrap with the manager pinned for this branch and its frozen lockfile. Run `pnpm run setup:tools` to provision the checkout toolchain without installing package dependencies. No shell configuration is required.
 
 With contributor Node 26.12.1 and either npm 12.2.0 or pnpm 12.14.0 already available, `npm i` and `pnpm i` install dependencies and run preparation directly. Preparation provisions verified checkout tools, refreshes agent aliases, prepares the video source, and builds with the pinned Node runtime. It does not recursively install dependencies. Node 22.23.4 is the bootstrap minimum, not the supported runtime for a direct npm installation.
 
@@ -20,7 +20,7 @@ Exact direct dependency versions and build-script approvals agree across both ma
 
 The default setup installs checkout tools and dependencies and builds the package. Browser tests and WPT install their additional requirements when invoked. `pnpm run security` prepares its scanners. `pnpm run setup:full` explicitly prepares all these tools. The first run needs network access. Repeated runs reuse verified downloads.
 
-VoiceOver assets and current-user settings are an opt-in setup step after core setup succeeds. On a TTY, the prompt defaults to Not now. Use `--voiceover` to opt in or `--no-voiceover` to skip. Noninteractive setup skips it unless explicitly requested. `--tools-only` does not offer the step.
+VoiceOver assets and current-user settings are an opt-in setup step after core setup succeeds. On a TTY, the prompt defaults to Not now. Use `--voiceover` to opt in. Noninteractive setup skips it unless explicitly requested.
 
 The optional setup never starts VoiceOver or narration and never edits TCC databases. It installs local Guidepup assets under `.cache/guidepup`. Machine configuration runs only when local VoiceOver preferences are readable and present. It may enable AppleScript control, disable the welcome splash and Dictation auto-enable, and ask you to enable AppleScript control in VoiceOver Utility. If preferences or settings cannot be verified, setup reports that state and skips machine configuration. Installed assets and detected settings do not verify macOS privacy permissions or prove VoiceOver is operational. Use the developer menu's VoiceOver controls to start or stop it explicitly.
 

@@ -4,7 +4,7 @@ import type { VoiceOverOptions } from '../../../../scripts/repo/setup/voiceover/
 
 test('full setup offers optional VoiceOver after core phases finish', async () => {
   const order: string[] = []
-  const setup = vi.fn(() => {
+  const setup = vi.fn<() => void>(() => {
     order.push('core')
   })
   const optional = vi.fn(async (options?: VoiceOverOptions) => {
@@ -17,20 +17,18 @@ test('full setup offers optional VoiceOver after core phases finish', async () =
   expect(order).toEqual(['core', 'voiceover:yes'])
 })
 
-test('full setup failure skips VoiceOver and conflicting flags reject before setup', async () => {
-  const setup = vi.fn(() => {
+test('full setup failure skips VoiceOver and default setup asks about it', async () => {
+  const setup = vi.fn<() => void>(() => {
     throw new Error('fixture failure')
   })
-  const optional = vi.fn()
+  const optional = vi.fn(async () => ({ status: 0, signal: null }))
   const log = vi.fn()
   expect((await main([], setup, optional, log)).status).toBe(1)
   expect(optional).not.toHaveBeenCalled()
   setup.mockClear()
-  expect(
-    (await main(['--voiceover', '--no-voiceover'], setup, optional, log))
-      .status,
-  ).toBe(2)
-  expect(setup).not.toHaveBeenCalled()
+  setup.mockImplementation(() => {})
+  expect((await main([], setup, optional, log)).status).toBe(0)
+  expect(optional).toHaveBeenCalledWith({ choice: 'ask' })
 })
 
 test('full setup help does not run phases or the optional setup', async () => {
@@ -39,6 +37,16 @@ test('full setup help does not run phases or the optional setup', async () => {
   expect((await main(['--help'], setup, optional, vi.fn())).status).toBe(0)
   expect(setup).not.toHaveBeenCalled()
   expect(optional).not.toHaveBeenCalled()
+})
+
+test('full setup describes VoiceOver as opt-in without a redundant opt-out', async () => {
+  const setup = vi.fn()
+  const optional = vi.fn()
+  const log = vi.fn()
+  await main(['--describe', '--json'], setup, optional, log)
+  const description = JSON.parse(log.mock.calls[0]![0] as string)
+  expect(description.options).toContain('--voiceover')
+  expect(description.options).not.toContain('--no-voiceover')
 })
 
 test('full setup dry run lists setup stages and paths without side effects', async () => {

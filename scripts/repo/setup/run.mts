@@ -19,7 +19,6 @@ import type { VoiceOverChoice } from './voiceover/run.mts'
 
 const setupParser = object({
   voiceover: withDefault(flag('--voiceover'), false),
-  noVoiceover: withDefault(flag('--no-voiceover'), false),
   json: withDefault(flag('--json'), false),
   describe: withDefault(flag('--describe'), false),
   dryRun: withDefault(flag('--dry-run'), false),
@@ -53,13 +52,7 @@ export function describeFullSetup() {
     type: 'command',
     name: 'setup/full',
     description: 'Prepare all checkout tools, scanners, WPT, and Chrome.',
-    options: [
-      '--json',
-      '--describe',
-      '--dry-run',
-      '--voiceover',
-      '--no-voiceover',
-    ],
+    options: ['--json', '--describe', '--dry-run', '--voiceover'],
     mutates: true,
   }
 }
@@ -104,12 +97,8 @@ export async function main(
     )
     return { status: 1, signal: null }
   }
-  log('Full setup complete. Next: npm run check')
-  const choice: VoiceOverChoice = values.voiceover
-    ? 'yes'
-    : values.noVoiceover
-      ? 'no'
-      : 'ask'
+  log('Full setup complete. Next: pnpm run check')
+  const choice: VoiceOverChoice = values.voiceover ? 'yes' : 'ask'
   const voiceOverResult = await optional({ choice })
   if (voiceOverResult.status !== 0 || voiceOverResult.signal) {
     return voiceOverResult
@@ -121,10 +110,6 @@ export function fullSetupProtocol(
   values: SetupOptions,
   log: (message: string) => void,
 ) {
-  if (values.voiceover && values.noVoiceover) {
-    log('Choose only one of --voiceover or --no-voiceover.')
-    return { status: 2, signal: null }
-  }
   if (values.describe) {
     const description = describeFullSetup()
     log(values['json'] ? JSON.stringify(description) : description.description)

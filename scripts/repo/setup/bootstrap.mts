@@ -31,19 +31,13 @@ const TOOL_NAMES = ['nub', 'pnpm', 'npm', 'sfw', 'mise'] as const
 
 const bootstrapParser = object({
   help: withDefault(flag('-h', '--help'), false),
-  'tools-only': withDefault(flag('--tools-only'), false),
   voiceover: withDefault(flag('--voiceover'), false),
-  'no-voiceover': withDefault(flag('--no-voiceover'), false),
   'dry-run': withDefault(flag('--dry-run'), false),
   json: withDefault(flag('--json'), false),
   describe: withDefault(flag('--describe'), false),
 })
 
-export function bootstrapPlan(
-  toolsOnly = false,
-  root = REPO_ROOT,
-  platform = process.platform,
-) {
+export function bootstrapPlan(root = REPO_ROOT, platform = process.platform) {
   const bin = path.join(root, '.cache/bin')
   const cache = path.join(root, '.cache/external-tools')
   const platformName = toolPlatform(platform)
@@ -84,18 +78,13 @@ export function bootstrapPlan(
   }
   const steps = [
     'Download or verify pinned checkout tools',
-    ...(toolsOnly
-      ? []
-      : [
-          'Install locked package dependencies into node_modules/',
-          'Run package preparation and build missing outputs',
-        ]),
+    'Install locked package dependencies into node_modules/',
+    'Run package preparation and build missing outputs',
   ]
   const outputs = [
     '.cache/setup-progress.json',
-    ...(toolsOnly
-      ? []
-      : ['node_modules/', ...buildRequiredFiles().map(file => file.output)]),
+    'node_modules/',
+    ...buildRequiredFiles().map(file => file.output),
   ]
   return {
     schemaVersion: 1,
@@ -127,7 +116,7 @@ export function describeBootstrap() {
     name: 'setup/bootstrap',
     description:
       'Install pinned tools and dependencies, then prepare the checkout.',
-    options: ['--json', '--describe', '--dry-run', '--tools-only'],
+    options: ['--json', '--describe', '--dry-run', '--voiceover'],
     mutates: true,
   }
 }
@@ -169,25 +158,13 @@ export function completed(
 }
 
 export async function bootstrap(
-  toolsOnly = false,
   setup = setupTools,
   run: ManagedRun = executeManaged,
   voiceOverChoice: VoiceOverChoice = 'ask',
   setupOptionalVoiceOver = setupVoiceOver,
   outputsReady = () => buildReadiness(REPO_ROOT).ready,
 ) {
-  const directory = await phase(
-    toolsOnly
-      ? '1 of 1: Prepare checkout tools'
-      : '1 of 3: Prepare checkout tools',
-    setup,
-  )
-  if (toolsOnly) {
-    console.log(
-      'Checkout tools ready. Next: node scripts/repo/setup/bootstrap.mts to install dependencies.',
-    )
-    return { status: 0, signal: null }
-  }
+  const directory = await phase('1 of 3: Prepare checkout tools', setup)
   const installation = '2 of 3: Install dependencies and prepare package'
   const result = await phase(installation, () =>
     run(
@@ -226,17 +203,11 @@ export async function bootstrap(
 
 export async function main(
   args = process.argv.slice(2),
-  run: (
-    toolsOnly?: boolean,
-  ) => Promise<Awaited<ReturnType<typeof bootstrap>>> = runCoreSetup,
+  run: () => Promise<Awaited<ReturnType<typeof bootstrap>>> = runCoreSetup,
   log = console.log,
   setupOptionalVoiceOver = setupVoiceOver,
 ) {
   const values = parseSetupOptions(args)
-  const invalid = invalidSetupOptions(values, log)
-  if (invalid) {
-    return invalid
-  }
   if (values.help) {
     log(SETUP_HELP)
     return { status: 0, signal: null }
@@ -250,8 +221,8 @@ export async function main(
     'Requires network access on the first run. Tools stay in this checkout. Completed downloads are reused on retry.',
   )
   try {
-    const result = await run(values['tools-only'])
-    if (!values['tools-only'] && result.status === 0 && !result.signal) {
+    const result = await run()
+    if (result.status === 0 && !result.signal) {
       const optional = await setupOptionalVoiceOver({
         choice: setupChoice(values),
       })
@@ -286,7 +257,7 @@ export function handleBootstrapProtocol(
     return { status: 0, signal: null }
   }
   if (values['dry-run']) {
-    const plan = bootstrapPlan(values['tools-only'])
+    const plan = bootstrapPlan()
     log(values.json ? JSON.stringify(plan) : formatBootstrapPlan(plan))
     return { status: 0, signal: null }
   }
@@ -294,10 +265,9 @@ export function handleBootstrapProtocol(
 }
 
 const SETUP_HELP =
-  'Usage: node scripts/repo/setup/bootstrap.mts [--tools-only] [--voiceover|--no-voiceover] [--dry-run]\nPrepares checkout tools, installs dependencies, and builds the package.\nVoiceOver is optional and runs after successful core setup.\nBrowser, WPT, and scanner setup are separate tasks.\n-h, --help  Show this help without downloading tools.\n--json  Return a machine-readable result.\n--describe  Describe this command without setup.\n--dry-run  List planned stages and paths without changes.\n--tools-only  Install the pinned tools without installing dependencies.\n--voiceover  Explicitly opt in to optional macOS VoiceOver setup.\n--no-voiceover  Skip the optional VoiceOver prompt.'
+  'Usage: node scripts/repo/setup/bootstrap.mts [--voiceover] [--dry-run]\nPrepares checkout tools, installs dependencies, and builds the package.\nVoiceOver is optional and runs after successful core setup.\nBrowser, WPT, and scanner setup are separate tasks.\nFor tools only, run pnpm run setup:tools.\n\n-h, --help  Show this help without downloading tools.\n--json  Return a machine-readable result.\n--describe  Describe this command without setup.\n--dry-run  List planned stages and paths without changes.\n--voiceover  Explicitly opt in to optional macOS VoiceOver setup.'
 
 export async function runCoreSetup(
-  toolsOnly = false,
   runtimeVersion = process.versions.node,
   setup: typeof setupTools = setupTools,
   run: ManagedRun = executeManaged,
@@ -308,7 +278,7 @@ export async function runCoreSetup(
     log(issue)
     return { status: 1, signal: null }
   }
-  return bootstrap(toolsOnly, setup, run, 'no')
+  return bootstrap(setup, run, 'no')
 }
 
 export function parseSetupOptions(args: string[]) {
@@ -319,27 +289,10 @@ export function parseSetupOptions(args: string[]) {
   )
 }
 
-export function invalidSetupOptions(
-  values: ReturnType<typeof parseSetupOptions>,
-  log: (message: string) => void,
-) {
-  if (values['tools-only'] && values.voiceover) {
-    log(
-      '--voiceover requires full setup. Run node scripts/repo/setup/bootstrap.mts without --tools-only.',
-    )
-    return { status: 2, signal: null }
-  }
-  if (values.voiceover && values['no-voiceover']) {
-    log('Choose only one of --voiceover or --no-voiceover.')
-    return { status: 2, signal: null }
-  }
-  return undefined
-}
-
 export function setupChoice(
   values: ReturnType<typeof parseSetupOptions>,
 ): VoiceOverChoice {
-  return values.voiceover ? 'yes' : values['no-voiceover'] ? 'no' : 'ask'
+  return values.voiceover ? 'yes' : 'ask'
 }
 
 if (isMainModule(import.meta.url)) {
