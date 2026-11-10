@@ -592,13 +592,13 @@
     function(argument, relative) {
       var key = (relative ? '1:' : '0:') + argument;
       if (logicalValidators.get(key)) { return true; }
-      var previousErrors = errors, selectVars = S_VARS,
-        matchVars = M_VARS, nodeVars = N_VARS,
-        list = splitList(argument), parsed, i, j, previousCompilation = compilation;
+      var previousErrors = errors,
+        selectVars = S_VARS, matchVars = M_VARS,
+        list = splitList(argument), parsed, i, j,
+        previousCompilation = compilation;
       compilation = null;
       S_VARS = [];
       M_VARS = [];
-      N_VARS = [];
       try {
         for (i = 0; i < list.length; ++i) {
           if (!list[i]) {
@@ -623,7 +623,6 @@
       } finally {
         S_VARS = selectVars;
         M_VARS = matchVars;
-        N_VARS = nodeVars;
         compilation = previousCompilation;
       }
     },
@@ -1388,27 +1387,21 @@
 
   S_HEAD = 'var e,n,o,j=r.length-1,k=-1',
   M_HEAD = 'var e,n,o',
-  N_HEAD = 'var e,n,o,j=r.length-1,k=-1',
 
   S_LOOP = 'main:while((e=c[++k]))',
   M_LOOP = 'e=c;',
-  N_LOOP = 'main:while((e=c.item(++k)))',
 
   S_BODY = 'r[++j]=c[k];',
   M_BODY = '',
-  N_BODY = 'r[++j]=c.item(k);',
 
   S_TAIL = 'continue main;',
   M_TAIL = 'r=true;',
-  N_TAIL = 'continue main;',
 
   S_TEST = 'if(f(c[k])){break main;}',
   M_TEST = 'f(c);',
-  N_TEST = 'if(f(c.item(k))){break main;}',
 
   S_VARS = [ ],
   M_VARS = [ ],
-  N_VARS = [ ],
 
   // Skip a CSS escape, including the optional terminator of a hex escape.
   escapeEnd =
@@ -1888,19 +1881,19 @@
   logicalCall =
     function(argument, forgiving) {
       var list = splitList(argument), i, factories = [], size = 0, index,
-        selectVars = S_VARS, matchVars = M_VARS, nodeVars = N_VARS;
+        selectVars = S_VARS, matchVars = M_VARS;
       if (compilation && compilation.allowBindings) {
         for (i = 0; i < list.length; ++i) {
           if (!selectorInfo(list[i]).pure || selectorInfo(list[i]).leading) { break; }
         }
         if (i == list.length) {
-          S_VARS = []; M_VARS = []; N_VARS = [];
+          S_VARS = []; M_VARS = [];
           try {
             for (i = 0; i < list.length; ++i) {
               factories.push(compile(list[i], false));
               size += factories[i].cacheSize;
             }
-          } finally { S_VARS = selectVars; M_VARS = matchVars; N_VARS = nodeVars; }
+          } finally { S_VARS = selectVars; M_VARS = matchVars; }
           index = compilation.bindings.length;
           compilation.bindings.push(function(element) { return match_assert(factories, element, null); });
           compilation.bytes += size;
@@ -1949,12 +1942,6 @@
           head = S_HEAD;
           loop = S_LOOP;
           break;
-        case null:
-          if ((factory = selectLambdas.get(cacheKey))) { return factory; }
-          macro = N_BODY + (callback ? N_TEST : '') + N_TAIL;
-          head = N_HEAD;
-          loop = N_LOOP;
-          break;
         default:
           break;
       }
@@ -1987,11 +1974,10 @@
           cleanup += 'if(!--s.nthTypeDepth)s.nthOfType(null,2);';
         }
 
-        if (S_VARS[0] || M_VARS[0] || N_VARS[0]) {
-          vars = ',' + (S_VARS.join(',') || M_VARS.join(',') || N_VARS[0]);
+        if (S_VARS[0] || M_VARS[0]) {
+          vars = ',' + (S_VARS.join(',') || M_VARS.join(','));
           S_VARS.length = 0;
           M_VARS.length = 0;
-          N_VARS.length = 0;
         }
 
         loop += 'return r;';
@@ -2043,8 +2029,6 @@
       selector_recursion_label:
 
       while (selector) {
-
-        ++k;
 
         // get namespace prefix if present or get first char of selector
         symbol = STD.apimethods.test(selector) ? '|' : selector[0];
@@ -2147,29 +2131,29 @@
           // E ~ F (F relative sibling of E)
           case '~':
             match = selector.match(Patterns.relative);
-            source = 'var N' + k + '=e;while(e&&(e=e.previousElementSibling)){' + source + '}e=N' + k + ';';
+            source = 'let n=e;while(e=e.previousElementSibling){' + source + '}e=n;';
             break;
 
           // *** Adjacent sibling combinator
           // E + F (F adiacent sibling of E)
           case '+':
             match = selector.match(Patterns.adjacent);
-            source = 'var N' + k + '=e;if(e&&(e=e.previousElementSibling)){' + source + '}e=N' + k + ';';
+            source = 'if(e=e.previousElementSibling){' + source + '};';
             break;
 
           // *** Descendant combinator
           // E F (E ancestor of F)
-          case '\x09':
           case '\x20':
+          case '\x09':
             match = selector.match(Patterns.ancestor);
-            source = 'var N' + k + '=e;while(e&&(e=e.parentElement)){' + source + '}e=N' + k + ';';
+            source = 'let n=e;while(e=e.parentElement){' + source + '}e=n;';
             break;
 
           // *** Child combinator
           // E > F (F children of E)
           case '>':
             match = selector.match(Patterns.children);
-            source = 'var N' + k + '=e;if(e&&(e=e.parentElement)){' + source + '}e=N' + k + ';';
+            source = 'if(e=e.parentElement){' + source + '};';
             break;
 
           // *** user supplied combinators extensions
@@ -3634,11 +3618,9 @@
 
     S_BODY: S_BODY,
     M_BODY: M_BODY,
-    N_BODY: M_BODY,
 
     S_TEST: S_TEST,
     M_TEST: M_TEST,
-    N_TEST: N_TEST,
 
     // exported engine methods
 
