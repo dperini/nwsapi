@@ -7,7 +7,7 @@ import { LANGUAGES, translateWizard } from './language.mts'
 import type { WizardLanguage } from './language.mts'
 import { ui, resolveProps, useBindings } from './solid-ui.mts'
 import type { UiElement, WizardKeymap } from './solid-ui.mts'
-import { createLanguageTransition } from './language-transition.mts'
+import { createLanguageTransition } from './flipboard-transition.mts'
 export { ui } from './solid-ui.mts'
 
 export function localizedUi(

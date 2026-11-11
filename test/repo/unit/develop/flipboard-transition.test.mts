@@ -1,6 +1,6 @@
 import { afterEach, expect, test, vi } from 'vitest'
 import { createRoot } from 'solid-js/dist/solid.js'
-import { createLanguageTransition } from '../../../../scripts/repo/develop/language-transition.mts'
+import { createLanguageTransition } from '../../../../scripts/repo/develop/flipboard-transition.mts'
 import { FLIP_TOTAL_DURATION } from '../../../../scripts/repo/develop/flipboard.mts'
 
 afterEach(() => {

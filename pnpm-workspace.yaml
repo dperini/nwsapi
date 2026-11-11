@@ -11,6 +11,7 @@ allowBuilds:
   ssh2: false
 blockExoticSubdeps: true
 catalog:
+  'solid-js': '1.9.12'
   'ctranslate2': '1.0.0'
   '@opentui/core': '0.6.6'
   '@opentui/keymap': '0.6.6'
