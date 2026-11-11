@@ -70,7 +70,7 @@ export async function stageRelease(
     if (env['GITHUB_STEP_SUMMARY']) {
       appendFileSync(
         env['GITHUB_STEP_SUMMARY'],
-        `Staged \`nwsapi@${version}\` as \`${id}\`.\n\nVerify: \`pnpm run publish:verify ${version} --stage ${id}\`\n\nApprove separately: \`pnpm run approve ${version} --stage ${id} --apply\`\n`,
+        `Staged \`nwsapi@${version}\` as \`${id}\`.\n\nVerify: \`pnpm run release:verify ${version} --stage ${id}\`\n\nApprove separately: \`pnpm run release:approve ${version} --stage ${id} --apply\`\n`,
       )
     }
     return { ...artifact.receipt, stageId: id }

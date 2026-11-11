@@ -22,7 +22,7 @@ TypeBox source schemas live in `scripts/repo/schema/`. `ata-validator` generates
 
 ```sh
 pnpm run gen:schemas
-pnpm run check:schemas
+pnpm run schemas:check
 pnpm run check
 ```
 

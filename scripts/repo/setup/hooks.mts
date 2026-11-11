@@ -34,7 +34,7 @@ export type HookSetupResult =
   | { status: 'preview'; directory: string; hooks: string[] }
   | { status: 'skipped'; reason: string }
 
-const hookNames = ['pre-commit', 'pre-push'] as const
+const hookNames = ['pre-commit', 'post-commit', 'pre-push'] as const
 
 export function hookBody(platform: NodeJS.Platform) {
   const nodeName = platform === 'win32' ? 'node.exe' : 'node'
@@ -191,7 +191,8 @@ export function describeGitHooks() {
     schemaVersion: 1,
     type: 'command',
     name: 'setup/hooks',
-    description: 'Install the repository pre-commit and pre-push hooks.',
+    description:
+      'Install the repository pre-commit, post-commit, and pre-push hooks.',
     options: ['--json', '--describe', '--dry-run'],
     mutates: true,
   }
@@ -204,7 +205,7 @@ export function main(
   const values = runSetupCli(
     'setup:hooks',
     args[0] === '--' ? args.slice(1) : args,
-    optiqueMessage`Install the repository pre-commit and pre-push hooks.`,
+    optiqueMessage`Install the repository pre-commit, post-commit, and pre-push hooks.`,
   )
   if (values === HELP_SHOWN) {
     return

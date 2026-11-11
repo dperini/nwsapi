@@ -1168,7 +1168,7 @@ node scripts/repo/run.mts node_modules/vitest/vitest.mjs run \
   test/repo/unit/optimizer-nesting.test.mts
 ```
 
-Run `pnpm run type` and `pnpm run lint` for changed scripts/runtime. Use the
+Run `pnpm run type:check` and `pnpm run lint` for changed scripts/runtime. Use the
 repository's browser runner for browser tests. After a final runtime change,
 run the affected unit/integration/browser coverage and `pnpm run test:wpt`
 before claiming compatibility. The former `node test/wpt/wpt-test.mjs` command

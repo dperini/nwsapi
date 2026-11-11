@@ -109,7 +109,7 @@ export function formatToolReports(
   const lines = [
     ready
       ? 'Toolchain ready. Repository commands can use the pinned checkout tools.'
-      : 'Toolchain setup needed. Run node scripts/repo/setup/bootstrap.mts to prepare this checkout.',
+      : 'Toolchain setup needed. Run pnpm run go to prepare this checkout.',
   ]
   for (const report of reports) {
     lines.push(`${report.name}: ${toolStatus(report, ready)}`)
@@ -122,14 +122,14 @@ export function formatToolReports(
     'External tools and shell defaults stay under their current manager.',
     ready && readiness?.dependencies.ready
       ? `Next: ${DEVELOPER_MENU_COMMAND.join(' ')}`
-      : 'Next: node scripts/repo/setup/bootstrap.mts',
+      : 'Next: pnpm run go',
   )
   const progress = setupProgress()
   if (progress) {
     lines.push(`Last recorded setup: ${progress.phase} — ${progress.state}`)
   }
   if (!details) {
-    lines.push('Details: node scripts/repo/setup/doctor.mts --details')
+    lines.push('Details: pnpm run setup:check --details')
   } else {
     lines.push(
       'Resolution uses PATH. Shell aliases, functions, and external wrapper contents are not inspected.',

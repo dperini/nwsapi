@@ -12,7 +12,7 @@ The build keeps the CommonJS, AMD, and browser wrapper intact. It bundles the en
 
 Unicode directionality includes the three required Unicode 17 bidirectional classes. Their regular expressions are inlined without a custom encoding or decoder. External CommonJS bundles also receive an unreachable export annotation so Node.js can recognize their named exports during ESM imports.
 
-`pnpm run check:unicode-es5` validates the three expressions selected by `src/external/unicode.js`. It rejects flags, modern escapes, and regex syntax that ES5 cannot parse. Both `pnpm run check` and the build run this check, so dependency updates cannot silently introduce incompatible table syntax.
+`pnpm run unicode-es5:check` validates the three expressions selected by `src/external/unicode.js`. It rejects flags, modern escapes, and regex syntax that ES5 cannot parse. Both `pnpm run check` and the build run this check, so dependency updates cannot silently introduce incompatible table syntax.
 
 After bundling, `@swc/core` lowers the browser core and modules to ES5 syntax. The target comes from the IE11 Browserslist entry in `package.json`. An `acorn` parse rejects newer syntax in these outputs. The transform preserves native `typeof` and `instanceof` operations and does not add symbol polyfills or callback names. The Node.js adapter and command-line tools keep their separate syntax targets.
 
@@ -40,7 +40,7 @@ The mapping in `.config/build.config.mts` preserves the published `src/nwsapi.js
 
 Direct packing from the repository is rejected because it bypasses this mapping. Package tests install the staged tarball into a separate temporary project, check its file list, run its executable, and exercise the `jsdom` adapter.
 
-Both the repository and staged manifests use exact `files` lists, including `package.json`, `README.md`, and `LICENSE`, which npm includes automatically. `pnpm run check:package` verifies the repository manifest against the build mapping. Every pack rejects unexpected, missing, or duplicate files before a release can stage the tarball. Contributor scripts and development dependencies are removed from the published manifest.
+Both the repository and staged manifests use exact `files` lists, including `package.json`, `README.md`, and `LICENSE`, which npm includes automatically. `pnpm run package:check` verifies the repository manifest against the build mapping. Every pack rejects unexpected, missing, or duplicate files before a release can stage the tarball. Contributor scripts and development dependencies are removed from the published manifest.
 
 Explicit `exports` preserve the package root, `package.json`, and published deep paths. JavaScript subpaths work with and without `.js` for CommonJS and ESM consumers. The Unicode helper exposes its existing declaration through a `types` condition. Local exports resolve to `dist/`, while staged exports resolve to the corresponding published paths. Unlisted internals cannot be imported through package subpaths.
 

@@ -91,9 +91,7 @@ test('doctor returns failure and setup guidance for missing tools or dependencie
       state[layer] = false
       const log = vi.fn()
       expect(await main([], log)).toBe(1)
-      expect(log.mock.calls.flat().join('\n')).toContain(
-        'Next: node scripts/repo/setup/bootstrap.mts',
-      )
+      expect(log.mock.calls.flat().join('\n')).toContain('Next: pnpm run go')
       state[layer] = true
     }
   } finally {

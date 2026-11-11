@@ -21,9 +21,9 @@ import { configureTrust } from './trust.mts'
 
 export const HELP = `Usage: pnpm run release <command> [version] [--stage UUID] [--apply]
 
-Package aliases: publish:prepare VERSION, publish:status, publish:verify VERSION --stage UUID,
-approve [VERSION] [--stage UUID], publish:trust, publish:login, and release:burn.
-Use pnpm run approve. Bare pnpm approve manages dependency permissions.
+Package aliases: release:prepare VERSION, release:status, release:verify VERSION --stage UUID,
+release:approve [VERSION] [--stage UUID], release:trust, release:login, and release:burn.
+Use pnpm run release:approve to approve a release stage.
 
 prepare VERSION   Plan a new v3 candidate. --apply commits, signs, reserves and pushes it.
 status            Read the release request and npm stages.

@@ -1,5 +1,6 @@
+import { consoleMessage } from './console-symbols.mts'
 import { parseCliArgs as parseArgs } from '../lib/cli/arguments.mts'
-import { TASKS } from './actions.mts'
+import { taskDisplayCommand, ALL_TASKS } from './actions.mts'
 import type { TaskResult } from './execute.mts'
 import { bootstrapPlan } from '../setup/bootstrap.mts'
 
@@ -96,7 +97,7 @@ export function developerDescription() {
     description:
       'Guide checkout setup, documentation, review, and diagnostics.',
     options: ['--json', '--describe', '--dry-run'],
-    tasks: TASKS.map(task => ({
+    tasks: ALL_TASKS.map(task => ({
       id: task.script,
       name: task.name,
       description: task.description,
@@ -136,7 +137,7 @@ export function validateVersionTask(values: ReturnType<typeof readOptions>) {
   if (
     values.task !== undefined &&
     values.version === undefined &&
-    !TASKS.some(task => task.script === values.task)
+    !ALL_TASKS.some(task => task.script === values.task)
   ) {
     throw new Error('Unknown task. Use --list --json to discover task IDs.')
   }
@@ -150,14 +151,14 @@ export function printJsonTasks(version?: 'v2' | 'v3') {
   writeJson({
     type: 'tasks',
     ...(version ? { selectedVersion: version } : {}),
-    tasks: TASKS.map((task, index) => ({
+    tasks: ALL_TASKS.map((task, index) => ({
       id: task.script,
       order: index + 1,
       name: task.name,
       description: task.description,
       detail: task.detail,
       next: task.next,
-      command: task.command ?? ['pnpm', 'run', task.script],
+      command: taskDisplayCommand(task).split(' '),
       persistent: task.persistent ?? false,
       optional: task.optional ?? false,
       execution: version
@@ -187,12 +188,12 @@ export function reportError(error: unknown, json: boolean) {
   if (json) {
     writeJson({ type: 'error', status: 'failed', message, exitCode: 1 })
   } else {
-    console.error(message)
+    console.error(consoleMessage('error', message))
   }
 }
 
 export async function runTask(id: string, json: boolean) {
-  const task = TASKS.find(candidate => candidate.script === id)
+  const task = ALL_TASKS.find(candidate => candidate.script === id)
   if (!task) {
     throw new Error('Unknown task. Use --list --json to discover task IDs.')
   }
@@ -217,6 +218,15 @@ export async function runTask(id: string, json: boolean) {
       next: result.status === 'completed' ? task.next : null,
     })
   } else {
-    console.log(result.message)
+    console.log(
+      consoleMessage(
+        result.status === 'failed'
+          ? 'fail'
+          : result.status === 'completed'
+            ? 'pass'
+            : 'info',
+        result.message,
+      ),
+    )
   }
 }

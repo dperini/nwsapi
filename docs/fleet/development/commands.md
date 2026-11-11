@@ -7,7 +7,7 @@ Run commands from the repository root. Read its `package.json` before assuming a
 | `pnpm run build` | This builds the current product using the member's build system. |
 | `pnpm test` | This runs the member's default test scope. Check its lane mapping before interpreting the result. |
 | `pnpm run cover` | This collects and merges coverage through the fleet runner. |
-| `pnpm run type` | This checks the configured TypeScript source and declarations. |
+| `pnpm run type:check` | This checks the configured TypeScript source and declarations. |
 | `pnpm run lint` | This checks the configured source rules. |
 | `pnpm run format:check` | This checks formatting without requesting a rewrite. |
 | `pnpm run fix` | This applies configured formatting and automated fixes. Review its changes. |

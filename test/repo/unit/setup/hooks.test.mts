@@ -89,17 +89,18 @@ test('installs immutable hooks and leaves exact managed shims unchanged on repea
   const second = installGitHooks(harness.dependencies)
   expect(first).toMatchObject({
     status: 'installed',
-    hooks: ['pre-commit', 'pre-push'],
+    hooks: ['pre-commit', 'post-commit', 'pre-push'],
   })
   expect(second).toMatchObject({
     status: 'installed',
-    hooks: ['pre-commit', 'pre-push'],
+    hooks: ['pre-commit', 'post-commit', 'pre-push'],
   })
   expect([...written.values()].map(entry => entry.body)).toEqual([
     hookBody('linux'),
     hookBody('linux'),
+    hookBody('linux'),
   ])
-  expect(harness.dependencies.files.openSync).toHaveBeenCalledTimes(2)
+  expect(harness.dependencies.files.openSync).toHaveBeenCalledTimes(3)
 })
 
 test('dry-run reports missing hooks without creating the hooks directory or files', () => {
@@ -108,7 +109,7 @@ test('dry-run reports missing hooks without creating the hooks directory or file
   expect(result).toMatchObject({
     status: 'preview',
     directory: '/checkout/.git/hooks',
-    hooks: ['pre-commit', 'pre-push'],
+    hooks: ['pre-commit', 'post-commit', 'pre-push'],
   })
   expect(harness.dependencies.files.mkdirSync).not.toHaveBeenCalled()
   expect(harness.dependencies.files.openSync).not.toHaveBeenCalled()
@@ -133,6 +134,11 @@ test('accepts exact managed shims on Windows without POSIX execute bits', () => 
       },
     ],
   ])
+  existing.set(hookPath('post-commit', 'win32'), {
+    body: hookBody('win32'),
+    regular: true,
+    symlink: false,
+  })
   const harness = setupHarness({ existing, platform: 'win32' })
   expect(installGitHooks(harness.dependencies).status).toBe('installed')
   expect(harness.dependencies.files.openSync).not.toHaveBeenCalled()

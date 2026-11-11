@@ -1,3 +1,5 @@
+import type { runTranslations as RunTranslations } from './engine.mts'
+import { createRequire } from 'node:module'
 import { execFileSync } from 'node:child_process'
 import path from 'node:path'
 import { object } from '@optique/core/constructs'
@@ -7,6 +9,8 @@ import { argument } from '@optique/core/primitives'
 import { choice } from '@optique/core/valueparser'
 import { HELP_SHOWN, runCli } from '../lib/cli/parser.mts'
 import { REPO_ROOT, uvExecutablePath } from '../lib/paths.mts'
+
+const require = createRequire(import.meta.url)
 
 const project = path.join(REPO_ROOT, '.config/docs-translation')
 const options = runCli(
@@ -21,9 +25,22 @@ if (options === HELP_SHOWN) {
   process.exit(0)
 }
 const { task } = options
-const script = path.join(REPO_ROOT, `scripts/repo/translation/${task}.py`)
-execFileSync(
-  uvExecutablePath(),
-  ['run', '--project', project, '--locked', 'python', script],
-  { cwd: REPO_ROOT, stdio: 'inherit' },
-)
+if (task === 'setup') {
+  execFileSync(
+    uvExecutablePath(),
+    [
+      'run',
+      '--project',
+      project,
+      '--locked',
+      'python',
+      path.join(REPO_ROOT, 'scripts/repo/translation/setup.py'),
+    ],
+    { cwd: REPO_ROOT, stdio: 'inherit' },
+  )
+} else {
+  const { runTranslations } = require('./engine.mts') as {
+    runTranslations: typeof RunTranslations
+  }
+  await runTranslations()
+}

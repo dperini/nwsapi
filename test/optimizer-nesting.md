@@ -4,7 +4,7 @@ Run with Node.js ≥ 22:
 
 ```sh
 pnpm install
-pnpm run test:optimizer
+pnpm run dev --task check:nested-selectors
 ```
 
 The tests check strict factory initialization and nested selector results,

@@ -41,6 +41,9 @@ async function invoke(status: number | null, signal: NodeJS.Signals | null) {
     'process',
     new Proxy(process, {
       get(target, property) {
+        if (property === 'versions') {
+          return { ...target.versions, node: '26.12.1' }
+        }
         if (property === 'argv') {
           return ['node', 'bootstrap.mts']
         }

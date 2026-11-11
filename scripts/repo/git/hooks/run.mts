@@ -1,11 +1,11 @@
-import { execFileSync, spawnSync } from 'node:child_process'
+import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
-import path from 'node:path'
 import { isMainModule } from '../../lib/run-node.mts'
 import { withoutExternalGitContext } from '../../lib/external-git-environment.mts'
 import { REPO_ROOT } from '../../lib/paths.mts'
 import { managedEnvironment } from '../../setup/manager.mts'
 import { checkCode } from '../../check/run.mts'
+import { schedule } from '../followup/run.mts'
 import {
   completePlan,
   planCiTests,
@@ -321,22 +321,7 @@ export async function runPrePush(
 }
 
 export function runPreCommit() {
-  const result = spawnSync(
-    process.execPath,
-    [path.join(REPO_ROOT, 'scripts/repo/git/staged-check.mts')],
-    { cwd: REPO_ROOT, stdio: 'inherit' },
-  )
-  if (result.error) {
-    console.error(
-      `[hooks] Could not run staged checks: ${result.error.message}`,
-    )
-    return 1
-  }
-  if (result.signal) {
-    console.error(`[hooks] Staged checks ended on signal ${result.signal}.`)
-    return 1
-  }
-  return result.status ?? 1
+  return 0
 }
 
 if (isMainModule(import.meta.url)) {
@@ -344,11 +329,17 @@ if (isMainModule(import.meta.url)) {
   const hook = process.argv[2]
   if (hook === 'pre-commit') {
     process.exitCode = runPreCommit()
+  } else if (hook === 'post-commit') {
+    try {
+      schedule(REPO_ROOT)
+    } catch (error) {
+      console.error(`[follow-up] Could not queue work: ${String(error)}`)
+    }
   } else if (hook === 'pre-push') {
     process.exitCode = await runPrePush(readFileSync(0, 'utf8'))
   } else {
     console.error(
-      'Usage: node scripts/repo/git/hooks/run.mts <pre-commit|pre-push>',
+      'Usage: node scripts/repo/git/hooks/run.mts <pre-commit|post-commit|pre-push>',
     )
     process.exitCode = 2
   }

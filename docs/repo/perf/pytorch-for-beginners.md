@@ -161,8 +161,8 @@ pnpm run docs:translate:check
 
 The translation environment and model revision are recorded in
 `.config/docs-translation/`. Its lockfile fixes Python dependency versions.
-The scripts use the repository-managed `.cache/bin/uv` executable and cache
-downloaded models under `.cache/`.
+Model setup uses the repository-managed `.cache/bin/uv` executable. Routine
+translation uses the pinned native Node addon. Models are cached under `.cache/`.
 
 For a small documentation move or edit, refresh only the affected reader entries:
 
@@ -197,3 +197,9 @@ pnpm run guide:build
 The narration commands require `ffmpeg` on `PATH`. Commit the generated
 catalogs, narration metadata, and audio together with their source changes.
 The production build includes the recorded audio and translation catalogs.
+
+### Native documentation translation
+
+`pnpm run docs:translate:it` runs inference from TypeScript using the pinned `ctranslate2` Node package. The native addon loads the existing CTranslate2 model and its SentencePiece tokenizers; routine translation does not launch Python. Protected placeholders and the resumable translation cache are retained. Long passages are split at sentence or word boundaries because this binding does not expose decoding-length settings. Output can differ from the previous Python runner and needs review.
+
+`pnpm run docs:translate:setup` still uses the locked Python environment in `.config/docs-translation/` to download and convert the pinned model once. Keep that environment available for model setup and upgrades. The Node package currently supports macOS x64/arm64, Linux x64 glibc, and Windows x64.

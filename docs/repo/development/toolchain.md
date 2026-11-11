@@ -6,7 +6,7 @@ Run the bootstrap from the checkout root with a patched Node release: 22.23.4, 2
 node scripts/repo/setup/bootstrap.mts
 ```
 
-The direct Node entry point works before the pinned package manager is installed. After setup, use `node scripts/repo/develop/run.mts` for guided tasks or `.cache/bin/pnpm` for repository commands (`.cache/bin/pnpm.cmd` on Windows). `pnpm go` and `npm run go` rerun the checkout bootstrap with the manager pinned for this branch and its frozen lockfile. Run `pnpm run setup:tools` to provision the checkout toolchain without installing package dependencies. No shell configuration is required.
+The direct Node entry point works before the pinned package manager is installed. After setup, use `pnpm run dev` for guided tasks and `pnpm` for repository commands. `pnpm run go` reruns checkout setup with the manager pinned for this branch and its frozen lockfile. Run `pnpm run setup:tools` to provision the checkout toolchain without installing package dependencies. No shell configuration is required.
 
 With contributor Node 26.12.1 and either npm 12.2.0 or pnpm 12.14.0 already available, `npm i` and `pnpm i` install dependencies and run preparation directly. Preparation provisions verified checkout tools, refreshes agent aliases, prepares the video source, and builds with the pinned Node runtime. It does not recursively install dependencies. Node 22.23.4 is the bootstrap minimum, not the supported runtime for a direct npm installation.
 
@@ -34,7 +34,7 @@ Run `pnpm run setup:check` for a short readiness summary. Add `--details` for PA
 
 Doctor reports tools, dependency installation, and build outputs separately. Its exit status checks tools and dependencies. Use `pnpm run setup:check --task guide` or `--task review` to check a specific task. Review prepares its own build outputs. Dependency checks cover the selected manager's lockfile and installation metadata, catalog pins, and installed direct package versions. The pnpm path also checks workspace links. These checks do not audit every transitive dependency.
 
-Run `node scripts/repo/setup/voiceover/run.mts` to retry optional assets and settings without rerunning core setup. Confirmation defaults to skip. `--yes` explicitly opts in without a terminal. Core readiness and an incomplete optional phase are reported separately, and an explicitly requested failure retains its nonzero status.
+Run `pnpm run setup:voiceover` to retry optional assets and settings without rerunning core setup. Confirmation defaults to skip. `--yes` explicitly opts in without a terminal. Core readiness and an incomplete optional phase are reported separately, and an explicitly requested failure retains its nonzero status.
 
 Normal setup and `prepare` also refresh local agent guidance from `.claude/skills/` and `AGENTS.md`. Run `pnpm run setup:agents` to refresh only those aliases, or add `--check` to inspect them without writing. See [shared agent guidance](agent-guidance.md) for discovery paths and the ignore policy.
 
@@ -64,10 +64,22 @@ The [security tooling guide](contributor-tools.md) covers scanner setup, generat
 
 ## Developer menu
 
-`pnpm run dev` opens a guided terminal menu built with `@opentui/core`. The
-development dependency is pinned to 0.5.17 in the workspace catalog and
-`pnpm-lock.yaml`, including its platform packages. This version satisfies the
+`pnpm run dev` opens a guided terminal menu. `@opentui/core` renders the
+terminal, `@opentui/react` composes the wizard, and `@opentui/keymap` handles
+task shortcuts. These packages are pinned together at 0.6.6 in `package.json`,
+the workspace catalog, and `pnpm-lock.yaml`. Core's platform-specific native
+packages are pinned to the same release. This version set satisfies the
 repository's 24-hour release-age policy.
+
+Task names stay short. A colored dot expands into a status hint for the highlighted task: blue means available, green means ready, yellow needs attention, red needs fixing, and gray is disabled. Disabled tasks stay collapsed. Highlighting one shows its availability hint without commands or options. Optional actions show a purple label in the preview. Numbers and arrow keys preview tasks; Return runs the selection. Page Up/Down scroll the details (Fn + arrows on macOS).
+
+Highlight **Review my changes** and press **m** for **More checks**. That menu includes full review, unit, integration, browser, nested-selector, attribute-parsing, legacy-DOM, and snapshot-update tasks. Each preview explains when to use the check and shows its command. Escape returns to the main menu; q quits.
+
+Specialized checks remain available to automation through `pnpm run dev --task check:nested-selectors`, `check:attributes`, and `check:legacy-dom`. Use `--list --json` to discover all task IDs. Duplicate package aliases were consolidated: use `release:*` instead of `npm:*` or `publish:*`, subject-first names such as `api:check` and `wpt-native-pool:generate` instead of `check:*`, `setup:check` instead of `doctor:tools`, and `type:check` instead of `type`.
+
+Set `NWSAPI_WIZARD_ANIMATIONS=0` for a static mascot in terminal captures. Values `0`, `no`, `n`, and `false` disable animations; `1`, `yes`, `y`, and `true` enable them, ignoring case and surrounding whitespace. Unset or unrecognized values use the enabled default.
+
+The terminal gallery at `test/repo/unit/setup/gallery/index.html` includes every task preview, status examples, and command help. Update its SVG and HTML snapshots with `pnpm run snapshot:update`. Ordinary tests compare the checked-in files without rewriting them. The unit runner also forwards Vitest’s `--update` / `-u` flag. Task captures use fixture data without executing actions; help captures use the real commands.
 
 The native UI needs Node.js 26.4 or newer and experimental FFI. The launcher
 enables FFI for its own process. It does not change global runtimes or shell
@@ -178,3 +190,17 @@ untracked, ignored, or submodule content, missing targets, and unmerged or
 ambiguous work. Squash and rebase integrations are retained because this
 workflow has no separate integration proof for them. Source branches are never
 deleted automatically.
+
+### Wizard language
+
+The header language picker uses `en` and `it`. Press **L** to open it, use the arrow keys to highlight **English** or **Italiano**, and press Enter to apply. Escape cancels without changing the language or selected task. The plain menu also accepts **l**. The choice is saved for this checkout in `.cache/developer-language.json`.
+
+Task previews and command help use the selected language. Commands, flags, task IDs, and external tool output retain their original form. The terminal header uses a text translation mark (`文A`) so it remains visible without an image protocol. The HTML design viewer uses the translation SVG icon.
+
+## Background commit follow-ups
+
+Setup installs a post-commit hook. After each commit, it runs formatting, lint fixes, and incremental Italian translation in a separate worktree. Only files changed by that commit and their generated translation catalogs can enter the follow-up commit. Security checks and signing remain synchronous.
+
+Run `pnpm run commit:followup status` to inspect all jobs. Each job keeps its log under the Git directory in `quality-followup/<commit>/worker.log`. A clean, unchanged checkout receives the follow-up automatically. If you continue editing, stage more work, change branches, or commit again, the result stays on the reported helper branch. Review its diff and cherry-pick its commit when ready. Nothing is pushed automatically.
+
+A tool failure retains its worktree and log for repair. Fix the reported problem there, rerun the relevant tool, and commit the repair with the `Quality-Followup-For` trailer pointing to the source commit. That trailer prevents another follow-up. Tests and pre-push validation still run separately.

@@ -84,7 +84,7 @@ export function checkSvgs(fix = false, root = REPO_ROOT) {
 if (isMainModule(import.meta.url)) {
   const args = process.argv.slice(2)
   if (args.some(arg => arg !== '--fix')) {
-    throw new Error('Usage: pnpm run check:svg [--fix]')
+    throw new Error('Usage: pnpm run svg:check [--fix]')
   }
   checkSvgs(args.includes('--fix'))
 }

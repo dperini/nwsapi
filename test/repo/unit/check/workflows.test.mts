@@ -94,7 +94,7 @@ test('publishing keeps qualification before staging with independent audits in p
     step.run?.includes('pnpm run cover'),
   )
   const stage = steps.findIndex(
-    (step: { run?: string }) => step.run === 'pnpm run publish:stage',
+    (step: { run?: string }) => step.run === 'pnpm run release:stage',
   )
   expect(audits).toBeGreaterThan(-1)
   expect(qualification).toBeGreaterThan(audits)

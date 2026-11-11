@@ -1,10 +1,10 @@
 # Publish a v3 release
 
-`pnpm run publish:status` shows the release request and npm stages. `pnpm run release --help` describes all commands. Use the version intended for publication. Versions must use the `3.x.y-prerelease` form; examples below use `3.0.0-prerelease.1` as a placeholder. The request in `.config/release-request.json` stays disabled until preparation records a version.
+`pnpm run release:status` shows the release request and npm stages. `pnpm run release --help` describes all commands. Use the version intended for publication. Versions must use the `3.x.y-prerelease` form; examples below use `3.0.0-prerelease.1` as a placeholder. The request in `.config/release-request.json` stays disabled until preparation records a version.
 
 Use `publish:prepare`, `publish:status`, `publish:verify`, and `approve` in that order. A release identifies the reserved version and its artifacts. Publishing distributes those artifacts. `release:burn` permanently abandons that version across GitHub and npm.
 
-Run `pnpm run approve`, including `run`. Bare `pnpm approve` is pnpm's dependency-permissions command. Publication approval verifies the candidate before requesting npm proof of presence. No browser automation is required for the normal CLI path.
+Run `pnpm run release:approve`, including `run`. Bare `pnpm run release:approve` is pnpm's dependency-permissions command. Publication approval verifies the candidate before requesting npm proof of presence. No browser automation is required for the normal CLI path.
 
 Mutating commands require `--apply`. Staging requires CI with OIDC. Direct repository packing and publishing are blocked by lifecycle guards. Use `pnpm run package` to inspect a tarball locally. The existing `npm:*` and `release:*` aliases remain available.
 
@@ -13,9 +13,9 @@ Mutating commands require `--apply`. Staging requires CI with OIDC. Direct repos
 Run these commands from a maintainer terminal with GitHub repository administration access and npm package ownership:
 
 ```sh
-pnpm run publish:login
-pnpm run publish:trust
-pnpm run publish:trust --apply
+pnpm run release:login
+pnpm run release:trust
+pnpm run release:trust --apply
 ```
 
 The trust command uses the shared `publish-npm` GitHub environment and adds a policy for `prerelease/3.0.0` while preserving its existing exact branch policies and review rules. It establishes a stage-only npm publisher for `dperini/nwsapi` and `publish-npm.yml`. It verifies the replacement before revoking stale bindings for that workflow. Publishers for other workflows remain untouched. Unexpected broad environment policies require correction before reconciliation can continue. npm may request browser authentication or a one-time password.
@@ -25,8 +25,8 @@ The trust command uses the shared `publish-npm` GitHub environment and adds a po
 Start from a clean, pushed `prerelease/3.0.0` checkout whose latest CI and coverage runs passed. Configure Git signing first.
 
 ```sh
-pnpm run publish:prepare 3.0.0-prerelease.1
-pnpm run publish:prepare 3.0.0-prerelease.1 --apply
+pnpm run release:prepare 3.0.0-prerelease.1
+pnpm run release:prepare 3.0.0-prerelease.1 --apply
 ```
 
 Preparation creates a signed commit and signed `v3.0.0-prerelease.1` tag, then atomically pushes both. Existing local tags, remote reservations, and published versions cannot be reused. The request-file push starts the inline publishing workflow. CI verifies source, security, coverage, package interoperability, and the fuzz corpus. It uploads a GitHub prerelease containing the exact tarball and its SHA-512 receipt before calling `npm stage publish` through OIDC. The package version carries the `-prerelease` suffix and npm stages it under the `next` dist-tag; `latest` is never moved. The stage UUID appears in the workflow summary.
@@ -41,9 +41,9 @@ Use the exact signed release checkout, with no local changes:
 git fetch origin --tags
 git checkout --detach v3.0.0-prerelease.1
 pnpm install --frozen-lockfile
-pnpm run publish:verify 3.0.0-prerelease.1 --stage STAGE_UUID
-pnpm run approve
-pnpm run approve --apply
+pnpm run release:verify 3.0.0-prerelease.1 --stage STAGE_UUID
+pnpm run release:approve
+pnpm run release:approve --apply
 ```
 
 Approval can discover a single staged candidate for the requested version and the `next` tag. It refuses missing, malformed, or ambiguous candidates. Pass `VERSION --stage UUID` to name a candidate explicitly.
@@ -57,7 +57,7 @@ Start with observations. A lost connection or missing stage in one response does
 Replace `VERSION` and `RUN_ID` with the reserved version and its workflow run:
 
 ```sh
-pnpm run publish:status
+pnpm run release:status
 gh run list --repo dperini/nwsapi --workflow publish-npm.yml --branch prerelease/3.0.0
 gh run view RUN_ID --repo dperini/nwsapi --log
 gh release view vVERSION --repo dperini/nwsapi
@@ -71,7 +71,7 @@ These commands inspect remote state without changing publication. An authenticat
 | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Upload workflow still running                                                            | Wait for that run. Do not start another upload.                                                                                                                                                        |
 | Upload failed and the version is confirmed unpublished                                   | Keep the reservation and artifacts. Inspect any remaining stage, then use the explicit burn procedure below before preparing a new version.                                                            |
-| One matching stage exists and the version is unpublished                                 | From the signed release checkout, run `pnpm run publish:verify VERSION --stage STAGE_UUID`. Review the result before approval. Verification downloads artifacts and builds locally without publishing. |
+| One matching stage exists and the version is unpublished                                 | From the signed release checkout, run `pnpm run release:verify VERSION --stage STAGE_UUID`. Review the result before approval. Verification downloads artifacts and builds locally without publishing. |
 | Approval was interrupted and the exact version is public with matching receipt integrity | Publication succeeded. Check the intended tag. Do not approve or burn it again.                                                                                                                        |
 | Approval was interrupted and the version remains unpublished with one verified stage     | Recheck status and verification. A maintainer can then explicitly retry approval for that UUID.                                                                                                        |
 | Multiple stages, mismatched integrity, a missing receipt, or unavailable services        | Stop mutations and resolve the discrepancy from the workflow log, GitHub artifacts, and npm state. A public version cannot be burned.                                                                  |

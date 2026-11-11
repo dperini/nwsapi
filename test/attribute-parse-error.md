@@ -4,7 +4,7 @@ Run with Node.js ≥ 22:
 
 ```sh
 pnpm install
-pnpm run test:attributes
+pnpm run dev --task check:attributes
 pnpm exec playwright install chromium
 pnpm run test:attributes:browser
 ```

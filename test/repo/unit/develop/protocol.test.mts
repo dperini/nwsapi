@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from 'vitest'
-import { TASKS } from '../../../../scripts/repo/develop/actions.mts'
+import { TASKS, ALL_TASKS } from '../../../../scripts/repo/develop/actions.mts'
 import {
   developerDescription,
   parseOptions,
@@ -24,11 +24,11 @@ test('discovery is ordered and identifies optional and persistent tasks', () => 
   expect(result.schemaVersion).toBe(1)
   expect(result.type).toBe('tasks')
   expect(result.tasks.map((task: { id: string }) => task.id)).toEqual(
-    TASKS.map(task => task.script),
+    ALL_TASKS.map(task => task.script),
   )
-  expect(result.tasks.map((task: { order: number }) => task.order)).toEqual([
-    1, 2, 3, 4, 5, 6,
-  ])
+  expect(result.tasks.map((task: { order: number }) => task.order)).toEqual(
+    ALL_TASKS.map((_, index) => index + 1),
+  )
   expect(
     result.tasks.filter((task: { persistent: boolean }) => task.persistent),
   ).toHaveLength(1)
@@ -57,7 +57,7 @@ test.each([
 test('description lists task contracts and only exposes setup preview', () => {
   const description = developerDescription()
   expect(description.options).toEqual(['--json', '--describe', '--dry-run'])
-  expect(description.tasks).toHaveLength(TASKS.length)
+  expect(description.tasks).toHaveLength(ALL_TASKS.length)
   expect(description.tasks.filter(task => task.changes === 'declared')).toEqual(
     [expect.objectContaining({ id: 'setup' })],
   )
@@ -107,6 +107,6 @@ test('VoiceOver helper is a direct explicit control command', () => {
   const voiceover = result.tasks.find(
     (candidate: { id: string }) => candidate.id === 'voiceover',
   )
-  expect(voiceover.command).toEqual(task.command)
+  expect(voiceover.command).toEqual(['pnpm', 'run', 'voiceover'])
   expect(voiceover.execution).toContain('--task')
 })

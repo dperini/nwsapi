@@ -2,101 +2,140 @@ import { spawnSync } from 'node:child_process'
 import { expect, test } from 'vitest'
 import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
 
-const runKey = process.platform === 'darwin' ? '↩ Return' : '↵ Enter'
-const quitKey = process.platform === 'darwin' ? '⎋ Esc' : 'Esc'
-
 const fixture = new URL('./fixture/menu.mts', import.meta.url).href
 const source = `
-  import { captureMenuFrames } from ${JSON.stringify(fixture)};
-  console.log(JSON.stringify(await captureMenuFrames()));
+  import { exerciseMenu } from ${JSON.stringify(fixture)};
+  console.log(JSON.stringify(await exerciseMenu()));
 `
 
-function flatten(frame: string) {
-  // Scrollbar cells separate wrapped lines in the captured terminal frame.
-  return frame.replace(/[▀▄█]/g, '').replace(/\s+/g, ' ')
-}
+test.each([
+  [80, 24],
+  [100, 30],
+  [120, 40],
+])(
+  'wizard previews, scrolls, and guards activation at %ix%i',
+  (width, height) => {
+    const result = spawnSync(
+      process.execPath,
+      [
+        '--experimental-ffi',
+        '--input-type=module',
+        '-e',
+        source.replace('exerciseMenu()', `exerciseMenu(${width}, ${height})`),
+      ],
+      {
+        cwd: REPO_ROOT,
+        encoding: 'utf8',
+        timeout: 10_000,
+        env: { ...process.env, NWSAPI_WIZARD_ANIMATIONS: '0' },
+      },
+    )
+    expect(result.error).toBeUndefined()
+    expect(result.status).toBe(0)
+    const output = JSON.parse(result.stdout) as {
+      initial: { selected: number; scrollTop: number }
+      scrolled: { selected: number; scrollTop: number }
+      preview: { selected: number; activations: number; scrollTop: number }
+      activated: { selected: number; activations: number }
+      disabled: {
+        selected: number
+        activations: number
+        expanded: boolean
+        panel: string
+      }
+      skipped: { selected: number; activations: number }
+      helpOpened: string
+      helpClosed: string
+    }
 
-test('native menu keeps commands fixed and exposes flexible content at terminal sizes', () => {
+    expect(output.initial.selected).toBe(0)
+    expect(output.scrolled.selected).toBe(0)
+    expect(output.scrolled.scrollTop).toBeGreaterThan(output.initial.scrollTop)
+    expect(output.preview).toMatchObject({ selected: 4, activations: 0 })
+    expect(output.activated).toEqual({ selected: 4, activations: 1 })
+    expect(output.disabled).toEqual({
+      selected: 5,
+      activations: 1,
+      expanded: false,
+      panel: 'wizard-menu',
+    })
+    expect(output.skipped).toEqual({ selected: 3, activations: 1 })
+    expect(output.helpOpened).toBe('wizard-command-help')
+    expect(output.helpClosed).toBe('wizard-menu')
+  },
+)
+
+test('more checks keeps specialized tasks selectable and distinguishes back from quit', () => {
   const result = spawnSync(
     process.execPath,
-    ['--experimental-ffi', '--input-type=module', '-e', source],
-    { cwd: REPO_ROOT, encoding: 'utf8', timeout: 10_000 },
+    [
+      '--experimental-ffi',
+      '--input-type=module',
+      '-e',
+      `import { exerciseReviewMenu } from ${JSON.stringify(fixture)}; console.log(JSON.stringify(await exerciseReviewMenu()));`,
+    ],
+    {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+      timeout: 10_000,
+      env: { ...process.env, NWSAPI_WIZARD_ANIMATIONS: '0' },
+    },
   )
-  expect(result.error).toBeUndefined()
-  expect(result.status).toBe(0)
-  const output = JSON.parse(result.stdout) as {
-    frames: string[]
-    remediation: string
-    pageDown: { selected: number; activations: number }
-    preview: {
-      scrollTop: number
-      selected: number
-      activations: number
-      frame: string
-    }
-    enter: { selected: number; activations: number }
-    wideScrolled: string
-    largerScrolled: string
-    wide: string
-    larger: string
-    small: string
-    commands: string[]
-  }
-  const first = output.frames[0]!
-  const scrolled = output.frames[1]!
-  expect(first).toContain('Setup needed')
-  expect(first).toContain('Missing tool.')
-  expect(first).toContain('node scripts/repo/setup/bootstrap.mts')
-  expect(first).toContain(`${runKey} run`)
-  expect(first).toContain(`q or ${quitKey} quit`)
-  expect(flatten(scrolled)).toContain('LAST HISTORY MARKER')
-  expect(flatten(output.remediation)).toContain('complete diagnostic report.')
-  for (const frame of [output.wideScrolled, output.largerScrolled]) {
-    expect(flatten(frame)).toContain('LAST HISTORY MARKER')
-    expect(frame).toContain('Command: node scripts/repo/setup/bootstrap.mts')
-    expect(frame).toContain(`${runKey} run`)
-  }
-  expect(output.pageDown).toEqual({ selected: 0, activations: 0 })
-  expect(output.preview).toMatchObject({
-    scrollTop: 0,
-    selected: 4,
+  expect(result.status, result.stderr).toBe(0)
+  const output = JSON.parse(result.stdout)
+  expect(output.options).toHaveLength(8)
+  expect(output.selected).toEqual([4])
+  expect(output.backs).toBe(1)
+  expect(output.quits).toBe(1)
+})
+
+test('m opens the review submenu without running review', () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      '--experimental-ffi',
+      '--input-type=module',
+      '-e',
+      `import { exerciseReviewLauncher } from ${JSON.stringify(fixture)}; console.log(JSON.stringify(await exerciseReviewLauncher()));`,
+    ],
+    {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+      timeout: 10_000,
+      env: { ...process.env, NWSAPI_WIZARD_ANIMATIONS: '0' },
+    },
+  )
+  expect(result.status, result.stderr).toBe(0)
+  expect(JSON.parse(result.stdout)).toEqual({ opened: 1, activated: 0 })
+})
+
+test('language picker applies explicitly, cancels, and restores task focus', () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      '--experimental-ffi',
+      '--input-type=module',
+      '-e',
+      `import { exerciseLanguagePicker } from ${JSON.stringify(fixture)}; console.log(JSON.stringify(await exerciseLanguagePicker()));`,
+    ],
+    {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+      timeout: 10_000,
+      env: { ...process.env, NWSAPI_WIZARD_ANIMATIONS: '0' },
+    },
+  )
+  expect(result.status, result.stderr).toBe(0)
+  const output = JSON.parse(result.stdout)
+  expect(output.beforeApply).toBe('en')
+  expect(output.applied).toMatchObject({
+    language: 'it',
+    selected: 2,
     activations: 0,
+    saved: ['it'],
   })
-  expect(output.preview.frame).toContain('node scripts/repo/setup/doctor.mts')
-  expect(output.enter).toEqual({ selected: 4, activations: 1 })
-  for (const frame of [
-    first,
-    output.preview.frame,
-    output.wide,
-    output.larger,
-  ]) {
-    const commandRow = frame
-      .split('\n')
-      .findIndex(line => line.includes('Command:'))
-    const footerRow = frame
-      .split('\n')
-      .findIndex(line => line.includes(`${runKey} run`))
-    expect(commandRow).toBeGreaterThan(-1)
-    expect(footerRow).toBeGreaterThan(commandRow)
-  }
-  const commands = [
-    'node scripts/repo/setup/bootstrap.mts',
-    'pnpm run guide',
-    'pnpm run review',
-    'pnpm run ci:local',
-    'node scripts/repo/setup/doctor.mts',
-  ]
-  for (const [index, frame] of output.commands.entries()) {
-    expect(frame).toContain(commands[index])
-    expect(frame).toContain('3. Review my changes')
-    expect(frame).not.toContain('3. Review my changes ·')
-    if (index > 1) {
-      expect(frame).not.toContain('Status:')
-    }
-  }
-  const commandRows = output.commands.map(frame =>
-    frame.split('\n').findIndex(line => line.includes('Command:')),
-  )
-  expect(new Set(commandRows).size).toBe(1)
-  expect(output.small).toContain('node scripts/repo/setup/doctor.mts')
+  expect(output.applied.name).toContain('Configura questo checkout')
+  expect(output.cancelled).toBe('it')
+  expect(output.saved).toEqual(['it'])
+  expect(output.activations).toBe(1)
 })

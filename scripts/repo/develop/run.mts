@@ -1,15 +1,28 @@
+import { readWizardLanguage } from './language.mts'
+import {
+  printTaskMessage,
+  outcomeMessageKind,
+  taskOutcome,
+} from './outcome.mts'
+export { taskOutcome } from './outcome.mts'
 import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
 import { existsSync, realpathSync } from 'node:fs'
 import path from 'node:path'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
-import { TASKS, type MenuState } from './actions.mts'
+import {
+  TASKS,
+  ALL_TASKS,
+  menuTasks,
+  taskDisabledReason,
+  type MenuState,
+  type MenuChoice,
+} from './actions.mts'
 import { menuHelp } from './keys.mts'
 import { runVersion } from './version/run.mts'
 import { sweepWorktrees } from './worktree/sweep.mts'
 import { withCurrentWorktreeLease } from './worktree/lease.mts'
-import type { TaskResult } from './execute.mts'
 import { runProcess } from './process.mts'
 import { menuReadiness } from '../setup/readiness.mts'
 import { readDeveloperState, writeDeveloperState } from './state.mts'
@@ -64,9 +77,11 @@ export async function launchNative(args: string[]) {
 }
 
 export async function menuLoop(plain: boolean) {
-  const { identity, state } = await createMenuContext()
+  const { identity, state: initialState } = await createMenuContext()
+  const rootState: MenuState = initialState
+  let state: MenuState = rootState
   while (true) {
-    let selected: number | undefined
+    let selected: MenuChoice
     try {
       selected =
         plain || process.stdout.columns < 80 || process.stdout.rows < 24
@@ -82,6 +97,10 @@ export async function menuLoop(plain: boolean) {
     if (selected === undefined) {
       return
     }
+    if (typeof selected !== 'number') {
+      state = menuNavigation(selected, state, rootState)
+      continue
+    }
     state.selected = selected
     if (await executeSelectedTask(selected, state, identity)) {
       return
@@ -92,22 +111,49 @@ export async function menuLoop(plain: boolean) {
   }
 }
 
+export function menuNavigation(
+  choice: 'review-checks' | 'back',
+  state: MenuState,
+  rootState: MenuState,
+): MenuState {
+  if (choice === 'review-checks') {
+    return { ...rootState, selected: 0, group: 'review' }
+  }
+  rootState.language = state.language ?? 'en'
+  rootState.result = state.result
+  if (state.resultKind) {
+    rootState.resultKind = state.resultKind
+  }
+  return rootState
+}
+
 export async function createMenuContext() {
   const identity = checkoutIdentity()
   const saved = readDeveloperState(
     REPO_ROOT,
     identity,
-    TASKS.map(task => task.script),
+    ALL_TASKS.map(task => task.script),
   )
   return {
     identity,
     state: {
+      language: readWizardLanguage(REPO_ROOT),
       selected: saved
-        ? TASKS.findIndex(task => task.script === saved.taskId)
+        ? Math.max(
+            0,
+            TASKS.findIndex(task => task.script === saved.taskId),
+          )
         : 0,
       result: saved
         ? restoredResult(saved, identity.revision)
         : 'Choose where to begin. You can return to any task.',
+      failures: {},
+      disabled: Object.fromEntries(
+        TASKS.flatMap(task => {
+          const reason = taskDisabledReason(task)
+          return reason ? [[task.script, reason]] : []
+        }),
+      ),
       readiness: await menuReadiness(REPO_ROOT),
     } satisfies MenuState,
   }
@@ -118,7 +164,19 @@ export async function executeSelectedTask(
   state: MenuState,
   identity: ReturnType<typeof checkoutIdentity>,
 ) {
-  const task = TASKS[selected]!
+  const task = menuTasks(state)[selected]!
+  if (state.disabled?.[task.script]) {
+    state.result = state.disabled[task.script]!
+    state.resultKind = 'info'
+    return false
+  }
+  const readiness = state.readiness?.[task.script]
+  if (readiness && !readiness.ready) {
+    state.result = readiness.message
+    state.resultKind = 'warning'
+    printTaskMessage(state)
+    return false
+  }
   try {
     const { executeTask } = await import('./execute.mts')
     saveTaskState(identity, task.script, 'running', null, null)
@@ -131,6 +189,13 @@ export async function executeSelectedTask(
       outcome.signal,
     )
     state.result = taskOutcome(task, outcome)
+    state.resultKind = outcomeMessageKind(outcome.status)
+    state.failures ??= {}
+    if (outcome.status === 'failed') {
+      state.failures[task.script] = state.result
+    } else {
+      delete state.failures[task.script]
+    }
     const backFromDocs = task.persistent && outcome.signal === 'SIGINT'
     if (outcome.status === 'stopped' && !backFromDocs) {
       process.exitCode = outcome.exitCode
@@ -138,18 +203,14 @@ export async function executeSelectedTask(
     }
   } catch (error) {
     state.result = `Failed: ${error instanceof Error ? error.message : String(error)}`
+    state.resultKind = 'error'
+    state.failures ??= {}
+    state.failures[task.script] = state.result
     saveTaskState(identity, task.script, 'failed', 1, null)
   }
   state.readiness = await menuReadiness(REPO_ROOT)
-  console.log(`\n${state.result}`)
+  printTaskMessage(state)
   return false
-}
-
-export function taskOutcome(task: (typeof TASKS)[number], outcome: TaskResult) {
-  if (task.persistent && outcome.signal === 'SIGINT') {
-    return 'Docs server stopped. When your change is ready, choose Review.'
-  }
-  return outcome.status === 'completed' ? `Done. ${task.next}` : outcome.message
 }
 
 export function checkoutIdentity() {
@@ -173,7 +234,7 @@ export function restoredResult(
   if (!state) {
     return 'Choose where to begin. You can return to any task.'
   }
-  const task = TASKS.find(candidate => candidate.script === state.taskId)
+  const task = ALL_TASKS.find(candidate => candidate.script === state.taskId)
   const label = task?.name ?? state.taskId
   const status =
     state.status === 'running'

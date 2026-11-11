@@ -4,6 +4,12 @@ import { isMainModule } from '../lib/run-node.mts'
 import { controlVoiceOver, voiceOverState } from './voiceover/control.mts'
 
 export async function main(args = process.argv.slice(2)) {
+  if (args.length === 1 && ['--help', '-h'].includes(args[0]!)) {
+    console.log(
+      'Usage: pnpm run voiceover [--start|--stop]\n\n  --start  Start VoiceOver explicitly.\n  --stop   Stop VoiceOver.\n  -h, --help  Show help.\n\nWith no flags, ask before changing VoiceOver. Requires macOS.',
+    )
+    return 0
+  }
   if (process.platform !== 'darwin') {
     console.log('VoiceOver controls are available on macOS only.')
     return 1
@@ -12,9 +18,7 @@ export async function main(args = process.argv.slice(2)) {
     args.length > 1 ||
     args.some(arg => !['--start', '--stop'].includes(arg))
   ) {
-    console.error(
-      'Usage: node scripts/repo/develop/voiceover.mts [--start|--stop]',
-    )
+    console.error('Usage: pnpm run voiceover [--start|--stop]')
     return 2
   }
   if (args.includes('--start') && args.includes('--stop')) {

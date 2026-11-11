@@ -104,4 +104,4 @@ jobs:
       - name: Reserve artifacts and stage through OIDC
         env:
           GH_TOKEN: ${{ github.token }}
-        run: pnpm run publish:stage
+        run: pnpm run release:stage

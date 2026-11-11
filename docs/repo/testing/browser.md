@@ -1,6 +1,6 @@
 # Browser discovery and pinning
 
-Run `pnpm run update` to refresh dependencies, the WPT release, and Chrome. Run `pnpm run update --check` to preview them without changing the checkout. For Chrome alone, use `pnpm run update:chrome`, optionally with `--check`.
+Run `pnpm run update` to refresh dependencies, the WPT release, and Chrome. Run `pnpm run update --check` to preview them without changing the checkout. For Chrome alone, use `pnpm run chrome:update`, optionally with `--check`.
 
 The [Chrome updater](../../../scripts/repo/chrome/update.mts) reads Google's [last-known-good channel metadata](https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json). This feed reports stable and beta versions with their available Chrome for Testing downloads. The script checks both version strings and download entries for Linux x64, macOS ARM64 and x64, and Windows x64. Missing downloads, invalid metadata, or a failed request stop the update. It does not silently choose an older browser or the bundled Playwright browser.
 

@@ -57,7 +57,7 @@ The command prints its artifact directory under `os.tmpdir()`. It uses a full, p
 pnpm run test:wpt:native:status --directory <directory>
 pnpm run test:wpt:native --analyze --directory <directory>
 pnpm run test:wpt:native --resume --directory <directory>
-pnpm run check:wpt-native-contract
+pnpm run wpt-native-contract:check
 ```
 
 Replay rescans discovery, reads the recorded browser results, and reruns classification. It does not open Chrome. If discovery finds URLs that were not recorded, replay stops and names the resume command. Resume runs those URLs, preserves the original reports, and combines their qualified results. It does not rerun completed URLs. If the temporary directory has been removed or either pin changed, start a fresh native run.
@@ -123,14 +123,14 @@ For a WPT-only update, run `node scripts/repo/wpt/update.mts`. The current relea
 To rebuild inventories for an already pinned checkout, run:
 
 ```sh
-pnpm run check:wpt-inventory --fetch --write
-pnpm run check:wpt-candidates --write
+pnpm run wpt-inventory:check --fetch --write
+pnpm run wpt-candidates:check --write
 ```
 
 The first command downloads the pinned archive under `os.tmpdir()`, scans it, and removes the temporary checkout. It requires `curl` and `tar`. To reuse a full checkout or extracted archive at the exact revision, use:
 
 ```sh
-pnpm run check:wpt-inventory --source /path/to/full/wpt --write
+pnpm run wpt-inventory:check --source /path/to/full/wpt --write
 ```
 
 Review the inventory diff, new helper calls, unparsed scripts, and changed candidate assertions. Update the manifest or document exclusions. Update sparse paths in `.gitmodules` when admitted pages need new directories. For an existing checkout, apply them with `node scripts/repo/git/partial/submodule.mts restore-sparse upstream/wpt`. For a missing checkout, run `pnpm run upstream:clone`. Run modern and legacy WPT and regenerate the tracked summary as described in [upstream testing](upstream.md).

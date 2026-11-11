@@ -6,14 +6,22 @@ import { JSDOM } from 'jsdom'
 import { markdownRecipe, requests } from './markdown.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 
-export function collectTranslationInput(root = REPO_ROOT) {
+export function collectTranslationInput(
+  root = REPO_ROOT,
+  selected?: readonly string[],
+) {
+  const included = (file: string) =>
+    !selected || selected.includes(file.split(path.sep).join('/'))
   requests.clear()
   const paths = ['README.md', ...globSync('docs/**/*.md', { cwd: root })]
     .map(file => file.split(path.sep).join('/'))
     .filter(
       file => !file.endsWith('.it.md') && !file.includes('/translations/'),
     )
-    .filter(file => statSync(path.join(root, file)).isFile())
+    .filter(file =>
+      statSync(path.join(root, file), { throwIfNoEntry: false })?.isFile(),
+    )
+    .filter(included)
     .toSorted()
   const documents = paths.map(file => {
     const source = readFileSync(path.join(root, file), 'utf8').replaceAll(
@@ -102,23 +110,30 @@ export function collectTranslationInput(root = REPO_ROOT) {
     ],
     { cwd: root },
   )) {
-    html(readFileSync(path.join(root, file), 'utf8'))
+    if (included(file)) {
+      html(readFileSync(path.join(root, file), 'utf8'))
+    }
   }
   for (const file of globSync('docs/repo/perf/**/*.mts', { cwd: root })) {
+    if (!included(file)) {
+      continue
+    }
     visit(
       parseSync(readFileSync(path.join(root, file), 'utf8'), {
         syntax: 'typescript',
       }),
     )
   }
-  const transcript = JSON.parse(
-    readFileSync(
-      path.join(root, 'assets/repo/model-guide/narration/transcript.json'),
-      'utf8',
-    ),
-  ) as { sections: Array<{ text: string }> }
-  for (const section of transcript.sections) {
-    addText(section.text)
+  if (included('assets/repo/model-guide/narration/transcript.json')) {
+    const transcript = JSON.parse(
+      readFileSync(
+        path.join(root, 'assets/repo/model-guide/narration/transcript.json'),
+        'utf8',
+      ),
+    ) as { sections: Array<{ text: string }> }
+    for (const section of transcript.sections) {
+      addText(section.text)
+    }
   }
   window.close()
   return { documents, ui: [...ui], requests: [...requests] }

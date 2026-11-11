@@ -9,7 +9,7 @@
     body { max-width: 1100px; margin: 0 auto; padding: 40px 24px 64px; }
     h1 { margin: 0 0 8px; font-size: clamp(1.8rem, 4vw, 2.6rem); }
     p { color: #aab4c4; margin: 0 0 28px; }
-    figure { max-width: 1000px; margin: 0; padding: 14px; border: 1px solid #303846; border-radius: 16px; background: #191e27; }
+    figure { max-width: 1000px; margin: 0 0 20px; padding: 14px; border: 1px solid #303846; border-radius: 16px; background: #191e27; }
     img { display: block; width: 100%; height: auto; border-radius: 10px; }
     figcaption { padding: 12px 4px 2px; color: #c8d1df; }
     code { color: #a8d8ff; }
@@ -17,7 +17,39 @@
 </head>
 <body>
   <h1>NWSAPI v3 setup terminal</h1>
-  <p>Captured from the pinned pnpm setup command with node-pty, rendered by Termless, and optimized by SVGO. Open this file directly; it needs no server.</p>
-  <figure><img src="setup-bootstrap-help.svg" alt="Terminal screenshot of pnpm run go -- --help"><figcaption><code>pnpm run go -- --help</code></figcaption></figure>
+  <p>All six wizard tasks, status states, and command options. Task previews use fixture data and never execute tasks. Help panels use the wizard UI; tests also check the real help commands. Rendered by Termless and optimized by SVGO.</p>
+  <figure><img src="wizard-colors.svg?v=57ed3873b2b8" alt="All six wizard colors with their meanings"><figcaption>Color mockup — all states shown together for comparison.</figcaption></figure>
+
+  <figure><img src="developer-wizard.svg?v=1fc76ec5f011" alt="Terminal screenshot of the NWSAPI v3 developer wizard"><figcaption><code>pnpm run dev</code></figcaption></figure>
+  <figure><img src="developer-wizard-optional.svg?v=22845d381556" alt="Optional task selected with Optional shown only in its preview"><figcaption>Optional task highlighted — press 5 to preview troubleshooting.</figcaption></figure>
+  <figure><img loading="lazy" src="task-setup.svg?v=1fc76ec5f011" alt="Set up this checkout — pnpm run go"><figcaption>Set up this checkout — pnpm run go</figcaption></figure>
+<figure><img loading="lazy" src="task-guide.svg?v=e7f7c3781fd5" alt="Open documentation — pnpm run guide"><figcaption>Open documentation — pnpm run guide</figcaption></figure>
+<figure><img loading="lazy" src="task-review.svg?v=7237bbd26f46" alt="Review my changes — pnpm run review"><figcaption>Review my changes — pnpm run review</figcaption></figure>
+<figure><img loading="lazy" src="task-ci-local.svg?v=9e5e9ac6bec5" alt="Run GitHub Actions locally — pnpm run ci:local"><figcaption>Run GitHub Actions locally — pnpm run ci:local</figcaption></figure>
+<figure><img loading="lazy" src="task-setup-check.svg?v=22845d381556" alt="Troubleshoot setup — pnpm run setup:check"><figcaption>Troubleshoot setup — pnpm run setup:check</figcaption></figure>
+<figure><img loading="lazy" src="task-voiceover.svg?v=cc0fe92dc24a" alt="VoiceOver controls — pnpm run voiceover"><figcaption>VoiceOver controls — pnpm run voiceover</figcaption></figure>
+<figure><img loading="lazy" src="review-review.svg?v=e85daa28a8e2" alt="More checks: Run full review"><figcaption>More checks: Run full review</figcaption></figure>
+<figure><img loading="lazy" src="review-test-unit.svg?v=508be0c0acbf" alt="More checks: Run unit tests"><figcaption>More checks: Run unit tests</figcaption></figure>
+<figure><img loading="lazy" src="review-test-integration.svg?v=b5441d5a259e" alt="More checks: Run integration tests"><figcaption>More checks: Run integration tests</figcaption></figure>
+<figure><img loading="lazy" src="review-test-browser.svg?v=4bf45eb3e64a" alt="More checks: Run browser tests"><figcaption>More checks: Run browser tests</figcaption></figure>
+<figure><img loading="lazy" src="review-check-nested-selectors.svg?v=074167179395" alt="More checks: Check nested selectors"><figcaption>More checks: Check nested selectors</figcaption></figure>
+<figure><img loading="lazy" src="review-check-attributes.svg?v=a590d66a5c83" alt="More checks: Check attribute parsing"><figcaption>More checks: Check attribute parsing</figcaption></figure>
+<figure><img loading="lazy" src="review-check-legacy-dom.svg?v=4d4c51a314a9" alt="More checks: Check legacy DOM support"><figcaption>More checks: Check legacy DOM support</figcaption></figure>
+<figure><img loading="lazy" src="review-snapshot-update.svg?v=4b9f754438c9" alt="More checks: Update terminal snapshots"><figcaption>More checks: Update terminal snapshots</figcaption></figure>
+<figure><img loading="lazy" src="status-language-picker.svg?v=1ac5df5e7c8c" alt="Example state: language-picker"><figcaption>Example state: language-picker</figcaption></figure>
+<figure><img loading="lazy" src="status-italian.svg?v=7ddfc0a915d4" alt="Example state: italian"><figcaption>Example state: italian</figcaption></figure>
+<figure><img loading="lazy" src="status-attention.svg?v=73f51079a086" alt="Example state: attention"><figcaption>Example state: attention</figcaption></figure>
+<figure><img loading="lazy" src="status-error.svg?v=7fd32894ffff" alt="Example state: error"><figcaption>Example state: error</figcaption></figure>
+<figure><img loading="lazy" src="status-disabled.svg?v=47efaf715dd5" alt="Example state: disabled"><figcaption>Example state: disabled</figcaption></figure>
+<figure><img loading="lazy" src="status-success.svg?v=abde55fbfc87" alt="Example state: success"><figcaption>Example state: success</figcaption></figure>
+<figure><img loading="lazy" src="status-info.svg?v=dfa35b10004f" alt="Example state: info"><figcaption>Example state: info</figcaption></figure>
+<figure><img loading="lazy" src="status-fallback-error.svg?v=e749b6186b88" alt="Example state: fallback-error"><figcaption>Example state: fallback-error</figcaption></figure>
+<figure><img loading="lazy" src="help-setup.svg?v=23e7b3aea1f4" alt="pnpm run go --help"><figcaption>pnpm run go --help</figcaption></figure>
+<figure><img loading="lazy" src="help-dev.svg?v=cade672eeb3f" alt="pnpm run dev --help"><figcaption>pnpm run dev --help</figcaption></figure>
+<figure><img loading="lazy" src="help-guide.svg?v=da1da345bab0" alt="pnpm run guide --help"><figcaption>pnpm run guide --help</figcaption></figure>
+<figure><img loading="lazy" src="help-review.svg?v=337834e747ff" alt="pnpm run review --help"><figcaption>pnpm run review --help</figcaption></figure>
+<figure><img loading="lazy" src="help-ci-local.svg?v=8a3932673f97" alt="pnpm run ci:local --help"><figcaption>pnpm run ci:local --help</figcaption></figure>
+<figure><img loading="lazy" src="help-setup-check.svg?v=652853aebc60" alt="pnpm run setup:check --help"><figcaption>pnpm run setup:check --help</figcaption></figure>
+<figure><img loading="lazy" src="help-voiceover.svg?v=5303efaa9b07" alt="pnpm run voiceover --help"><figcaption>pnpm run voiceover --help</figcaption></figure>
 </body>
 </html>

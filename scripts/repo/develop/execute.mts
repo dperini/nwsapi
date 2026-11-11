@@ -1,7 +1,11 @@
 import path from 'node:path'
 import { constants } from 'node:os'
 import { REPO_ROOT } from '../lib/paths.mts'
-import type { Task } from './actions.mts'
+import {
+  taskDisplayCommand,
+  taskDisabledReason,
+  type Task,
+} from './actions.mts'
 import { runProcess } from './process.mts'
 import { taskReadiness } from '../setup/readiness.mts'
 
@@ -9,21 +13,27 @@ export async function taskCommand(task: Task) {
   if (task.command) {
     return {
       command: process.execPath,
-      args: [path.join(REPO_ROOT, task.command[1]!)],
+      args: [path.join(REPO_ROOT, task.command[1]!), ...task.command.slice(2)],
       env: process.env,
     }
   }
   // Setup and diagnostics must work before checkout tools have been installed.
-  const entry = task.script === 'setup' ? 'bootstrap.mts' : 'doctor.mts'
-  if (task.script === 'setup' || task.script === 'setup:check') {
+  if (task.script === 'setup') {
     return {
       command: process.execPath,
-      args: [path.join(REPO_ROOT, 'scripts/repo/setup', entry)],
+      args: [path.join(REPO_ROOT, 'scripts/repo/setup/bootstrap.mts')],
       env: process.env,
     }
   }
   const { cachedToolchain, managedCommand, managedEnvironment } =
     await import('../setup/manager.mts')
+  if (task.script === 'setup:check' && !cachedToolchain()) {
+    return {
+      command: process.execPath,
+      args: [path.join(REPO_ROOT, 'scripts/repo/setup/doctor.mts')],
+      env: process.env,
+    }
+  }
   if (cachedToolchain()) {
     return {
       ...managedCommand(['run', task.script]),
@@ -78,13 +88,17 @@ export async function executeTask(
   task: Task,
   { json = false, interactive = true }: ExecutionOptions = {},
 ): Promise<TaskResult> {
+  const disabled = taskDisabledReason(task)
+  if (disabled) {
+    throw new Error(disabled)
+  }
   const readiness = await taskReadiness(task.script, REPO_ROOT)
   if (!readiness.ready) {
     throw new Error(readiness.message)
   }
   const request = await taskCommand(task)
   const log = json ? console.error : console.log
-  const command = task.command?.join(' ') ?? `pnpm run ${task.script}`
+  const command = taskDisplayCommand(task)
   log(`\n${task.name}\nRunning: ${command}\n`)
   if (task.persistent) {
     log(

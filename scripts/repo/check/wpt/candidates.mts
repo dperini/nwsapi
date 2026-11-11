@@ -117,7 +117,7 @@ export function checkCandidates(write = false) {
 if (isMainModule(import.meta.url)) {
   const options = runCli(
     object({ write: withDefault(flag('--write'), false) }),
-    'check:wpt-candidates',
+    'wpt-candidates:check',
     process.argv.slice(2),
     {
       brief: message`Review and update the WPT candidate inventory.`,

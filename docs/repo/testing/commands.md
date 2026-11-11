@@ -32,7 +32,7 @@ The setup clears HTTP fixtures after each test and fails with
 `ERR_TEST_HTTP_MOCK_PENDING` when an expected request was not made. Assert error
 codes rather than error wording.
 
-`pnpm run type` checks the engine, adapters, CLI, repository scripts, and tests.
+`pnpm run type:check` checks the engine, adapters, CLI, repository scripts, and tests.
 It uses the same entry point as `pnpm run type:check`. Windows uses pinned
 `@typescript/native-preview`, since `@maschwenk/tsrs` does not ship a Windows binary. Other
 platforms use pinned `@maschwenk/tsrs`. Both check the same files and configuration.

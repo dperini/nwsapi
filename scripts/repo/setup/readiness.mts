@@ -1,3 +1,4 @@
+import { REVIEW_TASKS } from '../develop/actions.mts'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { installedPackage } from './dependency.mts'
@@ -56,20 +57,26 @@ export async function menuReadiness(root: string) {
   const readiness = await checkoutReadiness(root)
   return {
     guide: taskStatus(readiness),
-    review: taskStatus(readiness),
+    ...Object.fromEntries(
+      REVIEW_TASKS.map(task => [task.script, taskStatus(readiness)]),
+    ),
     'ci:local': localCiStatus(readiness, hasLocalCiDockerSocket()),
   }
 }
 
 export async function taskReadiness(taskId: string, root: string) {
-  if (taskId !== 'guide' && taskId !== 'review' && taskId !== 'ci:local') {
+  if (
+    taskId !== 'guide' &&
+    taskId !== 'ci:local' &&
+    !REVIEW_TASKS.some(task => task.script === taskId)
+  ) {
     return { ready: true, message: '' }
   }
   const readiness = await checkoutReadiness(root)
   if (taskId === 'ci:local') {
     return localCiStatus(readiness, hasLocalCiDockerSocket())
   }
-  return readinessForTask(readiness, taskId)
+  return taskStatus(readiness)
 }
 
 export function readinessForTask(
@@ -90,7 +97,7 @@ export function taskStatus(readiness: CheckoutReadiness) {
   }
   return {
     ready: false,
-    message: `${issues.join(' ')} Run node scripts/repo/setup/bootstrap.mts, then retry.`,
+    message: `${issues.join(' ')} Run pnpm run go, then retry.`,
   }
 }
 

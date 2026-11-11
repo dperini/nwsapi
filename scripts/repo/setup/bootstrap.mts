@@ -2,6 +2,8 @@ import { object } from '@optique/core/constructs'
 import { withDefault } from '@optique/core/modifiers'
 import { flag } from '@optique/core/primitives'
 import { runParserSync } from '@optique/core/facade'
+import { message } from '@optique/core/message'
+import type { InferValue } from '@optique/core/parser'
 import path from 'node:path'
 import { isMainModule } from '../lib/run-node.mts'
 import { executeManaged, setupNotice } from './manager.mts'
@@ -26,16 +28,38 @@ import { setupVoiceOver } from './voiceover/run.mts'
 import type { VoiceOverChoice } from './voiceover/run.mts'
 import { buildRequiredFiles } from './build.mts'
 import { bootstrapNodeIssue } from './node-version.mts'
+import { HELP_SHOWN } from '../lib/cli/parser.mts'
 
 const TOOL_NAMES = ['nub', 'pnpm', 'npm', 'sfw', 'mise'] as const
 
 const bootstrapParser = object({
-  help: withDefault(flag('-h', '--help'), false),
-  voiceover: withDefault(flag('--voiceover'), false),
-  'dry-run': withDefault(flag('--dry-run'), false),
-  json: withDefault(flag('--json'), false),
-  describe: withDefault(flag('--describe'), false),
+  voiceover: withDefault(
+    flag('--voiceover', {
+      description: message`Opt in to optional macOS VoiceOver setup.`,
+    }),
+    false,
+  ),
+  'dry-run': withDefault(
+    flag('--dry-run', {
+      description: message`List planned stages and paths without changes.`,
+    }),
+    false,
+  ),
+  json: withDefault(
+    flag('--json', {
+      description: message`Return a machine-readable result.`,
+    }),
+    false,
+  ),
+  describe: withDefault(
+    flag('--describe', {
+      description: message`Describe this command without setup.`,
+    }),
+    false,
+  ),
 })
+
+type BootstrapOptions = InferValue<typeof bootstrapParser>
 
 export function bootstrapPlan(root = REPO_ROOT, platform = process.platform) {
   const bin = path.join(root, '.cache/bin')
@@ -207,9 +231,8 @@ export async function main(
   log = console.log,
   setupOptionalVoiceOver = setupVoiceOver,
 ) {
-  const values = parseSetupOptions(args)
-  if (values.help) {
-    log(SETUP_HELP)
+  const values = parseSetupOptions(args, log)
+  if (values === HELP_SHOWN) {
     return { status: 0, signal: null }
   }
   const protocolResult = handleBootstrapProtocol(values, log)
@@ -245,7 +268,7 @@ export async function main(
 }
 
 export function handleBootstrapProtocol(
-  values: ReturnType<typeof parseSetupOptions>,
+  values: BootstrapOptions,
   log: (message: string) => void,
 ) {
   if (values.describe) {
@@ -264,9 +287,6 @@ export function handleBootstrapProtocol(
   return undefined
 }
 
-const SETUP_HELP =
-  'Usage: node scripts/repo/setup/bootstrap.mts [--voiceover] [--dry-run]\nPrepares checkout tools, installs dependencies, and builds the package.\nVoiceOver is optional and runs after successful core setup.\nBrowser, WPT, and scanner setup are separate tasks.\nFor tools only, run pnpm run setup:tools.\n\n-h, --help  Show this help without downloading tools.\n--json  Return a machine-readable result.\n--describe  Describe this command without setup.\n--dry-run  List planned stages and paths without changes.\n--voiceover  Explicitly opt in to optional macOS VoiceOver setup.'
-
 export async function runCoreSetup(
   runtimeVersion = process.versions.node,
   setup: typeof setupTools = setupTools,
@@ -281,17 +301,35 @@ export async function runCoreSetup(
   return bootstrap(setup, run, 'no')
 }
 
-export function parseSetupOptions(args: string[]) {
+export function parseSetupOptions(
+  args: string[],
+  stdout = console.log,
+): BootstrapOptions | typeof HELP_SHOWN {
   return runParserSync(
     bootstrapParser,
-    'setup',
+    'pnpm run go',
     args[0] === '--' ? args.slice(1) : args,
+    {
+      help: {
+        option: { names: ['-h', '--help'] },
+        onShow: () => HELP_SHOWN,
+      },
+      termWidth: 'auto',
+      maxWidth: process.stdout.columns || 100,
+      stdout: text =>
+        stdout(
+          text.replace(/(NWSAPI v3 setup wizard 🧙)\s*\n(Usage:)/, '$1\n\n$2'),
+        ),
+      brief: message`NWSAPI v3 setup wizard 🧙`,
+      description: message`Prepares checkout tools, installs dependencies, and builds the package. VoiceOver is optional and runs after successful core setup. Browser, WPT, and scanner setup are separate tasks.
+
+Provision checkout tools with pnpm run setup:tools.`,
+      examples: message`pnpm run go --help`,
+    },
   )
 }
 
-export function setupChoice(
-  values: ReturnType<typeof parseSetupOptions>,
-): VoiceOverChoice {
+export function setupChoice(values: BootstrapOptions): VoiceOverChoice {
   return values.voiceover ? 'yes' : 'ask'
 }
 

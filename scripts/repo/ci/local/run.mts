@@ -1,3 +1,5 @@
+import { message } from '@optique/core/message'
+import { runHelpOnlyCli } from '../../lib/cli/parser.mts'
 import { spawnSync } from 'node:child_process'
 import { REPO_ROOT } from '../../lib/paths.mts'
 import { isMainModule } from '../../lib/run-node.mts'
@@ -34,5 +36,13 @@ export async function main() {
 }
 
 if (isMainModule(import.meta.url)) {
-  await main()
+  if (
+    !runHelpOnlyCli(
+      'ci:local',
+      process.argv.slice(2),
+      message`Run GitHub Actions locally. Requires a container runtime; offers installation if missing.`,
+    )
+  ) {
+    await main()
+  }
 }

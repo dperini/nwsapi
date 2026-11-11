@@ -15,7 +15,7 @@
 - Keep benchmark measurements and generated reports under `assets/repo/bench/`, tracked by Git. Generate derived reports from recorded inputs rather than storing result JSON under `docs/`.
 - Choose benchmark cases for behavioral coverage and realistic DOM shapes. Do not treat the size of a selector list as a target or performance goal; prioritize representative cases, measured cost, correctness, and repeatability.
 - Keep current behavior in a topic guide and historical decisions in the performance journal. Group benchmark artifacts by topic and measurement date. Link issue and PR numbers as provenance instead of using them as document names.
-- After editing documentation or interface prose, run `pnpm run docs:translate:it`, review the affected translations, and run `pnpm run docs:translate:check`. Commit current language catalogs with the source changes. An English fallback does not complete the language pass.
+- Keep translations current when editing documentation or interface prose. The post-commit worker translates changed documentation incrementally and records its result in a follow-up commit. Review that result and run `pnpm run docs:translate:check` before pushing. Use `pnpm run docs:translate:it` for a full refresh. An English fallback does not complete the language pass.
 
 # Developer workflow
 
@@ -50,3 +50,8 @@
 - Use braces and multiline bodies for conditionals and loops. Keep function complexity at or below 15 unless an existing, documented compatibility exception applies.
 - Test behavior or parsed structures. Never test Markdown wording or source text. A stable heading or marker requires a local allowance with a reason.
 - Keep new explanatory comments within two lines when possible. Explain the constraint in full sentences for a junior developer. Put investigation narratives in documentation.
+
+# Module loading
+
+- Write repository automation and one-off editing scripts in JavaScript or TypeScript (`.mts`), not Python. Use direct patches for straightforward file edits. Keep Python limited to existing tooling that explicitly requires it, such as model conversion.
+- Do not use runtime dynamic `import()` calls, including `await import()`. Use static named imports for unconditional dependencies. For conditional or deferred loading, use synchronous `require()` inside the appropriate `if`, `else`, function, or other block. In ESM and `.mts` files, obtain `require` with `createRequire(import.meta.url)` from `node:module`. Type-only import expressions are unaffected.

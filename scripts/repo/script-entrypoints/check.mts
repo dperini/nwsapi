@@ -272,7 +272,7 @@ if (isMainModule(import.meta.url)) {
       check: withDefault(flag('--check'), false),
       json: withDefault(flag('--json'), false),
     }),
-    'check:script-entrypoints',
+    'script-entrypoints:check',
     process.argv.slice(2),
     {
       brief: optiqueMessage`Inspect repository script entrypoints and their help behavior.`,

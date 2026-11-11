@@ -54,7 +54,7 @@ subtests and known failures remain separate in that report.
 Run the check without launching a browser:
 
 ```sh
-pnpm run check:wpt-scope
+pnpm run wpt-scope:check
 ```
 
 [`scripts/repo/wpt/scope/check.mts`](../../../scripts/repo/wpt/scope/check.mts)
