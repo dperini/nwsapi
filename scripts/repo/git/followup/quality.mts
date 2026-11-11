@@ -1,11 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import {
-  copyFileSync,
-  existsSync,
-  mkdirSync,
-  rmSync,
-  symlinkSync,
-} from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, symlinkSync } from 'node:fs'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 import { gitEnvironment, regularFiles } from './git.mts'
@@ -52,40 +46,35 @@ export async function runQuality(
   files: string[],
   sourceRoot: string,
 ) {
-  const links = linkTools(root, sourceRoot)
-  try {
-    const candidates = regularFiles(root, files)
-    const scope = new Set(toolingFiles(root))
-    const lint = candidates.filter(file => scope.has(file))
-    const format = candidates.filter(
-      file => scope.has(file) || /^\.config\/[^/]+\.json$/.test(file),
-    )
-    if (lint.length) {
-      runTool(root, [
-        'scripts/repo/run.mts',
-        'scripts/repo/lint.mts',
-        '--fix',
-        ...lint.map(file => `--file=${file}`),
-      ])
-    }
-    if (format.length) {
-      runTool(root, [
-        'node_modules/oxfmt/bin/oxfmt',
-        '--config',
-        '.config/oxfmt.json',
-        '--write',
-        '--',
-        ...format,
-      ])
-    }
-    const require = createRequire(path.join(root, 'package.json'))
-    const { translateIncremental } = require(
-      path.join(root, 'scripts/repo/translation/incremental.mts'),
-    ) as { translateIncremental: typeof TranslateIncremental }
-    return await translateIncremental(files, root)
-  } finally {
-    for (const link of links) {
-      rmSync(link)
-    }
+  // Commit hooks need these tools too. Worktree removal cleans up the links.
+  linkTools(root, sourceRoot)
+  const candidates = regularFiles(root, files)
+  const scope = new Set(toolingFiles(root))
+  const lint = candidates.filter(file => scope.has(file))
+  const format = candidates.filter(
+    file => scope.has(file) || /^\.config\/[^/]+\.json$/.test(file),
+  )
+  if (lint.length) {
+    runTool(root, [
+      'scripts/repo/run.mts',
+      'scripts/repo/lint.mts',
+      '--fix',
+      ...lint.map(file => `--file=${file}`),
+    ])
   }
+  if (format.length) {
+    runTool(root, [
+      'node_modules/oxfmt/bin/oxfmt',
+      '--config',
+      '.config/oxfmt.json',
+      '--write',
+      '--',
+      ...format,
+    ])
+  }
+  const require = createRequire(path.join(root, 'package.json'))
+  const { translateIncremental } = require(
+    path.join(root, 'scripts/repo/translation/incremental.mts'),
+  ) as { translateIncremental: typeof TranslateIncremental }
+  return await translateIncremental(files, root)
 }

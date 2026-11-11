@@ -48,9 +48,7 @@ test('every displayed command maps to a real pnpm script', () => {
 test('VoiceOver is disabled only on unsupported platforms', () => {
   const task = TASKS.find(candidate => candidate.script === 'voiceover')!
   expect(taskDisabledReason(task, 'darwin')).toBeUndefined()
-  expect(taskDisabledReason(task, 'linux')).toBe(
-    'macOS only',
-  )
+  expect(taskDisabledReason(task, 'linux')).toBe('macOS only')
   expect(taskDisabledReason(TASKS[0]!, 'linux')).toBeUndefined()
 })
 

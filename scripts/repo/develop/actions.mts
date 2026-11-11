@@ -1,4 +1,5 @@
 import { consoleMessage } from './console-symbols.mts'
+import type { WizardLanguage } from './language.mts'
 export interface Task {
   script: string
   name: string
@@ -154,7 +155,7 @@ export function menuTasks(state: MenuState) {
 export type MenuChoice = number | 'review-checks' | 'back' | undefined
 
 export interface MenuState {
-  language?: import('./language.mts').WizardLanguage
+  language?: WizardLanguage
   languageOpen?: boolean
   selected: number
   group?: 'review'
