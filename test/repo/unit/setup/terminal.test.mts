@@ -165,19 +165,29 @@ function runDeveloperWizard(
       child.kill()
       finish(new Error('pnpm developer wizard timed out'))
     }, 15_000)
-    const preview = previewKey
-      ? setTimeout(() => child.write(previewKey), 1500)
-      : undefined
-    const capture = setTimeout(() => {
-      svg = terminal.screenshotSvg({
-        windowBar: 'colorful',
-        fontFamily: "'SF Mono', 'Cascadia Code', monospace",
-        fontSize: 14,
-        padding: 18,
-        borderRadius: 12,
-      })
-      child.write('q')
-    }, 2500)
+    let previewed = !previewKey
+    let capture: ReturnType<typeof setTimeout> | undefined
+    function captureWhenReady() {
+      if (svg || settled) return
+      const screen = terminal.getText()
+      if (!screen.includes('quit') && !screen.includes('esci')) return
+      clearTimeout(capture)
+      capture = setTimeout(() => {
+        if (!previewed) {
+          previewed = true
+          child.write(previewKey!)
+          return
+        }
+        svg = terminal.screenshotSvg({
+          windowBar: 'colorful',
+          fontFamily: "'SF Mono', 'Cascadia Code', monospace",
+          fontSize: 14,
+          padding: 18,
+          borderRadius: 12,
+        })
+        child.write('q')
+      }, 150)
+    }
 
     function finish(
       error?: Error,
@@ -189,7 +199,6 @@ function runDeveloperWizard(
       settled = true
       clearTimeout(timeout)
       clearTimeout(capture)
-      clearTimeout(preview)
       if (error) {
         reject(error)
       } else if (result && svg) {
@@ -202,7 +211,10 @@ function runDeveloperWizard(
       void terminal.close()
     }
 
-    child.onData(chunk => terminal.feed(chunk))
+    child.onData(chunk => {
+      terminal.feed(chunk)
+      captureWhenReady()
+    })
     child.onExit(({ exitCode, signal }) =>
       finish(undefined, { exitCode, signal }),
     )
