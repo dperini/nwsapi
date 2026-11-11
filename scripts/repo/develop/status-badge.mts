@@ -13,7 +13,9 @@ export const STATUS_BACKGROUNDS = {
 }
 
 export function statusBadgeLabel(status: ReturnType<typeof taskStatus>) {
-  if (status.kind === 'info' || status.kind === 'success') return ''
+  if (status.kind === 'info' || status.kind === 'success') {
+    return ''
+  }
   return (
     status.kind === 'disabled' ? status.message : status.label
   ).toLowerCase()
