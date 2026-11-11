@@ -1,4 +1,4 @@
-import { flushSync } from '@opentui/react'
+import { batch as flushSync } from 'solid-js/dist/solid.js'
 import type { ScrollBoxRenderable } from '@opentui/core'
 import { createTestRenderer } from '@opentui/core/testing'
 import { menuContent } from '../../../../../scripts/repo/develop/menu.mts'
@@ -35,6 +35,8 @@ export async function exerciseMenu(width = 80, height = 24) {
     await setup.flush()
     const panel = setup.renderer.root.getChildren()[0]!
     const body = panel.getChildren()[3] as ScrollBoxRenderable
+    const badge = setup.renderer.root.findDescendantById('wizard-status-0')!
+    const badgeGeometry = { height: badge.height, aligned: badge.y === menu.y }
     const initial = {
       selected: menu.getSelectedIndex(),
       scrollTop: body.scrollTop,
@@ -88,6 +90,7 @@ export async function exerciseMenu(width = 80, height = 24) {
     const helpClosed = setup.renderer.root.getChildren()[0]!.id
     return {
       initial,
+      badgeGeometry,
       scrolled,
       preview,
       activated,

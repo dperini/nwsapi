@@ -33,6 +33,7 @@ test.each([
     expect(result.error).toBeUndefined()
     expect(result.status).toBe(0)
     const output = JSON.parse(result.stdout) as {
+      badgeGeometry: { height: number; aligned: boolean }
       initial: { selected: number; scrollTop: number }
       scrolled: { selected: number; scrollTop: number }
       preview: { selected: number; activations: number; scrollTop: number }
@@ -48,6 +49,7 @@ test.each([
       helpClosed: string
     }
 
+    expect(output.badgeGeometry).toEqual({ height: 1, aligned: true })
     expect(output.initial.selected).toBe(0)
     expect(output.scrolled.selected).toBe(0)
     expect(output.scrolled.scrollTop).toBeGreaterThan(output.initial.scrollTop)

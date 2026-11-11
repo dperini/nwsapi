@@ -1,5 +1,8 @@
 // Complete phrases keep commands, task IDs, paths, and tool output unchanged.
 export const ITALIAN: Record<string, string> = {
+  'Additional checks for your change.': 'Altri controlli per la tua modifica.',
+  'Choose another task to continue.': 'Scegli un’altra attività per continuare.',
+  'New checkout? Start with setup. Then edit and review.': 'Nuovo checkout? Inizia dalla configurazione. Poi modifica e verifica.',
   'Developer wizard': 'Assistente di sviluppo',
   'Choose a task. Enter runs it.': 'Scegli un’attività. Invio la avvia.',
   'Choose an available task.': 'Scegli un’attività disponibile.',
