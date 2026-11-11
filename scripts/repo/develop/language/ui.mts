@@ -190,6 +190,7 @@ export function LanguagePicker({
           name: `${item.name}${item.code === language() ? ' ✓' : ''}`,
           description: '',
         })),
+        showSelectionIndicator: false,
         selectedIndex: LANGUAGES.findIndex(item => item.code === language()),
         showDescription: false,
         selectedBackgroundColor: '#26364b',

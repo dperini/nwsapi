@@ -10,7 +10,7 @@ export function bootstrapNextCommand(output: string) {
   const next = lines.at(-1)?.[1]
   if (next !== DEVELOPER_MENU_COMMAND.join(' ')) {
     throw new Error(
-      'Bootstrap must print the direct Node menu command as its next action.',
+      'Bootstrap must print the pnpm menu command as its next action.',
     )
   }
   return [...DEVELOPER_MENU_COMMAND]

@@ -91,6 +91,7 @@ export async function exerciseMenu(width = 80, height = 24) {
     return {
       initial,
       badgeGeometry,
+      selectionArrow: menu.showSelectionIndicator,
       scrolled,
       preview,
       activated,

@@ -297,11 +297,11 @@ export function MenuApp({
               focused: !picker.open(),
               selectedIndex: selected(),
               options: tasks().map((task, index) => ({
-                name: `${disabled() ? '  ' : ''}${index + 1}. ${task.name}`,
+                name: `${index + 1}. ${task.name}`,
                 description: task.description,
               })),
               showDescription: false,
-              showSelectionIndicator: !disabled(),
+              showSelectionIndicator: false,
               wrapSelection: false,
               backgroundColor: COLORS.background,
               focusedBackgroundColor: COLORS.background,
