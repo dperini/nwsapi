@@ -168,9 +168,13 @@ function runDeveloperWizard(
     let previewed = !previewKey
     let capture: ReturnType<typeof setTimeout> | undefined
     function captureWhenReady() {
-      if (svg || settled) return
+      if (svg || settled) {
+        return
+      }
       const screen = terminal.getText()
-      if (!screen.includes('quit') && !screen.includes('esci')) return
+      if (!screen.includes('quit') && !screen.includes('esci')) {
+        return
+      }
       clearTimeout(capture)
       capture = setTimeout(() => {
         if (!previewed) {
