@@ -1,5 +1,5 @@
 import { consoleMessage } from './console-symbols.mts'
-import type { WizardLanguage } from './language.mts'
+import type { WizardLanguage } from './language/state.mts'
 export interface Task {
   script: string
   name: string

@@ -1,6 +1,6 @@
-import { saveWizardLanguage, translateWizard } from './language.mts'
+import { saveWizardLanguage, translateWizard } from './language/state.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
-import type { WizardLanguage } from './language.mts'
+import type { WizardLanguage } from './language/state.mts'
 import { consoleMessage } from './console-symbols.mts'
 import { createInterface } from 'node:readline/promises'
 import { stdin, stdout } from 'node:process'

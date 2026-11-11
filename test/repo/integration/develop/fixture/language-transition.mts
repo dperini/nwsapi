@@ -1,7 +1,7 @@
 import { batch } from 'solid-js/dist/solid.js'
 import { createTestRenderer } from '@opentui/core/testing'
 import { menuContent } from '../../../../../scripts/repo/develop/menu.mts'
-import { FLIP_TOTAL_DURATION } from '../../../../../scripts/repo/develop/flipboard.mts'
+import { FLIP_TOTAL_DURATION } from '../../../../../scripts/repo/develop/flipboard/text.mts'
 
 export async function exerciseLanguageTransition() {
   const setup = await createTestRenderer({ width: 100, height: 30 })

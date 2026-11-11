@@ -1,4 +1,4 @@
-import { readWizardLanguage } from './language.mts'
+import { readWizardLanguage } from './language/state.mts'
 import {
   printTaskMessage,
   outcomeMessageKind,

@@ -3,7 +3,7 @@ import {
   flapCharacter,
   flipboardText,
   FLIP_TOTAL_DURATION,
-} from '../../../../scripts/repo/develop/flipboard.mts'
+} from '../../../../../scripts/repo/develop/flipboard/text.mts'
 
 test('matching characters never move, even midway through a cascade', () => {
   for (let time = 0; time <= FLIP_TOTAL_DURATION; time += 16) {

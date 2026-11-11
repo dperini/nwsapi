@@ -6,13 +6,13 @@ import {
   languageHeader,
   languageOverlay,
   useLanguagePicker,
-} from './language-ui.mts'
+} from './language/ui.mts'
 import {
   localizedTask,
   saveWizardLanguage,
   translateWizard,
-} from './language.mts'
-import type { WizardLanguage } from './language.mts'
+} from './language/state.mts'
+import type { WizardLanguage } from './language/state.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { consoleMessage } from './console-symbols.mts'
 import { startWizardMascot } from './mascot.mts'

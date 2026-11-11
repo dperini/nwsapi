@@ -7,8 +7,8 @@ import {
 } from 'node:fs'
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
-import { ITALIAN } from './language-catalog.mts'
-import type { Task } from './actions.mts'
+import { ITALIAN } from './catalog.mts'
+import type { Task } from '../actions.mts'
 
 export type WizardLanguage = 'en' | 'it'
 export const LANGUAGES = [

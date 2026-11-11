@@ -1,5 +1,5 @@
-import { translateWizard } from './language.mts'
-import type { WizardLanguage } from './language.mts'
+import { translateWizard } from './language/state.mts'
+import type { WizardLanguage } from './language/state.mts'
 import { WIZARD_COLORS } from './palette.mts'
 import { ui } from './solid-ui.mts'
 import type { taskStatus } from './actions.mts'

@@ -1,7 +1,7 @@
 import { createSignal, onCleanup } from 'solid-js/dist/solid.js'
-import { flipboardText, FLIP_TOTAL_DURATION } from './flipboard.mts'
-import { wizardAnimationsEnabled } from './mascot.mts'
-import type { WizardLanguage } from './language.mts'
+import { flipboardText, FLIP_TOTAL_DURATION } from './text.mts'
+import { wizardAnimationsEnabled } from '../mascot.mts'
+import type { WizardLanguage } from '../language/state.mts'
 
 export function createLanguageTransition() {
   const [elapsed, setElapsed] = createSignal(FLIP_TOTAL_DURATION)

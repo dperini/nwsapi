@@ -5,13 +5,13 @@ import { expect, test } from 'vitest'
 import {
   ALL_TASKS,
   taskDisplayCommand,
-} from '../../../../scripts/repo/develop/actions.mts'
+} from '../../../../../scripts/repo/develop/actions.mts'
 import {
   localizedTask,
   readWizardLanguage,
   saveWizardLanguage,
   translateWizard,
-} from '../../../../scripts/repo/develop/language.mts'
+} from '../../../../../scripts/repo/develop/language/state.mts'
 
 test('language preferences survive reopening and tolerate malformed files', () => {
   const root = mkdtempSync(path.join(tmpdir(), 'wizard-language-'))
@@ -52,7 +52,7 @@ test('English and unknown tool output remain unchanged', () => {
 
 test('plain picker saves only an explicit language choice', async () => {
   const { choosePlainLanguage } =
-    await import('../../../../scripts/repo/develop/plain.mts')
+    await import('../../../../../scripts/repo/develop/plain.mts')
   const state = { selected: 2, result: '', language: 'en' as const }
   const saved: string[] = []
   await choosePlainLanguage(
@@ -72,7 +72,7 @@ test('plain picker saves only an explicit language choice', async () => {
 
 test('command help descriptions and flag explanations have Italian copy', async () => {
   const { COMMAND_HELP } =
-    await import('../../../../scripts/repo/develop/help.mts')
+    await import('../../../../../scripts/repo/develop/help.mts')
   for (const help of Object.values(COMMAND_HELP)) {
     expect(translateWizard(help.description, 'it'), help.command).not.toBe(
       help.description,
