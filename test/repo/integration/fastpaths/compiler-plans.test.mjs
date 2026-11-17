@@ -271,7 +271,7 @@ test('compiled caches enforce byte budgets and bypass oversized entries', t => {
   for (let i = 0; i < 400; i++) engine.compile('[x="' + i + '"]:weight', false)
   assert.ok(cache.size() < 1000)
   assert.ok(cache.bytes() <= cache.byteLimit())
-  engine.registerSelector('huge', /^:huge\b(.*)/, (match, next) => ({ source: '/*' + 'x'.repeat(1100000) + '*/' + next, status: true }))
+  engine.registerSelector('huge', /^:huge\b(.*)/, (match, next) => ({ source: '/*' + 'x'.repeat(2100000) + '*/' + next, status: true }))
   const huge = '[x]:huge'
   const first = engine.compile(huge, false), second = engine.compile(huge, false)
   assert.notEqual(first, second)
