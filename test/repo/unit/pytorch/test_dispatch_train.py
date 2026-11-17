@@ -147,6 +147,8 @@ class DispatchTrainTests(unittest.TestCase):
                 self.assertEqual(result["validationRows"], 1)
                 self.assertEqual(len(json.loads((output / f"{host}-parity.json").read_text())), 10007)
                 self.assertTrue((output / f"{host}.generated.pt").is_file())
+                generated = (output / f"{host}.generated.mjs").read_text()
+                self.assertIn("export function dispatchOverride(", generated)
             chosen["metrics"] = {**metric, "passesGate": False}
             with patch.object(train, "fit", return_value=fitted):
                 self.assertEqual(train.train_host(rows, "chromium", output, 0)["status"], "rejected-on-validation")

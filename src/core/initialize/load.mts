@@ -5,7 +5,7 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.3.0-prerelease
+ * Version: 3.0.0-prerelease
  * Created: 20070722
  * Release: 20260830
  *

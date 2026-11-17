@@ -61,7 +61,7 @@ test.each(['forward', 'inverse'] as const)(
     ).toBe(choice)
   },
 )
-test('traces preflight capability resolver and forced decisions', () => {
+test('traces preflight capability resolver and supported route decisions', () => {
   const engine = execute(routeBundle(source, 'baseline', true))
   const plan = { denseInverse: true, plannerMask: 1 }
   expect(engine.bulk({ witnesses: [] }, plan, null, [])).toEqual([])
@@ -80,6 +80,13 @@ test('traces preflight capability resolver and forced decisions', () => {
   expect(engine.probes()).toBe(3)
   expect(engine.features()).toEqual([2, 1, 1, 0.5])
   expect(engine.single()).toBe('resolver')
+})
+test('does not count unsupported planner inputs as model decisions', () => {
+  const engine = execute(routeBundle(source, 'baseline', true))
+  engine.bulk({ witnesses: Array(1), weak: true }, {}, null, Array(2))
+  expect(engine.trace().route).toBe('inverse')
+  expect(engine.probes()).toBe(0)
+  expect(engine.features()).toBeNull()
 })
 test.each(['function other(){}', 'function probe(){}function probe(){}'])(
   'rejects missing or duplicate functions',

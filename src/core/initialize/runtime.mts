@@ -39,7 +39,7 @@ import { normalizeCombinators } from '../parser/combinator.mts'
 import { splitList } from '../parser/list.mts'
 
 export function initializeRuntime(engine: EngineState) {
-  engine.version = 'nwsapi-2.3.0-prerelease'
+  engine.version = 'nwsapi-3.0.0-prerelease'
   engine.primordials = (
     engine.Factory as typeof engine.Factory & { _primordials: Primordials }
   )['_primordials']

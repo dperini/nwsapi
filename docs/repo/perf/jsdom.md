@@ -7,7 +7,7 @@ The reported ratio combines representative component, documentation, and
 utility-class queries. It does not measure browser performance or application startup. See the
 [performance work guide](guide.md) for help reading the ratio.
 
-This comparison measures `document.querySelectorAll()` in two real installations of the same `jsdom` version. This run uses `jsdom` 30.0.1. The comparison installation pins `@asamuzakjp/dom-selector` 9.2.4 with an override. The other installation overrides that dependency with the packed `nwsapi` 2.3.0-prerelease build and installs its `css-tree` peer. The benchmark verifies the resolved package names before measuring. This matches the comparison-library version used by the standalone browser benchmark. It does not replace the module cache or call selector engines directly.
+This comparison measures `document.querySelectorAll()` in two real installations of the same `jsdom` version. This run uses `jsdom` 30.0.1. The comparison installation pins `@asamuzakjp/dom-selector` 9.2.4 with an override. The other installation overrides that dependency with the archived V3 prerelease package used for this report and installs its `css-tree` peer. The benchmark verifies the resolved package names before measuring. This matches the comparison-library version used by the standalone browser benchmark. It does not replace the module cache or call selector engines directly.
 
 <!-- jsdom-summary:start -->
 

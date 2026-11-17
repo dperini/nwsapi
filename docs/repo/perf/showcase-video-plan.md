@@ -12,9 +12,8 @@ The first preserved `nwmatcher` commit is dated July 15, 2008 in
 [its repository history](https://github.com/dperini/nwmatcher/commit/3d1641030b0e62cd7aeab2ce6c0deb0169b3f5d4).
 That establishes the lineage. It does not establish an original release date.
 
-The current production-build recording compares `nwsapi` from
-`prerelease/3.0.0`, labeled `2.3.0-prerelease` in the package, with
-`@asamuzakjp/dom-selector` 9.2.4. It records 4.11× geometric mean warm-query
+The preserved production-build recording compares the `nwsapi` V3 prerelease
+with `@asamuzakjp/dom-selector` 9.2.4. It records 4.11× geometric mean warm-query
 speedup on representative workloads, 85.4% less retained engine heap, and 38.0% less
 Brotli-compressed browser JavaScript. Use **“fastest in this comparison”** beside
 the measured ranking. An overall “#1 against the rest” title requires the

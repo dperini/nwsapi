@@ -219,9 +219,12 @@ export function traceEdits(
   edits.push({
     start: gate.start,
     end: gate.start,
-    text: `plannerTrace.decisions++; plannerTrace.facts.witnesses = witnesses.length;
-        plannerTrace.features = [anchors.length, witnesses.length, plan.plannerMask,
-        witnesses.length / anchors.length];\n`,
+    text: `plannerTrace.facts.witnesses = witnesses.length;
+        if (plan.plannerMask !== undefined) {
+          plannerTrace.decisions++;
+          plannerTrace.features = [anchors.length, witnesses.length, plan.plannerMask,
+            witnesses.length / anchors.length];
+        }\n`,
   })
   const result = unique(
     body.filter(node => node.type === 'ReturnStatement'),

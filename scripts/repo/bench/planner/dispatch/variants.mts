@@ -37,7 +37,7 @@ export function dispatchBundle(
     ? `(${fallback}) && !${override}`
     : `dispatchForward(${fallback}, anchors.length, witnesses.length, plan.plannerMask, +plan.denseInverse)`
   const helpers =
-    model.replace(/^export /, '') +
+    model.replace(/^export /m, '') +
     (memoize ? cachedHelper(instrument) : '') +
     (forwardOnly
       ? ''

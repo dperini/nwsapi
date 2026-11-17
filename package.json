@@ -1,6 +1,6 @@
 {
   "name": "nwsapi",
-  "version": "2.3.0-prerelease",
+  "version": "3.0.0-prerelease",
   "description": "Fast CSS Selectors API Engine",
   "keywords": [
     "css",

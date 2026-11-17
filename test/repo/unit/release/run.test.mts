@@ -101,7 +101,7 @@ test('approval version prefers the active request and validates the manifest fal
   expect(() =>
     resolveApprovalVersion(undefined, null, {
       name: 'nwsapi',
-      version: '2.3.0-prerelease',
+      version: '2.3.0',
     }),
   ).toThrow('exact 3.x')
   expect(() =>

@@ -131,13 +131,13 @@ test('version runner executes the selected checkout from its own working directo
   }
 })
 
-test('a v3 feature checkout with a 2.3 prerelease package stays in place', async () => {
+test('a v3 feature checkout with a 3.0 prerelease package stays in place', async () => {
   const root = fixture('master')
   git(root, 'switch', '-c', 'feature/v3-workflow')
   mkdirSync(path.join(root, 'scripts/repo/develop'), { recursive: true })
   writeFileSync(
     path.join(root, 'package.json'),
-    '{"name":"nwsapi","version":"2.3.0-prerelease"}\n',
+    '{"name":"nwsapi","version":"3.0.0-prerelease"}\n',
   )
   writeFileSync(
     path.join(root, 'scripts/repo/develop/run.mts'),

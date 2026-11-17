@@ -3,7 +3,7 @@
 New to benchmark reports? Read the [performance work guide](guide.md) first.
 It explains how to read ratios and why each chart names its host and workload.
 
-`nwsapi` v2.3.0-prerelease and `@asamuzakjp/dom-selector` run as standalone libraries on native Chromium DOMs.
+The V3 prerelease source and `@asamuzakjp/dom-selector` run as standalone libraries on native Chromium DOMs.
 **Every chart on this page compares library to library, without `jsdom`.**
 The separate [public `jsdom` benchmark](jsdom.md) compares `jsdom` using the same pinned comparison-library version with the `nwsapi` override and its `css-tree` peer.
 The browser's own selector methods are used only as the correctness oracle, outside measured calls.
@@ -11,7 +11,7 @@ The saved reports identify the browser version, CPU, library versions, source ha
 
 ## Latest results
 
-The latest full comparison ran on October 18, 2026, using an Apple M1 Max, Node.js 26.10.0 and Chromium 154.0.8037.0. It measured the production build of the current v3 prerelease source (`nwsapi` 2.3.0-prerelease, SHA-256 `4f3c2b25`) against `@asamuzakjp/dom-selector` 9.2.4.
+The saved full comparison ran on October 18, 2026, using an Apple M1 Max, Node.js 26.10.0 and Chromium 154.0.8037.0. It measured a V3 prerelease production build (SHA-256 `4f3c2b25`) against `@asamuzakjp/dom-selector` 9.2.4.
 
 | Measure | Result | How to read it |
 | --- | --- | --- |

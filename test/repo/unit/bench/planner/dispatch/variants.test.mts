@@ -69,3 +69,19 @@ test('dispatch variants preserve fallback short circuits and optionally cache eq
 test('dispatch generation rejects unsafe decision caching', () => {
   assert.throws(() => dispatchBundle(source, model, false, false, true))
 })
+
+test('dispatch generation strips a named export after generated helper functions', () => {
+  const generated = `// Generated policy.
+function supportedCategory() { return true; }
+export function dispatchOverride(a,w,attributes,dense,ratio) { return supportedCategory() && w > a; }`
+  const result = contextForGeneratedModel(generated)
+  assert.equal(result, false)
+})
+
+function contextForGeneratedModel(generated: string) {
+  const realm = vm.createContext({})
+  new vm.Script(dispatchBundle(source, generated, false, true)).runInContext(
+    realm,
+  )
+  return new vm.Script('route(Array(32),Array(80))').runInContext(realm)
+}
