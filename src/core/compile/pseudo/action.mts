@@ -11,7 +11,8 @@ export function compilePseudoAction(
         'if(e===s.HOVER||s.matchesNative(e,":hover")){' + state.source + '}'
       break
     case 'active':
-      state.source = 'if(e===s.doc.activeElement){' + state.source + '}'
+      state.source =
+        'if(e===s.doc.activeElement&&s.isFocusable(e)){' + state.source + '}'
       break
     case 'focus':
       state.source = 'if(s.isFocusable(e)){' + state.source + '}'

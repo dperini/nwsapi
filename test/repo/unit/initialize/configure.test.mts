@@ -17,7 +17,7 @@ test('numeric cache settings resize existing caches and preserve boolean options
   engine.match('.hit', element)
   const cache = engine.matchResolvers
   expect(engine.configure('CACHE_LIMIT')).toBe(4096)
-  expect(engine.configure('CACHE_BYTES')).toBe(2 * 1024 * 1024)
+  expect(engine.configure('CACHE_BYTES')).toBe(4 * 1024 * 1024)
   expect(engine.configure({ CACHE_LIMIT: 8, CACHE_BYTES: 4096 })).toBe(true)
   expect(engine.matchResolvers).toBe(cache)
   expect(cache.size()).toBe(0)
@@ -64,7 +64,7 @@ test.each(['CACHE_LIMIT', 'CACHE_BYTES'])(
     }
     expect(engine.matchResolvers.size()).toBe(0)
     expect(engine.matchLambdas.size()).toBe(0)
-    engine.configure({ CACHE_LIMIT: 4096, CACHE_BYTES: 2 * 1024 * 1024 })
+    engine.configure({ CACHE_LIMIT: 4096, CACHE_BYTES: 4 * 1024 * 1024 })
     expect(engine.match('.hit', element)).toBe(true)
     expect(engine.matchResolvers.size()).toBe(1)
   },
@@ -75,7 +75,7 @@ test('configuration remains isolated between engines', () => {
   const second = setup().engine
   first.configure({ CACHE_LIMIT: 7, CACHE_BYTES: 2048 })
   expect(second.configure('CACHE_LIMIT')).toBe(4096)
-  expect(second.configure('CACHE_BYTES')).toBe(2 * 1024 * 1024)
+  expect(second.configure('CACHE_BYTES')).toBe(4 * 1024 * 1024)
 })
 
 test('configuration reads accessor values once before validation', () => {

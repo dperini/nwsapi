@@ -66,7 +66,7 @@ export function parse(
       (selectors as string[]).join('') == parsed
     ) {
       selectors = engine.splitList(parsed)
-      if (parsed[parsed.length - 1] == ',') {
+      if ((selectors as string[]).some(selector => !selector)) {
         engine.emit(engine.qsInvalid)
         {
           validateSelectorGroupsValue = engine.Config.VERBOSITY

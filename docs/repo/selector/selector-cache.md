@@ -12,7 +12,7 @@ query workload and memory use.
 | Option | Default | Scope |
 | --- | ---: | --- |
 | `CACHE_LIMIT` | `4096` | Entry limit for caches using the configurable entry budget. |
-| `CACHE_BYTES` | `2 * 1024 * 1024` (2MiB) | Estimated retained bytes per compiled-plan cache. |
+| `CACHE_BYTES` | `4 * 1024 * 1024` (4MiB) | Estimated retained bytes per compiled-plan cache. |
 
 Both values must be nonnegative safe integers. Zero disables retention for the
 applicable caches. Invalid values throw a `TypeError` before options change.

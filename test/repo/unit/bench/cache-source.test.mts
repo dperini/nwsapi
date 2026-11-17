@@ -32,10 +32,10 @@ test('cache replacement respects parsed literal boundaries and tolerates sparse 
 })
 
 test('cache replacement supports numeric configuration defaults', () => {
-  const source = 'const Config = { CACHE_LIMIT: 4096, CACHE_BYTES: 2097152 };'
+  const source = 'const Config = { CACHE_LIMIT: 4096, CACHE_BYTES: 4194304 };'
   const result = replaceCacheLimit(source, 1000)
   const values = new vm.Script(
     result + ';[Config.CACHE_LIMIT, Config.CACHE_BYTES]',
   ).runInNewContext() as unknown[]
-  assert.deepEqual(Array.from(values), [1000, 2_097_152])
+  assert.deepEqual(Array.from(values), [1000, 4_194_304])
 })

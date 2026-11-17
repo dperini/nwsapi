@@ -79,7 +79,7 @@ Use `configure({ option: value })` to change options, `configure()` to read them
 
 | Option | Default | Effect |
 | --- | --- | --- |
-| `CACHE_BYTES` | `2 * 1024 * 1024` | Maximum estimated bytes per compiled-plan cache. A nonnegative safe integer. Zero disables plan retention. |
+| `CACHE_BYTES` | `4 * 1024 * 1024` | Maximum estimated bytes per compiled-plan cache. A nonnegative safe integer. Zero disables plan retention. |
 | `CACHE_LIMIT` | `4096` | Maximum entries per configurable cache. A nonnegative safe integer. Zero disables retention. |
 | `FORGIVING` | `true` | Allows invalid items in forgiving lists such as `:is()` and `:where()`. |
 | `IDS_DUPES` | `true` | Allows duplicate IDs when finding elements. |

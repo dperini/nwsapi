@@ -33,12 +33,12 @@ test('large selector churn bounds compiled caches without changing retained reso
   const engine = factory(window)
   const saved = engine.compile('.hit', false)!
   const element = window.document.querySelector('div')!
-  for (let i = 0; i < 800; ++i) {
+  for (let i = 0; i < 2600; ++i) {
     engine.compile('[data-key="' + i + 'x'.repeat(800) + '"]', false)
   }
   const cache = Reflect.get(engine, 'matchLambdas')
-  expect(cache.bytes!()).toBeLessThanOrEqual(2 * 1024 * 1024)
-  expect(cache.size()).toBeLessThan(800)
+  expect(cache.bytes!()).toBeLessThanOrEqual(engine.Config.CACHE_BYTES)
+  expect(cache.size()).toBeLessThan(2600)
   expect(saved(element, null, window.document, false)).toBe(true)
   engine.configure({}, true)
   expect(cache.bytes!()).toBe(0)

@@ -141,6 +141,15 @@ export function isFocusable(engine: EngineState, node: EngineElement) {
   if (node.contentDocument && engine.tagOf(node) == 'iframe') {
     return false
   }
+  // BODY is activeElement when the document has focus but nothing does.
+  // Require an explicit focus attribute before treating that fallback as real.
+  if (
+    (node === doc.body || node === doc.documentElement) &&
+    !node.hasAttribute('tabindex') &&
+    !node.hasAttribute('contenteditable')
+  ) {
+    return false
+  }
   if (doc.hasFocus() && node === doc.activeElement) {
     if (node.type || node.href || typeof node.tabIndex == 'number') {
       return node

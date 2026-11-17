@@ -106,7 +106,7 @@ export function initializeRuntime(engine: EngineState) {
   engine.reNthType = /(:nth(?:-last)?-of-type)/i
   engine.Config = {
     CACHE_LIMIT: 4096,
-    CACHE_BYTES: 2 * 1024 * 1024,
+    CACHE_BYTES: 4 * 1024 * 1024,
     IDS_DUPES: true,
     FORGIVING: true,
     LEGACY: false,
