@@ -13,7 +13,7 @@ permissions:
 jobs:
   wpt-scope:
     name: 'ci: plan WPT'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       run: ${{ steps.plan.outputs.run }}
     steps:
@@ -64,7 +64,7 @@ jobs:
 
   test:
     name: 'test: Node ${{ matrix.node }}'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     strategy:
       matrix:
         node: [22, 24]
