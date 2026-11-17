@@ -12,8 +12,8 @@ permissions:
 
 jobs:
   wpt-scope:
-    name: plan WPT coverage
-    runs-on: ubuntu-latest
+    name: 'ci: plan WPT'
+    runs-on: ubuntu-26.04
     outputs:
       run: ${{ steps.plan.outputs.run }}
     steps:
@@ -63,7 +63,8 @@ jobs:
           echo 'run=false' >> "$GITHUB_OUTPUT"
 
   test:
-    runs-on: ubuntu-latest
+    name: 'test: Node ${{ matrix.node }}'
+    runs-on: ubuntu-26.04
     strategy:
       matrix:
         node: [22, 24]
@@ -72,13 +73,17 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           node-version: ${{ matrix.node }}
-      - run: npm run lint
+      - name: Lint once on Node 22
+        if: matrix.node == 22
+        run: npm run lint
       - run: npm test
 
   wpt:
+    name: 'test: WPT'
     needs: wpt-scope
     if: needs.wpt-scope.outputs.run == 'true'
-    runs-on: ubuntu-latest
+    # Ubuntu 26.04 no longer provides the pinned PHP 8.3 archive package.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup

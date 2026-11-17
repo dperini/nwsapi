@@ -1,6 +1,6 @@
 # Selector cache admission in V2
 
-The candidate adds sampled admission for new resolver entries when an existing cache must evict to remain inside its configured limits. Existing cache hits still promote entries. The default entry limit and byte limit are unchanged.
+The cache uses sampled admission for new resolver entries when an existing cache must evict to remain inside its configured limits. Existing cache hits still promote entries. The measurements below used the earlier defaults of 1,000 entries and 2 MiB; current defaults are 4,096 entries and 4 MiB to retain larger generated-ID query workloads.
 
 In this synthetic scan, admission avoids the repeated eviction cycle when a stable selector set is just larger than the 1,000-entry limit. The baseline compiled all 1,001 selectors again on each pass, while the candidate retained nearly all of them after the first scan. Larger class and complex-selector scans also showed fewer `Function` constructions and lower median time in this run. The mixed workload kept all warmed hot selectors, while each one-off still compiled once. A changed selector set still has a cold transition cost, though later passes benefited from retaining a sampled set of replacements.
 

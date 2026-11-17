@@ -144,8 +144,8 @@ The following is the list of currently available configuration options, their de
 
 Two numeric settings control each compiled-plan cache:
 
-* `CACHE_LIMIT`: `1000` entries by default.
-* `CACHE_BYTES`: `2 * 1024 * 1024` estimated bytes by default.
+* `CACHE_LIMIT`: `4096` entries by default.
+* `CACHE_BYTES`: `4 * 1024 * 1024` estimated bytes by default.
 
 Both accept nonnegative safe integers. Zero disables retention. Changing either setting clears existing query caches and applies the new bounds immediately. Invalid values throw a `TypeError` before any options change. Read a numeric setting with `configure("CACHE_LIMIT")` or `configure("CACHE_BYTES")`.
 
