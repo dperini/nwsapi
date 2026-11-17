@@ -63,6 +63,43 @@ test('matching backtracks through repeated ancestor qualifiers', t => {
   assert.equal(siblingEngine.match(siblingSelector, siblingLeaf), false)
 })
 
+test('mixed nested combinators preserve the current element at every scope', t => {
+  const { window } = new JSDOM(
+    '<main>' +
+      '<section class="root"><div class="start"></div>' +
+      '<div class="middle"><i class="inner"></i>' +
+      '<div class="tail"><span class="leaf"></span></div></div>' +
+      '<div class="tail"><article><span class="leaf"></span></article></div>' +
+      '<div class="tail"><article><span class="leaf"></span></article></div>' +
+      '</section>' +
+      '<section class="root"><div class="start"></div>' +
+      '<div class="middle"><i class="inner"></i>' +
+      '<div class="tail"><span class="leaf"></span></div></div>' +
+      '<div class="other"><article><span class="leaf"></span></article></div>' +
+      '</section>' +
+      '</main>',
+  )
+  t.onTestFinished(() => window.close())
+  const { document } = window
+  const engine = factory(window)
+  const selectors = [
+    '.root > .start + .middle ~ .tail:nth-of-type(2n) article .leaf',
+    '.root .start + .middle > .inner ~ .tail .leaf',
+  ]
+
+  for (const selector of selectors) {
+    const expected = [...document.querySelectorAll(selector)]
+    assert.deepEqual(engine.select(selector, document), expected, selector)
+    for (const candidate of document.querySelectorAll('.leaf')) {
+      assert.equal(
+        engine.match(selector, candidate),
+        candidate.matches(selector),
+        selector,
+      )
+    }
+  }
+})
+
 test('matching callbacks run for repeated qualifiers and stay cached', t => {
   const { window } = new JSDOM(
     '<main><div class="a"><div class="a"><i class="leaf"></i></div></div></main>',
