@@ -258,12 +258,47 @@ export function reportToolSetupAction(
   return false
 }
 
+export async function setupGithubTools({
+  full = false,
+  setup = setupTools,
+  log = console.log,
+  env = process.env,
+}: {
+  full?: boolean
+  setup?: typeof setupTools
+  log?: (text: string) => void
+  env?: NodeJS.ProcessEnv
+} = {}) {
+  if (!env['GITHUB_PATH']) {
+    throw new Error('GITHUB_PATH is required with --github-path.')
+  }
+  const bin = full ? await setup({ full: true }) : await setup()
+  appendFileSync(env['GITHUB_PATH'], bin + '\n')
+  log('Toolchain ready for repository commands. Global defaults are unchanged.')
+  return bin
+}
+
 export async function main(
   args = process.argv.slice(2),
   setup = setupTools,
   log = console.log,
   env = process.env,
 ) {
+  if (args.includes('--github-path')) {
+    const unknown = args.filter(
+      argument => argument !== '--github-path' && argument !== '--full',
+    )
+    if (unknown.length > 0) {
+      throw new Error(`Unsupported GitHub tool setup option: ${unknown[0]}`)
+    }
+    return setupGithubTools({
+      full: args.includes('--full'),
+      setup,
+      log,
+      env,
+    })
+  }
+
   const [
     { object },
     { message: optiqueMessage },
@@ -296,9 +331,6 @@ export async function main(
   }
   if (reportToolSetupAction(values, log)) {
     return TOOL_BIN
-  }
-  if (values['github-path'] && !env['GITHUB_PATH']) {
-    throw new Error('GITHUB_PATH is required with --github-path.')
   }
   const bin = values.full ? await setup({ full: true }) : await setup()
   if (values['github-path']) {

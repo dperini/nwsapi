@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   runtime:
-    name: checks
+    name: 'ci: checks'
     if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     outputs:
       fullNode: ${{ steps.test-plan.outputs.fullNode }}
@@ -122,6 +122,7 @@ jobs:
           retention-days: 14
 
   unit:
+    name: 'test: unit shard'
     needs: runtime
     if: ${{ !cancelled() && needs.runtime.outputs.fullNode == 'true' }}
     runs-on: ubuntu-26.04
@@ -176,7 +177,7 @@ jobs:
           retention-days: 7
 
   node:
-    name: summary
+    name: 'ci: summary'
     needs: [runtime, unit]
     if: always() && (github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-26.04
@@ -207,11 +208,6 @@ jobs:
           # Summary verification reads shard reports and needs only this tree.
           git fetch --no-tags --depth=1 origin "+${TRIGGER_REF}:refs/remotes/origin/ci-trigger"
           git checkout -q --detach refs/remotes/origin/ci-trigger
-      - uses: ./.github/actions/repo/cache-tools
-        if: needs.runtime.outputs.fullNode == 'true'
-      - name: Install integrity-verified contributor tools
-        if: needs.runtime.outputs.fullNode == 'true'
-        run: node scripts/repo/setup/tools.mts --github-path
       - name: Download every unit shard report
         if: needs.runtime.outputs.fullNode == 'true'
         env:
@@ -263,7 +259,7 @@ jobs:
           fi
 
   onboarding:
-    name: onboarding
+    name: 'ci: onboarding'
     needs: node
     if: needs.node.result == 'success'
     uses: ./.github/workflows/onboarding.yml

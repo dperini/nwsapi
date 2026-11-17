@@ -1,5 +1,5 @@
-import { parseCliArgs as parseArgs } from '../../lib/cli/arguments.mts'
 import path from 'node:path'
+import { parseArgs } from 'node:util'
 import { isMainModule } from '../../lib/run-node.mts'
 import { REPO_ROOT } from '../../lib/paths.mts'
 import {
@@ -29,25 +29,29 @@ export function verifyUnitShardDirectory(
   return result
 }
 
-if (isMainModule(import.meta.url)) {
+export function parseUnitShardVerifyArgs(args = process.argv.slice(2)) {
   const { values } = parseArgs({
+    args,
     options: {
       directory: { type: 'string' },
       help: { type: 'boolean', short: 'h' },
     },
+    strict: true,
+    allowPositionals: false,
   })
-  if (
-    values.help ||
-    process.argv.includes('--help') ||
-    process.argv.includes('-h')
-  ) {
+  if (!values.help && !values.directory) {
+    throw new Error('--directory must name the downloaded shard reports.')
+  }
+  return { directory: values.directory, help: values.help ?? false }
+}
+
+if (isMainModule(import.meta.url)) {
+  const values = parseUnitShardVerifyArgs()
+  if (values.help) {
     console.log(
       'Usage: node scripts/repo/run.mts scripts/repo/test/shard/verify.mts --directory <downloaded-reports>',
     )
     process.exit(0)
   }
-  if (!values.directory) {
-    throw new Error('--directory must name the downloaded shard reports.')
-  }
-  verifyUnitShardDirectory(path.resolve(REPO_ROOT, values.directory))
+  verifyUnitShardDirectory(path.resolve(REPO_ROOT, values.directory!))
 }

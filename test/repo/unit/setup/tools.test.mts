@@ -1,8 +1,12 @@
 import { expect, test, vi } from 'vitest'
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 import {
   describeToolSetup,
   installJouet,
   main,
+  setupGithubTools,
   toolSetupPlan,
 } from '../../../../scripts/repo/setup/tools.mts'
 import manifest from '../../../../.config/external-tools.json' with { type: 'json' }
@@ -86,4 +90,34 @@ test('tool setup dry-run does not call the installer', async () => {
     command: 'setup/tools',
   })
   expect(describeToolSetup().options).toContain('--dry-run')
+})
+
+test('GitHub bootstrap appends the tool path without loading the CLI parser', async () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-tools-'))
+  const githubPath = path.join(directory, 'github-path')
+  const setup = vi.fn(async () => path.join(directory, 'bin'))
+  const log = vi.fn()
+
+  try {
+    await main(['--github-path', '--full'], setup, log, {
+      GITHUB_PATH: githubPath,
+    })
+    expect(setup).toHaveBeenCalledWith({ full: true })
+    expect(readFileSync(githubPath, 'utf8')).toBe(
+      path.join(directory, 'bin') + '\n',
+    )
+    expect(log).toHaveBeenCalledWith(
+      'Toolchain ready for repository commands. Global defaults are unchanged.',
+    )
+  } finally {
+    rmSync(directory, { recursive: true, force: true })
+  }
+})
+
+test('GitHub bootstrap validates its output path before setup', async () => {
+  const setup = vi.fn(async () => '/cache/bin')
+  await expect(setupGithubTools({ setup, env: {} })).rejects.toThrow(
+    'GITHUB_PATH is required with --github-path.',
+  )
+  expect(setup).not.toHaveBeenCalled()
 })
