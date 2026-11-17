@@ -1,11 +1,21 @@
 {
+  "permissions": {
+    "allow": ["Read(*)", "Glob(*)", "Grep(*)"],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(sudo *)",
+      "Bash(chmod 777 *)",
+      "Bash(ssh *)",
+      "Bash(*> /dev/*)"
+    ]
+  },
   "hooks": {
     "SessionStart": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "sh -c 'root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0; exe=\"$root/.cache/bin/jouet\"; [ -x \"$exe\" ] || exit 0; exec \"$exe\" hook claude session-start'",
+            "command": "node scripts/repo/hooks/jouet.mts session-start",
             "timeout": 10
           }
         ]
@@ -17,7 +27,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh -c 'root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0; exe=\"$root/.cache/bin/jouet\"; [ -x \"$exe\" ] || exit 0; exec \"$exe\" hook claude pre-tool-use'",
+            "command": "node scripts/repo/hooks/jouet.mts pre-tool-use",
             "timeout": 10
           }
         ]
@@ -29,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh -c 'root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0; exe=\"$root/.cache/bin/jouet\"; [ -x \"$exe\" ] || exit 0; exec \"$exe\" hook claude post-tool-use'",
+            "command": "node scripts/repo/hooks/jouet.mts post-tool-use",
             "timeout": 10
           }
         ]
@@ -39,7 +49,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh -c 'root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0; exe=\"$root/.cache/bin/jouet\"; [ -x \"$exe\" ] || exit 0; exec \"$exe\" hook claude post-edit'",
+            "command": "node scripts/repo/hooks/jouet.mts post-edit",
             "timeout": 10
           }
         ]
@@ -51,7 +61,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh -c 'root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0; exe=\"$root/.cache/bin/jouet\"; [ -x \"$exe\" ] || exit 0; exec \"$exe\" hook claude post-tool-use-failure'",
+            "command": "node scripts/repo/hooks/jouet.mts post-tool-use-failure",
             "timeout": 10
           }
         ]
@@ -62,7 +72,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh -c 'root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0; exe=\"$root/.cache/bin/jouet\"; [ -x \"$exe\" ] || exit 0; exec \"$exe\" hook claude stop'",
+            "command": "node scripts/repo/hooks/jouet.mts stop",
             "timeout": 10
           }
         ]
