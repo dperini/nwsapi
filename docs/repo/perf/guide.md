@@ -18,8 +18,9 @@ and results. Read the [benchmark guide](benchmarks.md) before comparing
 numbers. For a plain-language introduction to PyTorch and the experimental
 `:has()` route planner, see the [beginner's guide](pytorch-for-beginners.md)
 and its [animated walkthrough](pytorch-has-routing.html). The
-[latest dispatch results](neural-dispatch-jit-outcome.md) explain the
-performance evidence and its limits.
+[maintained planner results](trained-has-planner.md) explain the active policy
+and its limits. The [latest dispatch experiment](neural-dispatch-jit-outcome.md)
+covers a separate split-matcher optimization.
 
 ## Where to record new work
 

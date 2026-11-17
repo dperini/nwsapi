@@ -9,8 +9,9 @@ saved route policy through its arithmetic and source code.
 For some `:has()` queries, `nwsapi` can search down from each possible matching
 card or search up from each possible warning. Both routes check the selector
 exactly and return the same matching elements in document order. The existing
-count rule chooses the default route. An optional model can recommend the
-other route for a narrow set of eligible queries.
+count rule chooses the default route. V3 includes a small, frozen model that
+can choose the other route for a narrow set of eligible queries. It is enabled
+by default and can be turned off with `ROUTE_PLANNER: false`.
 
 This is machine learning, but not generative AI. The model does not write text,
 create selectors, or decide which elements match. It makes one numeric choice:
@@ -22,7 +23,8 @@ The route planner is experimental. Recorded synthetic tests show both
 speedups and slowdowns. They do not establish a general speedup or show that
 the learned model beats a simpler fitted rule. The walkthrough’s editable
 timing estimates use teaching assumptions and are distinct from archived
-measurements.
+measurements. See the [maintained results](trained-has-planner.md) for the
+current policy, measured scope, and limitations.
 
 ## What does `:has()` do?
 

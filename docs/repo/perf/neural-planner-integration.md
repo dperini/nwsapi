@@ -1,13 +1,13 @@
 # Use the experimental route planner
 
-The built-in planner uses the frozen PyTorch policies to choose a route for
-some `:has()` queries. It does not generate selectors or predict matching
-elements. The existing matcher still checks every result.
+The built-in planner uses frozen policies trained with PyTorch to choose a
+route for some `:has()` queries. It does not generate selectors or predict
+matching elements. The existing matcher still checks every result.
 
-New engines enable the Chromium policy by default. The jsdom adapter
-selects the jsdom policy automatically. Unsupported queries retain the
-current route. The integrated runtime still needs complete-query performance
-qualification.
+New engines enable the Chromium policy by default. The jsdom adapter selects
+the jsdom policy automatically. Unsupported queries retain the current route.
+The [maintained results](trained-has-planner.md) cover the integrated policy
+and explain the narrow scope of its performance evidence.
 
 ## Build the planner
 
@@ -126,14 +126,11 @@ engine. It stores no elements, documents or query results.
 
 ## Measurement limits
 
-This integration adds a callback and applicability checks. It is a new
-runtime path. Earlier generated-bundle timings do not measure its exact
-cost. No speed gain is claimed for this integration yet.
+The complete-query measurements in the [maintained results](trained-has-planner.md)
+include the enabled planner's checks, decision and matching work. They cover
+synthetic cases and do not promise a gain for every application. If the model
+or its guards change, repeat those measurements and verify the final route.
 
-A future qualification pass must measure this enabled planner, including
-its applicability checks and callback. Use the archived generated bundles
-to reproduce earlier measurements. Instrumentation for the enabled
-planner must record the final route after its callback runs.
-
-See the [measured outcome](neural-dispatch-jit-outcome.md) and
+See the [maintained results](trained-has-planner.md), the separate
+[JIT experiment](neural-dispatch-jit-outcome.md), and
 [remaining experiments](neural-dispatch-jit-tasks.md).

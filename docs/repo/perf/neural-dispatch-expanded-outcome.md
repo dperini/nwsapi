@@ -1,5 +1,10 @@
 # Train a route model with separate filter inputs
 
+This archived report covers a broad candidate policy. It predates the
+narrower policy now included in V3. See the
+[maintained `:has()` planner results](trained-has-planner.md) for current
+runtime behavior and later confirmations.
+
 This round improves the development model and the data used to train it.
 The model chooses whether to replace the existing forward `:has()` route
 with inverse execution. Both routes must return the same elements in the
@@ -9,9 +14,9 @@ For `.card:has(.witness)`, a possible card is an anchor. A matching descendant
 is a witness. Candidate counts come from the class seeds before attribute
 filters run. The existing dense flag identifies two simple exact class seeds.
 
-The distributed `nwsapi` engine keeps its current routing policy. A trained
-checkpoint becomes a runtime candidate only after measured queries pass the
-performance checks.
+This experiment did not qualify its broad checkpoint for runtime use. A
+trained checkpoint becomes a runtime candidate only after measured queries
+pass the performance checks.
 
 ## What changed
 
@@ -184,8 +189,9 @@ and after each host.
 
 The [fully crossed follow-up](neural-dispatch-crossed-outcome.md) completes
 items 1–3 below. It finds strong synthetic routing gains, but the model and
-fitted rule make identical measured decisions. Neither qualifies for runtime
-integration.
+fitted rule make identical measured decisions. Neither broad candidate
+qualified for runtime integration; the later guarded policy is measured in the
+maintained results linked above.
 
 ## Next useful improvements
 

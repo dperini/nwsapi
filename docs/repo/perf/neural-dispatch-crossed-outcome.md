@@ -1,5 +1,10 @@
 # Check route choices across independent filter combinations
 
+This is the October 5 model comparison, not the current runtime status. It
+records the limits of that experiment. The narrower guarded policy later
+integrated into V3, with separate complete-query confirmations, is described
+in [trained `:has()` planner results](trained-has-planner.md).
+
 This experiment tests whether the small model still helps when each layout
 uses every filter combination. The model changes route selection. It does
 not change how either route finds matching elements.
@@ -141,10 +146,11 @@ ratio, no increase in total query time, and no query taking more than 1.15×
 baseline time. Both the reserved group and older group must pass. A neural
 model also needs a useful advantage over the fitted rule.
 
-Production integration still needs selector and context applicability
-checks, cold queries, mixed query sequences, DOM changes and independent
-application measurements. The distributed `nwsapi` engine keeps its current
-routing policy during this experiment.
+This comparison did not qualify its broad candidate policies for runtime
+integration. Later V3 integration added narrower selector and context guards.
+Cold queries, mixed query sequences, DOM changes and independent application
+measurements remain outside the evidence recorded here; see the maintained
+results linked above.
 
 ## Next useful work
 

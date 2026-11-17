@@ -2,24 +2,33 @@
 
 ## In brief
 
-A small model was tested to choose how `:has()` finds a matching descendant.
-The model reduced to one simple rule. We kept that rule only for a narrow,
-measured set of selectors and candidate counts. Other selectors keep the
-existing behavior. The [performance work guide](guide.md) explains _route_
-and _candidate_.
+A small trained policy chooses between two exact search routes for a narrow
+set of `:has()` queries. V3 includes the frozen policy as generated JavaScript;
+PyTorch is used only to train replacement weights. Other queries keep the
+existing route. The [performance work guide](guide.md) explains _route_ and
+_candidate_.
 
-The October 5 neural continuation experiment is documented in the
+The separate October 5 neural continuation experiment is documented in the
 [implementation outcome](neural-planner-outcome.md) and
 [current HTML report](../../../assets/repo/bench/survey-2026-10-03/neural-planner-2026-10-05.html).
-Its measured regressions keep it offline. The earlier guarded implementation
-and actual-build confirmations described below remain in place.
+It regressed and remains offline; it is not the route policy described here.
+
+## Runtime behavior
+
+The active policy is `planner-dispatch-crossed-2026-10-05-r1`. New engines use
+the Chromium policy by default; the jsdom adapter selects the jsdom policy.
+The generated module is included in the normal bundle. Eligible queries run a
+small JavaScript decision function. The application does not load PyTorch, a
+checkpoint, or a model from disk or the network. You can turn the policy off
+with `ROUTE_PLANNER: false` or select a host with `useRoutePlanner()`; see
+[runtime setup](neural-planner-integration.md).
 
 ## Implemented outcome
 
-The model trained on 96 observations across Chromium and `jsdom`. It pruned
-to one constant decision: prefer inverse witness marking within its measured
-domain. The initial held-out model evaluation passed the gate, at 1.088×
-and 1.193× geometric mean speed ratios respectively.
+The policy was trained on 96 observations across Chromium and `jsdom`. It
+prefers inverse witness marking only within a guarded, measured domain. The
+initial held-out evaluation passed its gate, at 1.088× and 1.193× geometric
+mean speed ratios respectively.
 
 Reviewing training cases exposed a 1.248× time regression for dense,
 attribute-filtered flat anchors in Chromium. The implementation therefore
@@ -36,10 +45,11 @@ retaining the existing early exit below 32 anchors. Measured by itself on
 eligible zero-witness cases, this preflight is 2.024× faster in Chromium and
 1.478× faster in `jsdom`.
 
-The production implementation uses these guarded conditions directly. It
-does not load a model, allocate feature vectors, run inference, scan for
-features, or add per-element telemetry. Existing unsupported-syntax, legacy,
-callback, and missing-WeakMap paths retain their fallback behavior.
+The runtime calls the generated policy once for an eligible query. It uses
+scalar counts and selector flags; it does not scan the DOM to build features
+or add per-element telemetry. The decision cost is included in the complete-
+query measurements below. Unsupported syntax, callbacks, and missing WeakMap
+support keep the existing fallback behavior.
 
 ### Confirmation of the actual build
 
@@ -94,7 +104,8 @@ relative to the original rule in each independent run.
 | Chromium | 22.8% less time           | 23.3% less time          | 22.4% less time      | 11.7% more time          |
 | `jsdom`  | 20.4% less time           | 21.1% less time          | 20.4% less time      | 4.3% more time           |
 
-Both AC passes meet the preset gate. On the matching 52 held-out cases,
+Both AC passes meet the preset gate for these measured cases. On the matching
+52 held-out cases,
 the shortcut alone saves 15.0% in Chromium and 8.3% in `jsdom`. Both changes
 together save 21.5% and 20.5% in the longer repeat. These two options were
 measured in separate runs against their own original-rule baselines.
@@ -103,8 +114,9 @@ The eight-case AC cold-query probe records 1.9% less geometric mean query
 time, with every case below its original-rule time in this sample. Its short
 timings and limited scope do not establish a cold-start improvement. Ordered
 result-identity checks passed during all measurements. Full compatibility
-suites were not rerun. The emitted runtime and its 80bytes gzip increase
-are unchanged from the battery measurement.
+suites were not rerun. The emitted runtime and its 80-byte gzip increase
+are unchanged from the battery measurement. These synthetic results do not
+guarantee a speedup for every application or selector.
 
 Set `NWSAPI_REQUIRE_AC=1` to require macOS AC power before and after each
 host measurement. Other platforms fail closed when this setting is enabled.
