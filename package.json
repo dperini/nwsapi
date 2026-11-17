@@ -437,6 +437,7 @@
     "cpu-features": false,
     "ffmpeg-static": false,
     "fsevents": false,
+    "node-pty": true,
     "onnxruntime-node": false,
     "protobufjs": false,
     "sharp": false,

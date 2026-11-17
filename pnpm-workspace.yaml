@@ -4,6 +4,7 @@ allowBuilds:
   # Guidepup recording is optional and the docs checks do not record video.
   ffmpeg-static: false
   fsevents: false
+  node-pty: true
   # CPU inference and image processing use the published native binaries.
   onnxruntime-node: false
   protobufjs: false
