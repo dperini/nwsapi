@@ -67,7 +67,7 @@
     "@opentui/core": "0.5.17",
     "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "acorn": "8.15.0",
-    "eslint": "10.12.0",
+    "eslint": "10.15.0",
     "globals": "17.13.0",
     "jsdom": "26.1.0",
     "playwright": "1.63.0",
