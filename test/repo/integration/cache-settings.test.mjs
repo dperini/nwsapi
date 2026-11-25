@@ -14,8 +14,8 @@ function setup(t) {
 
 test('numeric settings resize existing caches and preserve default values', t => {
   const { engine, element } = setup(t)
-  assert.equal(engine.configure('CACHE_LIMIT'), 1000)
-  assert.equal(engine.configure('CACHE_BYTES'), 2 * 1024 * 1024)
+  assert.equal(engine.configure('CACHE_LIMIT'), 4096)
+  assert.equal(engine.configure('CACHE_BYTES'), 4 * 1024 * 1024)
   engine.match('.hit', element)
   const cache = engine.matchResolvers
   engine.configure({ CACHE_LIMIT: 8, CACHE_BYTES: 4096 })
@@ -44,7 +44,7 @@ for (const key of ['CACHE_LIMIT', 'CACHE_BYTES']) {
     }
     assert.equal(engine.matchResolvers.size(), 0)
     assert.equal(engine.matchLambdas.size(), 0)
-    engine.configure({ CACHE_LIMIT: 1000, CACHE_BYTES: 2 * 1024 * 1024 })
+    engine.configure({ CACHE_LIMIT: 4096, CACHE_BYTES: 4 * 1024 * 1024 })
     assert.equal(engine.match('.hit', element), true)
     assert.ok(engine.matchResolvers.size() > 0)
   })
@@ -58,12 +58,12 @@ test('invalid budgets fail atomically and instances stay isolated', t => {
   for (const value of [-1, 1.5, Infinity, NaN, '8192', true, null, undefined, 2 ** 53]) {
     assert.throws(() => engine.configure({ LOGERRORS: false, CACHE_LIMIT: 8, CACHE_BYTES: value }), TypeError)
     assert.throws(() => engine.configure({ CACHE_LIMIT: value }), TypeError)
-    assert.equal(engine.configure('CACHE_LIMIT'), 1000)
+    assert.equal(engine.configure('CACHE_LIMIT'), 4096)
     assert.equal(engine.configure('LOGERRORS'), true)
     assert.equal(engine.matchResolvers.size(), size)
   }
   engine.configure({ CACHE_LIMIT: 8 })
-  assert.equal(other.configure('CACHE_LIMIT'), 1000)
+  assert.equal(other.configure('CACHE_LIMIT'), 4096)
 })
 
 test('expanded budgets retain a stylesheet that exceeds default entry bounds', t => {

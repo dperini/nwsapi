@@ -157,8 +157,8 @@
 
   // special handling configuration flags
   Config = {
-    CACHE_LIMIT: 1000,
-    CACHE_BYTES: 2 * 1024 * 1024,
+    CACHE_LIMIT: 4096,
+    CACHE_BYTES: 4 * 1024 * 1024,
     IDS_DUPES: true,
     FORGIVING: true,
     NODE_LIST: false,
@@ -1066,13 +1066,23 @@
   isFocusable =
     function(node) {
       var doc = node.ownerDocument;
-       if (node.contentDocument&&node.localName== 'iframe') { return false; }
-       if (doc.hasFocus() && node === doc.activeElement) {
+      if (isDefaultActiveElement(node, doc)) { return false; }
+      if (node.contentDocument && node.localName == 'iframe') { return false; }
+      if (doc.hasFocus() && node === doc.activeElement) {
         if (node.type || node.href || typeof node.tabIndex == 'number') {
           return node;
         }
       }
       return false;
+    },
+
+  // Browsers expose BODY as activeElement when the document has focus but no
+  // element does. Treat that fallback as focused only when it was explicitly
+  // made focusable; otherwise focus pseudos must match nothing.
+  isDefaultActiveElement =
+    function(node, doc) {
+      return (node === doc.body || node === doc.documentElement) &&
+        !node.hasAttribute('tabindex') && !node.hasAttribute('contenteditable');
     },
 
   // use the native selector state when it is available; when NWSAPI has
@@ -2395,7 +2405,7 @@
                   source = 'if(e===s.HOVER){' + source + '}';
                   break;
                 case 'active':
-                  source = 'if(e===s.doc.activeElement){' + source + '}';
+                  source = 'if(e===s.doc.activeElement&&!s.isDefaultActiveElement(e,s.doc)){' + source + '}';
                   break;
                 case 'focus':
                   source = 'if(s.isFocusable(e)){' + source + '}';
@@ -2407,7 +2417,7 @@
                   source = 'if(s.isFocusable(e)){' + source + '}';
                   break;
                 case 'focus-within':
-                  source = 'if(e.contains(s.doc.activeElement)){' + source + '}';
+                  source = 'if(s.doc.activeElement&&!s.isDefaultActiveElement(s.doc.activeElement,s.doc)&&e.contains(s.doc.activeElement)){' + source + '}';
                   break;
                 default:
                   emit('\'' + expression + '\'' + qsInvalid);
@@ -2867,7 +2877,7 @@
       // parse, validate and split possible compound selectors
       if ((selectors = parsed.match(reValidator)) && selectors.join('') == parsed) {
         selectors = splitList(parsed);
-        if (parsed[parsed.length - 1] == ',') {
+        if (selectors.some(function(selector) { return !selector; })) {
           emit(qsInvalid);
           return Config.VERBOSITY ? undefined : (type ? none : false);
         }
@@ -3611,6 +3621,7 @@
     isPictureInPicture: isPictureInPicture,
     isPopoverOpen: isPopoverOpen,
     isFocusable: isFocusable,
+    isDefaultActiveElement: isDefaultActiveElement,
     isContentEditable: isContentEditable,
     isLink: isLink,
     isPlaying: isPlaying,
