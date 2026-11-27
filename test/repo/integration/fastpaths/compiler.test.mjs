@@ -101,6 +101,40 @@ test('compiler caches distinguish callback and item collection modes', t => {
   assert.equal(calls, 4)
 })
 
+test('mixed nested combinators preserve each enclosing element scope', t => {
+  const { document, engine } = fixture(t,
+    '<main>' +
+      '<section class="root"><div class="start"></div>' +
+      '<div class="middle"><i class="inner"></i>' +
+      '<div class="tail"><span class="leaf"></span></div></div>' +
+      '<div class="tail"><article><span class="leaf"></span></article></div>' +
+      '<div class="tail"><article><span class="leaf"></span></article></div>' +
+      '</section>' +
+      '<section class="root"><div class="start"></div>' +
+      '<div class="middle"><i class="inner"></i>' +
+      '<div class="tail"><span class="leaf"></span></div></div>' +
+      '<div class="other"><article><span class="leaf"></span></article></div>' +
+      '</section>' +
+      '</main>',
+  )
+  const selectors = [
+    '.root > .start + .middle ~ .tail:nth-of-type(2n) article .leaf',
+    '.root .start + .middle > .inner ~ .tail .leaf',
+  ]
+
+  for (const selector of selectors) {
+    const expected = Array.from(document.querySelectorAll(selector))
+    assert.deepEqual(Array.from(engine.select(selector)), expected, selector)
+    for (const candidate of document.querySelectorAll('.leaf')) {
+      assert.equal(
+        engine.match(selector, candidate),
+        candidate.matches(selector),
+        selector,
+      )
+    }
+  }
+})
+
 test('match resolver reuse preserves callbacks when calls alternate', t => {
   const { document, engine } = fixture(t)
   const target = document.getElementById('target')
