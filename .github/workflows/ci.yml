@@ -106,6 +106,21 @@ jobs:
           done
           pnpm exec playwright install-deps chromium
           pnpm run setup:browser
+      - name: Test the Rust jsdom bridge and shared selector corpus
+        run: |
+          rustup run 1.100.1 cargo build --manifest-path rust/Cargo.toml --locked -p nwsapi-node --target-dir "$RUNNER_TEMP/nwsapi-target"
+          export NWSAPI_NODE_ADDON="$RUNNER_TEMP/nwsapi_node.node"
+          cp "$RUNNER_TEMP/nwsapi-target/debug/libnwsapi_node.so" "$NWSAPI_NODE_ADDON"
+          node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/repo/vitest.config.mts test/repo/integration/native-jsdom*.test.mts test/repo/integration/native-selector-parity.test.mts
+      - name: Build and test the Rust browser bridge
+        run: |
+          rustup target add --toolchain 1.100.1 wasm32-unknown-unknown
+          rustup run 1.100.1 cargo install wasm-bindgen-cli --version 0.2.104 --locked
+          rustup run 1.100.1 cargo build --manifest-path rust/Cargo.toml --locked -p nwsapi-wasm --target wasm32-unknown-unknown --target-dir "$RUNNER_TEMP/nwsapi-target"
+          export NWSAPI_WASM_DIR="$RUNNER_TEMP/nwsapi-web"
+          wasm-bindgen --target web --out-dir "$NWSAPI_WASM_DIR" "$RUNNER_TEMP/nwsapi-target/wasm32-unknown-unknown/debug/nwsapi_wasm.wasm"
+          pnpm exec playwright install --with-deps chromium
+          node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/repo/vitest.config.mts test/repo/integration/native-wasm.test.mts
       - name: Test native browser behavior
         if: steps.test-plan.outputs.browser == 'true'
         run: pnpm run test:browser

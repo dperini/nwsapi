@@ -9,7 +9,7 @@
  *   - getElementsByTagName('*') and children included comment nodes
  *     (IE up to 8)
  *   - no hasAttribute, no getElementsByClassName, no getAttributeNames,
- *     no isConnected, no classList, no localName
+ *     no isConnected, no classList, no localName or createTreeWalker
  *   - no firstElementChild, nextElementSibling, previousElementSibling or
  *     parentElement, only the node-level traversal
  *   - getAttribute answered through the DOM property, so 'class' and 'for'
@@ -50,6 +50,8 @@ const HIDDEN = new Set([
   'msMatchesSelector',
   'querySelector',
   'querySelectorAll',
+  'getRootNode',
+  'createTreeWalker',
 ])
 
 // The names that host answered under a DOM property instead.

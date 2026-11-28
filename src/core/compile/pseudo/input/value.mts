@@ -33,16 +33,16 @@ export function compilePseudoInputValue(
       break
     case 'optional':
       state.source =
-        'n=e.localName;if((("button"==n||"input"==n||"select"==n||"textarea"==n||/^(?:button|input|select|textarea)$/i.test(n))&&!s.isRequired(e))' +
+        'n=e.localName;if(e.namespaceURI=="http://www.w3.org/1999/xhtml"&&/^(?:button|input|select|textarea)$/i.test(n)&&!s.isRequired(e)' +
         '){' +
         state.source +
         '}'
       break
     case 'invalid':
       state.source =
-        'n=e.localName;if(((' +
-        '(("form"==n||/^form$/i.test(n))&&!e.noValidate)||' +
-        '(e.willValidate&&!e.formNoValidate))&&!e.checkValidity())||' +
+        'n=e.localName;if(' +
+        '(("form"==n||/^form$/i.test(n))&&(function(f){for(var i=0,l=f.elements.length;i<l;i++){var c=f.elements[i];if(c.willValidate&&c.validity&&!c.validity.valid)return true}return false})(e))||' +
+        '(e.willValidate&&e.validity&&!e.validity.valid)||' +
         '(("fieldset"==n||/^fieldset$/i.test(n))&&s.first(":invalid",e))||' +
         '(n.indexOf("-")>=0&&s.matchesNative(e,":invalid"))' +
         '){' +
@@ -51,9 +51,9 @@ export function compilePseudoInputValue(
       break
     case 'valid':
       state.source =
-        'n=e.localName;if(((' +
-        '(("form"==n||/^form$/i.test(n))&&!e.noValidate)||' +
-        '(e.willValidate&&!e.formNoValidate))&&e.checkValidity())||' +
+        'n=e.localName;if(' +
+        '(("form"==n||/^form$/i.test(n))&&(function(f){for(var i=0,l=f.elements.length;i<l;i++){var c=f.elements[i];if(c.willValidate&&c.validity&&!c.validity.valid)return false}return true})(e))||' +
+        '(e.willValidate&&e.validity&&e.validity.valid)||' +
         '(("fieldset"==n||/^fieldset$/i.test(n))&&!s.first(":invalid",e))||' +
         '(n.indexOf("-")>=0&&s.matchesNative(e,":valid"))' +
         '){' +

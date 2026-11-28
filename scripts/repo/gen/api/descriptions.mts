@@ -21,6 +21,22 @@ export const descriptions: Record<string, string> = {
     'Selects the Chromium or jsdom routing policy. Pass null to disable the planner and clear its callback.',
   registerBulkHasPlanner:
     'Registers a custom bulk :has() routing callback. Pass null to remove it. Query caches are cleared.',
+  customBulkHasPlanner:
+    'Reports whether a custom bulk :has() routing callback is registered.',
+  customResolvers:
+    'Reports whether user-registered selector resolvers require JavaScript fallback.',
+  customSyntax:
+    'Reports whether `CFG.operators` or `CFG.combinators` differs from the registered syntax.',
+  hasPluginPlans:
+    'Reports whether external entries were inserted into any compiled resolver or lambda cache.',
+  routePlannerHost:
+    'Reports the active Chromium or jsdom host policy used for eligible Rust-backed :has() queries.',
+  directionality:
+    'Returns the host-computed text direction used by the native query bridge.',
+  selectorStates:
+    'Returns host-computed dynamic pseudo-class states used by native queries.',
+  createWasmInstalledQuery:
+    'Creates an installed query function backed by a supplied WebAssembly module. Call its clearCache() method to release retained Rust plans.',
   registerLegacyHooks:
     'Registers the optional DOM compatibility module on this engine. Returns false when hooks are already registered.',
   registerCombinator:
@@ -35,6 +51,7 @@ export const descriptions: Record<string, string> = {
     'Contains the document state and helpers used by compiled selectors.',
   Version: 'Contains the engine version string.',
   Operators: 'Contains registered attribute operators.',
+  Combinators: 'Contains registered custom combinator resolvers.',
   Selectors: 'Contains registered selector extensions.',
   M_BODY: 'Contains the matching resolver body template.',
   M_TEST: 'Contains the matching resolver test template.',
@@ -49,13 +66,16 @@ export const descriptions: Record<string, string> = {
 }
 
 export const adapterDescriptions: Record<string, string> = {
+  install:
+    'Routes supported native selector methods through the configured Rust bridge.',
+  uninstall: 'Restores the browser selector methods saved by `install()`.',
   configure:
     'Configures the shared engine before the first query or stylesheet match.',
   engine: 'Returns the shared engine, creating it on first access.',
   constructor:
     'Creates the adapter. `options.idlUtils` supports jsdom implementation nodes.',
   check:
-    'Returns matching stylesheet branches and their syntax tree. Loads `css-tree` on first use.',
+    'Returns matching stylesheet branches and their syntax tree. Loads `css-tree` for parsing and uses Rust for supported branch matches.',
   clear:
     'Clears compiled selectors and parsed stylesheet selectors when `clearAll` is `true`.',
   closest: 'Returns the nearest matching element, or `null`.',
@@ -81,7 +101,8 @@ export const optionDescriptions: Record<string, string> = {
     'Enables the route planner for eligible :has() queries. On by default. Set false for troubleshooting or comparisons. Unsupported queries keep the existing route.',
   FORGIVING:
     'Allows invalid items in forgiving lists such as `:is()` and `:where()`.',
-  IDS_DUPES: 'Allows duplicate IDs when finding elements.',
+  IDS_DUPES:
+    'Allows duplicate IDs in direct lookups and document queries; element-rooted queries always include duplicates.',
   LEGACY:
     'Enables older DOM behavior after the legacy module has registered its hooks.',
   LOGERRORS: 'Logs errors when exception throwing is disabled.',

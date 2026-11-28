@@ -16,4 +16,7 @@ export function setIdentifierSyntax(engine: EngineState) {
   engine.Patterns.tagName = new RegExp(syntax.tagName)
   engine.Patterns.className = new RegExp(syntax.className)
   engine.Patterns.attribute = new RegExp(syntax.attribute)
+  engine.customSyntax =
+    engine.CFG.operators !== engine.registeredSyntax.operators ||
+    engine.CFG.combinators !== engine.registeredSyntax.combinators
 }

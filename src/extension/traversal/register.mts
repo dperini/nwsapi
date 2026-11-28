@@ -21,6 +21,22 @@ type TraversalNode = Node &
     nextElement: TraversalProperty = 'nextElementSibling',
     previousElement: TraversalProperty = 'previousElementSibling',
     parentElement: TraversalProperty = 'parentElement'
+  var nativeTraversal = (
+    direction: 'up' | 'down' | 'next' | 'previous',
+    element: Node | null,
+    expr?: string | number | null,
+  ): Element | null | undefined => {
+    const native = (
+      D as typeof D & {
+        nativeTraversal?: (
+          direction: 'up' | 'down' | 'next' | 'previous',
+          expression: string | number | null | undefined,
+          node: Node,
+        ) => Element | null | undefined
+      }
+    ).nativeTraversal
+    return native && element ? native(direction, expr, element) : undefined
+  }
 
   // Fall back to the DOM Level 1 API.
   if (!(nextElement in root)) {
@@ -68,6 +84,10 @@ type TraversalNode = Node &
    * @returns {HTMLElement | null}
    */
   function up(element: Element, expr?: string | number) {
+    const native = nativeTraversal('up', element, expr)
+    if (native !== undefined) {
+      return native
+    }
     return walkElements(parentElement, element, expr)
   }
   /**
@@ -79,6 +99,10 @@ type TraversalNode = Node &
    * @returns {HTMLElement | null}
    */
   function next(element: Element, expr?: string | number) {
+    const native = nativeTraversal('next', element, expr)
+    if (native !== undefined) {
+      return native
+    }
     return walkElements(nextElement, element, expr)
   }
   /**
@@ -90,6 +114,10 @@ type TraversalNode = Node &
    * @returns {HTMLElement | null}
    */
   function previous(element: Element, expr?: string | number) {
+    const native = nativeTraversal('previous', element, expr)
+    if (native !== undefined) {
+      return native
+    }
     return walkElements(previousElement, element, expr)
   }
   /**
@@ -104,6 +132,10 @@ type TraversalNode = Node &
     element: Node | null,
     expr?: string | number | null,
   ): Element | null {
+    const native = nativeTraversal('down', element, expr)
+    if (native !== undefined) {
+      return native
+    }
     var isIndex = typeof expr == 'number',
       descendants,
       index,

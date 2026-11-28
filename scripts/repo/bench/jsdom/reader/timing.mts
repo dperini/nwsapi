@@ -13,6 +13,7 @@ const require = createRequire(import.meta.url)
 const baseline = path.resolve(process.argv[2]!)
 const utils = require('jsdom/lib/generated/idl/utils.js') as {
   implForWrapper(node: Node): object
+  wrapperForImpl(node: unknown): Node
 }
 const factories: Array<typeof Adapter> = [
   require(path.join(baseline, 'dom-selector.js')),

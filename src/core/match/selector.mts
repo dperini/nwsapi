@@ -56,11 +56,16 @@ export function match(
     return engine.match_assert(resolver, element, callback)
   }
 
+  const reads = engine.pluginPlanReads
   resolver = engine.match_collect(
     engine.parse(selectors, false) as string[],
     callback,
   )
-  engine.matchResolvers.set(cacheKey, resolver)
+  engine.matchResolvers.set(
+    cacheKey,
+    resolver,
+    reads !== engine.pluginPlanReads,
+  )
 
   return engine.match_assert(resolver, element, callback)
 }
@@ -125,6 +130,7 @@ export function prepareForgiving(engine: EngineState, selectors: string[]) {
   engine.M_VARS = []
   engine.N_VARS = []
   resolvers = Array<CompiledResolver[] | null>(selectors.length)
+  const reads = engine.pluginPlanReads
   try {
     for (var length = selectors.length, i = 0; i < length; ++i) {
       engine.errors = previousErrors
@@ -154,7 +160,11 @@ export function prepareForgiving(engine: EngineState, selectors: string[]) {
     engine.N_VARS = nodeVars
     engine.errors = previousErrors
   }
-  return engine.forgivingResolvers.set(key, resolvers)
+  return engine.forgivingResolvers.set(
+    key,
+    resolvers,
+    reads !== engine.pluginPlanReads,
+  )
 }
 
 export function matchPreparedForgiving(
@@ -188,8 +198,13 @@ export function forgivingKey(engine: EngineState, selectors: string[]) {
     ]),
     resolvers = engine.forgivingResolvers.get(key)
   if (!resolvers) {
+    const reads = engine.pluginPlanReads
     resolvers = engine.prepareForgiving(selectors)
-    engine.forgivingResolvers.set(key, resolvers)
+    engine.forgivingResolvers.set(
+      key,
+      resolvers,
+      reads !== engine.pluginPlanReads,
+    )
   }
   return key
 }
@@ -211,8 +226,13 @@ export function matchForgivingKey(
       string | null,
       string[],
     ]
+    const reads = engine.pluginPlanReads
     resolvers = engine.prepareForgiving(profile[7])
-    engine.forgivingResolvers.set(key, resolvers)
+    engine.forgivingResolvers.set(
+      key,
+      resolvers,
+      reads !== engine.pluginPlanReads,
+    )
   }
   return engine.matchPreparedForgiving(resolvers, element)
 }

@@ -1,3 +1,19 @@
+import { createWasmInstalledQuery } from '../../adapter/wasm-query.mts'
+import {
+  registerCombinator as registerCombinatorImpl,
+  registerOperator as registerOperatorImpl,
+  registerSelector as registerSelectorImpl,
+} from './register.mts'
+import {
+  hostSelectorStates,
+  hasNativeJqueryResolvers,
+  hasUnmarkedSelectorResolvers,
+  nativeCustomOperatorForSelector,
+  selectorUsesCustomResolver,
+  selectorUsesNativeNotEqualOperator,
+} from '../../adapter/native-query.mts'
+import { initializeNativeBridgeProperties } from './native-bridge-properties.mts'
+import type { WasmQueryModule } from '../../adapter/wasm-query.mts'
 import { routePlannerPolicy } from '../select/has/policy.mts'
 import type { RoutePlannerHost } from '../select/has/policy.mts'
 import type { BulkHasPlanner } from '../state/types.mts'
@@ -30,6 +46,7 @@ import { firstClass } from '../first/class.mts'
 import { firstMatch, has, hasCandidates } from '../match/relative.mts'
 import type {
   EngineState,
+  EngineContext,
   AttributeOperator,
   CompiledResolver,
   LegacyHookFactory,
@@ -38,6 +55,15 @@ import type {
 } from '../state/types.mts'
 
 export function initializeApi(engine: EngineState) {
+  const nativeOperatorGrammar = () =>
+    engine.customSyntax &&
+    engine.CFG.combinators === engine.registeredSyntax.combinators &&
+    (/^(?:(?:[!#%&/@<>~]|\\[?^$*|])?=)(?:\|(?:[!#%&/@<>~]|\\[?^$*|])?=)*$/.test(
+      engine.CFG.operators,
+    ) ||
+      /^\[(?!\^)[~*^$|!#%&/<>?@]+\]=(?:\|=)?$/.test(engine.CFG.operators))
+      ? engine.CFG.operators
+      : undefined
   engine.parse = parse.bind(null, engine) as EngineState['parse']
   engine.match = match.bind(null, engine) as EngineState['match']
   engine.matchPublic = matchPublic.bind(
@@ -108,21 +134,30 @@ export function initializeApi(engine: EngineState) {
   engine.install = install.bind(null, engine) as EngineState['install']
   engine.uninstall = uninstall.bind(null, engine) as EngineState['uninstall']
   engine.none = Array<never>()
+  engine.pluginPlanReads = 0
   engine.matchLambdas = engine.createCache<CompiledResolver | null>(undefined, {
+    publicWrites: true,
     weight: resolverWeight,
   })
   engine.selectLambdas = engine.createCache<CompiledResolver | null>(
     undefined,
-    { weight: resolverWeight },
+    {
+      publicWrites: true,
+      weight: resolverWeight,
+    },
   )
   engine.matchResolvers = engine.createCache<CompiledResolver[]>(undefined, {
+    publicWrites: true,
     weight: resolverListWeight,
   })
   engine.forgivingResolvers = engine.createCache<
     Array<CompiledResolver[] | null>
-  >(undefined, { weight: forgivingWeight })
+  >(undefined, {
+    weight: forgivingWeight,
+  })
   engine.selectorGeneration = 0
   engine.selectResolvers = engine.createCache<QueryPlan>(undefined, {
+    publicWrites: true,
     weight: queryWeight,
   })
   engine.firstResolvers = engine.createCache<QueryPlan>(undefined, {
@@ -193,7 +228,33 @@ export function initializeApi(engine: EngineState) {
     isMediaState: engine.isMediaState,
     matchForgivingKey: engine.matchForgivingKey,
   }
+  const resolverCaches = [
+    engine.firstResolvers,
+    engine.forgivingResolvers,
+    engine.matchResolvers,
+    engine.selectResolvers,
+    engine.matchLambdas,
+    engine.selectLambdas,
+  ]
+  const hasPluginPlans = () =>
+    resolverCaches.some(cache => cache.hasExternalEntries?.())
   engine.Dom = {
+    get routePlannerHost() {
+      return engine.routePlannerHost
+    },
+    get customBulkHasPlanner() {
+      return engine.customBulkHasPlanner
+    },
+    get customSyntax() {
+      return engine.customSyntax
+    },
+    get hasPluginPlans() {
+      return hasPluginPlans()
+    },
+    get customResolvers() {
+      return engine.customResolvers
+    },
+
     // exported cache objects
 
     matchLambdas: engine.matchLambdas,
@@ -208,7 +269,7 @@ export function initializeApi(engine: EngineState) {
 
     S_BODY: engine.S_BODY,
     M_BODY: engine.M_BODY,
-    N_BODY: engine.M_BODY,
+    N_BODY: engine.N_BODY,
 
     S_TEST: engine.S_TEST,
     M_TEST: engine.M_TEST,
@@ -235,15 +296,121 @@ export function initializeApi(engine: EngineState) {
 
     Version: engine.version,
 
+    createWasmInstalledQuery(wasm: WasmQueryModule) {
+      const jqueryEnabled = () => hasNativeJqueryResolvers(engine)
+      const operatorGrammar = () =>
+        wasm.compile_host_selector_with_operator_grammar
+          ? nativeOperatorGrammar()
+          : undefined
+      const unsupportedSyntax = () =>
+        engine.customSyntax && operatorGrammar() === undefined
+      const query = createWasmInstalledQuery(
+        wasm,
+        engine.doc,
+        engine.directionality,
+        engine.Config.LEGACY
+          ? undefined
+          : (element, selector) =>
+              hostSelectorStates(
+                engine.doc,
+                engine.isFocusable,
+                engine.matchesNative,
+                element,
+                engine,
+                selector,
+              ),
+        jqueryEnabled,
+        selector => selectorUsesNativeNotEqualOperator(engine, selector),
+        () => engine.Config.FORGIVING,
+        () => engine.Config.IDS_DUPES,
+        () => engine.Config.ROUTE_PLANNER,
+        () => engine.routePlannerHost,
+        () => engine.Config.CACHE_LIMIT,
+        () => engine.Config.CACHE_BYTES,
+        () => engine.customBulkHasPlanner,
+        () =>
+          hasPluginPlans() ||
+          unsupportedSyntax() ||
+          engine.customResolvers ||
+          hasUnmarkedSelectorResolvers(engine),
+        selector =>
+          hasPluginPlans() ||
+          unsupportedSyntax() ||
+          selectorUsesCustomResolver(engine, selector),
+        selector => nativeCustomOperatorForSelector(engine, selector),
+        () => {
+          const readers = engine.legacyHooks
+          return engine.Config.LEGACY && readers
+            ? {
+                readers,
+                htmlDocument: engine.HTML_DOCUMENT && !engine.QUIRKS_MODE,
+              }
+            : undefined
+        },
+        () =>
+          engine.bulkHasPlanner
+            ? (anchors, witnesses, attributes, dense, ratio) => {
+                try {
+                  return (
+                    engine.bulkHasPlanner!(
+                      anchors,
+                      witnesses,
+                      attributes,
+                      dense,
+                      ratio,
+                    ) === true
+                  )
+                } catch {
+                  return false
+                }
+              }
+            : undefined,
+        operatorGrammar,
+      )
+      engine.Dom.nativeTraversal = (direction, expression, node) => {
+        let mode: string
+        let selector: string
+        if (direction === 'down' && expression == null) {
+          mode = 'none'
+          selector = '*'
+        } else if (typeof expression === 'number') {
+          if (!Number.isSafeInteger(expression) || expression < 0) {
+            return null
+          }
+          mode = `index:${expression}`
+          selector = '*'
+        } else if (typeof expression === 'string') {
+          mode = 'selector'
+          selector = expression
+        } else {
+          mode = 'index:0'
+          selector = '*'
+        }
+        if (node.nodeType !== 1 && node.nodeType !== 9) {
+          return undefined
+        }
+        const result = query(
+          `traverse:${direction}:${mode}`,
+          selector,
+          node as EngineContext,
+        )
+        return result === undefined ? undefined : (result[0] ?? null)
+      }
+      return query
+    },
+    directionality: engine.directionality,
     install: engine.install,
     uninstall: engine.uninstall,
 
     Operators: engine.Operators,
+    Combinators: engine.Combinators,
     Selectors: engine.Selectors,
 
     useRoutePlanner: function (host: RoutePlannerHost | null) {
+      engine.routePlannerHost = host || undefined
       engine.bulkHasPlanner =
         host === null ? undefined : routePlannerPolicy(host)
+      engine.customBulkHasPlanner = false
       engine.configure({ ROUTE_PLANNER: host !== null }, true)
     },
 
@@ -252,6 +419,8 @@ export function initializeApi(engine: EngineState) {
         throw new TypeError('Expected a bulk :has() planner function or null')
       }
       engine.bulkHasPlanner = planner || undefined
+      engine.routePlannerHost = undefined
+      engine.customBulkHasPlanner = planner !== null
       engine.configure({}, true)
     },
 
@@ -279,61 +448,12 @@ export function initializeApi(engine: EngineState) {
       combinator: string,
       resolver: (match: RegExpMatchArray) => string,
     ) {
-      var i = 0,
-        l = combinator.length,
-        symbol
-      for (; l > i; ++i) {
-        if (combinator[i] != '=') {
-          symbol = combinator[i]
-          break
-        }
-      }
-      if (engine.CFG.combinators.indexOf(symbol!) < 0) {
-        engine.CFG.combinators = engine.CFG.combinators.replace(
-          '](',
-          symbol + '](',
-        )
-        engine.CFG.combinators = engine.CFG.combinators.replace(
-          '])',
-          symbol + '])',
-        )
-        engine.Combinators[combinator] = resolver
-        engine.hasExtensions = true
-        engine.setIdentifierSyntax()
-        engine.selectorGeneration++
-        engine.configure({}, true)
-      } else {
-        console.warn(
-          "Warning: the '" + combinator + "' combinator is already registered.",
-        )
-      }
+      registerCombinatorImpl(engine, combinator, resolver)
     },
 
     // register a new attribute operator symbol and its related function resolver
     registerOperator: function (operator: string, resolver: AttributeOperator) {
-      var i = 0,
-        l = operator.length,
-        symbol
-      for (; l > i; ++i) {
-        if (operator[i] != '=') {
-          symbol = operator[i]
-          break
-        }
-      }
-      if (
-        engine.CFG.operators.indexOf(symbol!) < 0 &&
-        !engine.Operators[operator]
-      ) {
-        engine.CFG.operators = engine.CFG.operators.replace(']=', symbol + ']=')
-        engine.Operators[operator] = resolver
-        engine.setIdentifierSyntax()
-        engine.selectorGeneration++
-        engine.configure({}, true)
-      } else {
-        console.warn(
-          "Warning: the '" + operator + "' operator is already registered.",
-        )
-      }
+      registerOperatorImpl(engine, operator, resolver)
     },
 
     // register a new selector symbol and its related function resolver
@@ -342,15 +462,8 @@ export function initializeApi(engine: EngineState) {
       rexp: RegExp,
       func: SelectorExtension['Callback'],
     ) {
-      if (!engine.Selectors[name]) {
-        engine.Selectors[name] = {
-          Expression: rexp,
-          Callback: func,
-        }
-        engine.hasExtensions = true
-        engine.selectorGeneration++
-        engine.configure({}, true)
-      }
+      registerSelectorImpl(engine, name, rexp, func)
     },
   }
+  initializeNativeBridgeProperties(engine, nativeOperatorGrammar)
 }

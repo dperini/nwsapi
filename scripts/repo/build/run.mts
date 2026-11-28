@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'rolldown'
+import { transform as swcTransform } from '@swc/core'
 import { transform } from 'rolldown/utils'
 import {
   browserOutputs,
@@ -85,6 +86,15 @@ for (const entry of entries) {
       external: ['../nwsapi.js', '../modules/nwsapi-legacy.js', 'css-tree'],
       output: { file: entry.output, format: 'cjs' },
     })
+    const adapter = await readFile(entry.output, 'utf8')
+    const loweredAdapter = await swcTransform(adapter, {
+      swcrc: false,
+      configFile: false,
+      isModule: false,
+      env: { targets: { node: '12' } },
+      jsc: { parser: { syntax: 'ecmascript' } },
+    })
+    await writeFile(entry.output, loweredAdapter.code, 'utf8')
     continue
   }
   let source = await readFile(entry.source, 'utf8')

@@ -1,11 +1,13 @@
 import type { EngineState, PlanCache } from '../state/types.mts'
 
 export interface CacheBudget<Value> {
+  publicWrites?: boolean
   bytes?: number
   weight: (value: Value) => number
 }
 
 interface Entry<Value> {
+  external: boolean
   key: string
   value: Value
   bytes: number
@@ -23,6 +25,7 @@ export function createWeightedCache<Value>(
   let head: Entry<Value> | undefined
   let tail: Entry<Value> | undefined
   let size = 0
+  let externalEntries = 0
   let bytes = 0
   let capacity = limit === undefined ? engine.Config.CACHE_LIMIT : limit
   let byteLimit = budget
@@ -36,7 +39,7 @@ export function createWeightedCache<Value>(
     initialized = false
     fallback = {}
     head = tail = undefined
-    size = bytes = 0
+    externalEntries = size = bytes = 0
     capacity = limit === undefined ? engine.Config.CACHE_LIMIT : limit
     byteLimit = budget ? (budget.bytes ?? engine.Config.CACHE_BYTES) : Infinity
     admission = 0x9e3779b9
@@ -77,6 +80,9 @@ export function createWeightedCache<Value>(
     } else {
       delete fallback['\x01' + entry.key]
     }
+    if (entry.external) {
+      --externalEntries
+    }
     --size
     bytes -= entry.bytes
   }
@@ -90,7 +96,16 @@ export function createWeightedCache<Value>(
     return (admission & 7) === 0
   }
 
-  function set(key: string, value: Value) {
+  // eslint-disable-next-line complexity -- Cache insertion updates retention, accounting, and admission as one atomic operation.
+  function set(
+    key: string,
+    value: Value,
+    external = budget?.publicWrites === true,
+  ) {
+    if (typeof key !== 'string' || capacity === 0) {
+      return value
+    }
+    initialize()
     const weight = budget ? key.length * 2 + budget.weight(value) + 96 : 0
     const previous = lookup(key)
     if (weight > byteLimit || byteLimit === 0) {
@@ -110,6 +125,7 @@ export function createWeightedCache<Value>(
       remove(head)
     }
     const entry = {
+      external,
       key,
       value,
       bytes: weight,
@@ -122,6 +138,9 @@ export function createWeightedCache<Value>(
       fallback['\x01' + key] = entry
     }
     append(entry)
+    if (external) {
+      ++externalEntries
+    }
     ++size
     bytes += weight
     return value
@@ -144,18 +163,18 @@ export function createWeightedCache<Value>(
     },
     get(key) {
       const entry = lookup(key)
+      if (entry?.external) {
+        ++engine.pluginPlanReads
+      }
       if (entry && entry !== tail) {
         unlink(entry)
         append(entry)
       }
       return entry?.value
     },
-    set(key, value) {
-      if (typeof key !== 'string' || capacity === 0) {
-        return value
-      }
-      initialize()
-      return set(key, value)
+    set,
+    hasExternalEntries() {
+      return externalEntries > 0
     },
     size() {
       return size

@@ -4,6 +4,7 @@ const state = vi.hoisted(() => ({
   missing: '',
   transformErrors: false,
   build: vi.fn(),
+  swc: vi.fn(),
   copyAssets: vi.fn(),
   nativeTarget: { platform: 'darwin', arch: 'arm64' },
   write: vi.fn(),
@@ -35,6 +36,7 @@ vi.mock('node:fs/promises', () => ({
   },
 }))
 vi.mock('rolldown', () => ({ build: state.build }))
+vi.mock('@swc/core', () => ({ transform: state.swc }))
 vi.mock('rolldown/utils', () => ({
   transform: async (_file: string, source: string) => ({
     code: source,
@@ -90,6 +92,8 @@ beforeEach(() => {
         : [{ type: 'chunk', code: 'var fixture={}' }],
   }))
   state.write.mockClear()
+  state.swc.mockReset()
+  state.swc.mockImplementation(async (source: string) => ({ code: source }))
   state.copyAssets.mockReset()
   state.copyAssets.mockResolvedValue(undefined)
   state.post.mockClear()
@@ -97,7 +101,11 @@ beforeEach(() => {
 test('bundles registered runtime entries and runs production post processing', async () => {
   vi.spyOn(console, 'error').mockImplementation(() => {})
   await import('../../../../scripts/repo/build/run.mts')
-  expect(state.write).toHaveBeenCalledTimes(3)
+  expect(state.write).toHaveBeenCalledTimes(4)
+  expect(state.swc).toHaveBeenCalledWith(
+    'const other=1',
+    expect.objectContaining({ env: { targets: { node: '12' } } }),
+  )
   expect(state.post).toHaveBeenCalledOnce()
   expect(state.engine).toHaveBeenCalled()
   expect(state.lower).toHaveBeenCalled()

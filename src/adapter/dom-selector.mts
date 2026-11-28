@@ -1,29 +1,65 @@
 import { validateCacheOptions } from '../core/initialize/configuration.mts'
 import { createHostReaders } from './jsdom.mts'
 import type { HostOptions, HostReaders, IdlUtils } from './jsdom.mts'
+import { queryNativeHost, queryNativeTraversal } from './native-query.mts'
+import type { NativeQueryBinding } from './native-query.mts'
+import { nativeBinding, queryNativeAdapter } from './native-binding.mts'
+import type { QueryMethod } from './native-binding.mts'
+import { toHostNodeList } from './selector/list.mts'
+import { supportsNativeSelector } from './selector/supports.mts'
+import {
+  checkStylesheetSelector,
+  loadCssTree,
+  parseStylesheetSelector,
+} from './selector/stylesheet.mts'
+import { NATIVE_OPERATOR_GRAMMAR } from './native/types.mts'
 
-type CssNode = import('css-tree').CssNode
-type Selector = import('css-tree').Selector
 type NwsapiEngine = import('../../.config/runtime.d.ts').NwsapiEngine
 type NwsapiCollection = import('../../.config/runtime.d.ts').NwsapiCollection
 
 type HostWindow = Window & typeof globalThis
 type Engine = NwsapiEngine & {
-  Snapshot: { doc: Document }
-  closest(selector: string, node: Element): Element | null
+  Snapshot: {
+    doc: Document
+    isFocusable: NwsapiEngine['Snapshot']['isFocusable']
+    matchesNative: NwsapiEngine['Snapshot']['matchesNative']
+  }
+  Operators: Record<string, unknown>
+  Combinators: Record<string, (match: RegExpMatchArray) => string>
+  CFG: { operators: string; combinators: string }
+  customBulkHasPlanner: boolean
+  hasPluginPlans: boolean
+  [NATIVE_OPERATOR_GRAMMAR]?: string
+  customSyntax: boolean
+  customResolvers: boolean
+  routePlannerHost?:
+    | import('../core/select/has/policy.mts').RoutePlannerHost
+    | undefined
+  directionality(element: Element): 'ltr' | 'rtl'
+  nativeTraversal?: (
+    direction: 'up' | 'down' | 'next' | 'previous',
+    expression: string | number | null | undefined,
+    node: Node,
+  ) => Element | null | undefined
   [ENGINE_OWNER]?: Document
 }
-const createNwsapi: (host: {
-  document: Document
-  DOMException: typeof DOMException
-  hostReaders?: HostReaders | undefined
-}) => Engine = require('../nwsapi.js')
+const createNwsapi: (
+  host: {
+    document: Document
+    DOMException: typeof DOMException
+    hostReaders?: HostReaders | undefined
+  } & Pick<
+    HostWindow,
+    'Element' | 'HTMLElement' | 'Document' | 'DocumentFragment' | 'NodeList'
+  >,
+) => Engine = require('../nwsapi.js')
 type QueryOptions = { noexcept?: boolean | undefined }
 type AdapterDocument = Document & { [DOCUMENT_STATE]?: State }
 type State = {
   engine?: Engine
   options: Record<string, boolean | number> | { __proto__: null }
   active: boolean
+  setupPlanCaches?: Map<NativeQueryBinding, number>
   hostReaders?: HostReaders | undefined
 }
 
@@ -52,6 +88,7 @@ function activate(adapter: DOMSelector) {
   const engine = adapter.engine
   if (!adapter.state.active) {
     assertThrowing(adapter.window, engine)
+    delete adapter.state.setupPlanCaches
     adapter.state.active = true
   }
   return engine
@@ -77,10 +114,28 @@ function configureEngine(
   engine.configure(options, clear)
 }
 
+function isWrapper(utils: IdlUtils, node: Node): boolean {
+  try {
+    return Boolean(utils.implForWrapper?.(node))
+  } catch {
+    return false
+  }
+}
+
+function wrapperForImpl(utils: IdlUtils, node: unknown): Node | undefined {
+  try {
+    return utils.wrapperForImpl(node) ?? undefined
+  } catch {
+    return undefined
+  }
+}
+
 // jsdom passes implementation nodes in and expects public wrappers back.
 // css-tree is needed only by this adapter, for stylesheet specificity.
 class DOMSelector {
   declare window: Window & typeof globalThis
+  declare nativeQuery: NativeQueryBinding | undefined
+  declare nativePlanCacheId: number | undefined
   declare idlUtils: IdlUtils | undefined
   declare document: Document
   declare state: State
@@ -122,6 +177,15 @@ class DOMSelector {
     }
     if (state.engine) {
       configureEngine(state.engine, state.options, true)
+      const setupPlanCaches = Array.from(state.setupPlanCaches ?? [])
+      for (
+        let index = 0, length = setupPlanCaches.length;
+        index < length;
+        index++
+      ) {
+        const [binding, id] = setupPlanCaches[index]!
+        binding.clearPlanCache?.(id)
+      }
     }
   }
 
@@ -162,6 +226,8 @@ class DOMSelector {
   ) {
     this.window = window
     this.idlUtils = options.idlUtils
+    this.nativeQuery = options.nativeQuery
+    this.nativePlanCacheId = undefined
     this.document = this.wrap(document) as Document
     this.state = getState(this.document)
     if (!this.state.engine && !this.state.hostReaders) {
@@ -175,6 +241,11 @@ class DOMSelector {
         document: this.document,
         hostReaders: this.state.hostReaders,
         DOMException: this.window.DOMException,
+        Element: this.window.Element,
+        HTMLElement: this.window.HTMLElement,
+        Document: this.window.Document,
+        DocumentFragment: this.window.DocumentFragment,
+        NodeList: this.window.NodeList,
       })
       engine.useRoutePlanner('jsdom')
       configureEngine(engine, {
@@ -185,16 +256,53 @@ class DOMSelector {
       this.state.engine = engine
       Object.defineProperty(engine, ENGINE_OWNER, { value: this.document })
     }
+    const binding = this.nativeQuery
+    if (binding) {
+      const engine = this.state.engine
+      const native = nativeBinding(engine, binding)
+      this.nativePlanCacheId = native.planCacheId
+      if (
+        !this.state.active &&
+        binding.clearPlanCache &&
+        native.planCacheId !== undefined
+      ) {
+        this.state.setupPlanCaches ??= new Map()
+        this.state.setupPlanCaches.set(binding, native.planCacheId)
+      }
+      engine.nativeTraversal = (direction, expression, node) =>
+        queryNativeTraversal(
+          nativeBinding(engine, binding),
+          this.document,
+          direction,
+          expression,
+          node,
+        )
+    }
     return this.state.engine
   }
 
   // The IDL adapter supplies wrappers; public calls already supply DOM nodes.
   // Callers validate nodeType before they use a node for a query.
   wrap(node: unknown): Node | null | undefined {
-    return (this.idlUtils ? this.idlUtils.wrapperForImpl(node) : node) as
-      | Node
-      | null
-      | undefined
+    if (!this.idlUtils) {
+      return node as Node | null | undefined
+    }
+    if (this.nativeQuery?.wrapHostNode) {
+      return this.nativeQuery.wrapHostNode(
+        node,
+        this.idlUtils,
+        isWrapper,
+        wrapperForImpl,
+      )
+    }
+    if (
+      node &&
+      typeof node === 'object' &&
+      isWrapper(this.idlUtils, node as Node)
+    ) {
+      return node as Node
+    }
+    return wrapperForImpl(this.idlUtils, node)
   }
 
   run(
@@ -220,8 +328,9 @@ class DOMSelector {
     options: QueryOptions | undefined,
     fallback: Element[],
   ): NwsapiCollection
+  // eslint-disable-next-line complexity -- validates and routes public jsdom selector calls.
   run(
-    method: 'match' | 'closest' | 'first' | 'select',
+    method: QueryMethod,
     selector: string,
     input: unknown,
     options: QueryOptions | undefined,
@@ -244,13 +353,60 @@ class DOMSelector {
             ' node',
         )
       }
-      return activate(this)[method](selector, node as Element)
+      const engine = activate(this)
+      if (this.nativeQuery && typeof selector === 'string') {
+        const native = queryNativeAdapter(
+          engine,
+          this.nativeQuery,
+          this.document,
+          method,
+          selector,
+          node as Document | DocumentFragment | Element,
+        )
+        if (native !== undefined) {
+          if (method === 'select' && engine.Config.NODE_LIST) {
+            return toHostNodeList(this.window, native as Element[])
+          }
+          return native
+        }
+      }
+      return engine[method](selector, node as Element)
     } catch (error) {
       if (options && options.noexcept) {
         return fallback
       }
       throw error
     }
+  }
+
+  install(all = false) {
+    const binding = this.nativeQuery
+    const engine = activate(this)
+    if (!binding) {
+      engine.install(all)
+      return
+    }
+    const cacheId = this.nativePlanCacheId
+    const query: import('../core/dom/install.mts').InstalledQuery = (
+      method,
+      selector,
+      context,
+    ) =>
+      queryNativeHost(
+        nativeBinding(engine, binding),
+        this.document,
+        method,
+        selector,
+        context,
+      )
+    if (cacheId !== undefined && binding.clearPlanCache) {
+      query.clearCache = () => binding.clearPlanCache?.(cacheId)
+    }
+    engine.install(all, query)
+  }
+
+  uninstall() {
+    this.state.engine?.uninstall()
   }
 
   matches(selector: string, node: unknown, options?: QueryOptions) {
@@ -277,6 +433,7 @@ class DOMSelector {
       if (this.selectors) {
         this.selectors.clear()
       }
+      this.nativeQuery?.clearPlanCache?.(this.nativePlanCacheId)
     }
   }
 
@@ -287,86 +444,37 @@ class DOMSelector {
   }
 
   supports(selector: unknown) {
-    if (typeof selector !== 'string') {
-      return false
-    }
-    try {
-      activate(this).match(selector, this.document.createElement('div'))
-      return true
-    } catch {
-      return false
-    }
+    return supportsNativeSelector(
+      selector,
+      () => activate(this),
+      this.nativeQuery,
+      this.document,
+    )
   }
 
   parse(selector: string) {
     const selectors = this.selectors || (this.selectors = new Map())
-    let entry = selectors.get(selector)
-    if (!entry) {
-      const css = this.css!
-      const ast = css.parse(selector, {
-        context: 'selectorList',
-      }) as import('css-tree').SelectorList
-      const branches: Array<{ ast: Selector; selector: string }> = []
-      ast.children.forEach(node => {
-        // Parsing in selectorList context gives Selector children.
-        const branch = node as Selector
-        // jsdom does not compute styles for pseudo-elements. Keep them out of
-        // element specificity, even when another branch in the list matches.
-        let pseudoElement = false
-        branch.children.forEach(part => {
-          if (
-            part.type === 'PseudoElementSelector' ||
-            (part.type === 'PseudoClassSelector' &&
-              /^(before|after|first-line|first-letter)$/i.test(part.name))
-          ) {
-            pseudoElement = true
-          }
-        })
-        if (!pseudoElement) {
-          branches.push({ ast: branch, selector: css.generate(branch) })
-        }
-      })
-      entry = { ast, branches }
-      // Bound syntax storage without caching DOM nodes or match results.
-      if (selectors.size >= 256) {
-        selectors.delete(selectors.keys().next().value!)
-      }
-      selectors.set(selector, entry)
-    }
-    return entry
+    return parseStylesheetSelector(this.css!, selectors, selector)
   }
 
   check(selector: string, input: unknown) {
     // Keep this outside the selector-error handler: a missing peer dependency
     // must fail visibly rather than silently suppressing stylesheet matches.
-    const css: typeof import('css-tree') =
-      this.css || (this.css = require('css-tree'))
-    try {
-      const engine = activate(this)
-      const node = this.wrap(input)
-      if (!node || node.nodeType !== 1) {
-        return { ast: null, match: false, pseudoElement: null }
-      }
-      const entry = this.parse(selector)
-      const matched = new css.List<CssNode>()
-      for (
-        let index = 0, branchesLength = entry.branches.length;
-        index < branchesLength;
-        index++
-      ) {
-        const branch = entry.branches[index]!
-        if (engine.match(branch.selector, node as Element)) {
-          matched.appendData(branch.ast)
-        }
-      }
-      // Each result owns its list; checking another element cannot change it.
-      const ast = { ...entry.ast, children: matched }
-      return { ast, match: !matched.isEmpty, pseudoElement: null }
-    } catch {
-      // Invalid or unsupported stylesheet selectors do not break style reads.
-      return { ast: null, match: false, pseudoElement: null }
-    }
+    const css = (this.css = loadCssTree(this.css))
+    return checkStylesheetSelector(
+      css,
+      () => activate(this),
+      value => this.wrap(value),
+      value => this.parse(value),
+      this.nativeQuery,
+      this.document,
+      selector,
+      input,
+    )
   }
 }
+
+export type DOMSelectorAdapter = typeof DOMSelector
+export type DOMSelectorEngine = Engine
 
 module.exports = DOMSelector

@@ -22,6 +22,21 @@
 !/vitest.config.mts
 
 # Maintained file types, scoped to their source trees.
+!/rust/Cargo.toml
+!/rust/Cargo.lock
+!/rust/src/**/*.rs
+!/rust/dom/Cargo.toml
+!/rust/node/Cargo.toml
+!/rust/node/build.rs
+!/rust/node/src/**/*.rs
+!/rust/wasm/Cargo.toml
+!/rust/wasm/src/**/*.rs
+!/rust/dom/LICENSE
+!/rust/dom/LICENSE-html5ever-MIT
+!/rust/dom/README.md
+!/rust/dom/UTF16.md
+!/rust/dom/src/**/*.rs
+!/rust/dom/tests/fixtures/css_shorthand_accepted_chrome156.json
 !/.config/**/*.json
 !/.config/**/*.md
 !/.config/**/*.mts

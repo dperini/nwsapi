@@ -44,11 +44,16 @@ export function nthFiltered(
       if (!typeNames) {
         resolvers = engine.matchResolvers.get('false:' + selector)
         if (!resolvers) {
+          const reads = engine.pluginPlanReads
           resolvers = engine.match_collect(
             engine.parse(selector, false) as string[],
             undefined,
           )
-          engine.matchResolvers.set('false:' + selector, resolvers)
+          engine.matchResolvers.set(
+            'false:' + selector,
+            resolvers,
+            reads !== engine.pluginPlanReads,
+          )
         }
       }
       if (typeNames) {

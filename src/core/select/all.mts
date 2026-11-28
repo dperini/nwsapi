@@ -37,6 +37,7 @@ export function select(
   }
 
   const parsed = engine.parse(selectors, true) as string[]
+  const reads = engine.pluginPlanReads
   resolver = engine.collect(
     callback === undefined && parsed ? groupSelectors(engine, parsed) : parsed,
     context,
@@ -50,13 +51,17 @@ export function select(
   // selector stayed in the cache. What is kept here is context-free,
   // which also lets a plan be reused across contexts instead of only for
   // the one it was built against.
-  engine.selectResolvers.set(selectors, {
-    factory: resolver.factory,
-    nodeset: resolver.nodeset,
-    ...(typeof selectors == 'string' && engine.includes(selectors, ':has(')
-      ? { bulkHasSelector: selectors }
-      : {}),
-  })
+  engine.selectResolvers.set(
+    selectors,
+    {
+      factory: resolver.factory,
+      nodeset: resolver.nodeset,
+      ...(typeof selectors == 'string' && engine.includes(selectors, ':has(')
+        ? { bulkHasSelector: selectors }
+        : {}),
+    },
+    reads !== engine.pluginPlanReads,
+  )
 
   if (typeof callback == 'function') {
     nodes = engine.concatCall(nodes, callback)

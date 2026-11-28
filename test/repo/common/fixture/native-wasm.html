@@ -1,0 +1,1519 @@
+<!doctype html><meta charset="utf-8" />
+<main lang="en">
+  <p id="a" class="pick" data-score="2" data-kind="primary" data-tags=" alpha "></p>
+  <p id="b" dir="rtl" data-score="4" data-kind="secondary"></p>
+  <p id="unicode" data-value="café"></p>
+  <p id="hidden" style="display: none" data-score="4" data-kind="secondary"></p>
+  <i id="duplicate"></i><b id="duplicate"></b><a id="visited" href="#a"></a
+  ><x-state id="customState"></x-state
+  ><x-slotted id="slotted"><span class="assigned"></span></x-slotted
+  ><input id="live" type="checkbox" checked /><input
+    id="placeholder"
+    type="email"
+    placeholder="hint"
+  /><select multiple>
+    <option id="choice" selected></option></select
+  ><button id="focusable"></button>
+  <form id="form">
+    <input id="valid" required value="ok" /><input id="invalid" required /><input
+      id="range"
+      type="number"
+      min="1"
+      max="5"
+      value="9"
+    /><input id="rangeOk" type="number" min="1" max="5" value="3" /><input
+      id="default"
+      type="checkbox"
+      checked
+    />
+  </form>
+  <form id="novalidateForm" novalidate>
+    <input id="disabledInvalid" required disabled /><button id="submitNoValidate" formnovalidate>
+      go
+    </button>
+  </form>
+  <input id="invalidNoValidate" form="novalidateForm" required />
+  <form id="defaultOrder">
+    <button id="defaultButton">go</button><input id="defaultImage" type="image" />
+  </form>
+  <fieldset id="fieldset"><input id="fieldsetInvalid" required /></fieldset>
+  <dialog id="modal"></dialog>
+  <div popover id="popover"></div>
+  <div id="parentText"></div>
+  <div id="parentComment"><!-- child --></div>
+  <div id="parentEmpty"></div>
+  <div id="emptyText"></div>
+  <details id="details" open></details>
+  <video id="video"></video><x-card id="defined"></x-card><x-unknown id="undefined"></x-unknown
+  ><button is="x-defined-button" id="definedBuiltIn"></button
+  ><button is="x-undefined-button" id="undefinedBuiltIn"></button
+  ><svg>
+    <linearGradient id="gradient"></linearGradient>
+    <use xlink:href="#gradient"></use>
+  </svg>
+  <table>
+    <colgroup>
+      <col id="wasm-col-a" />
+      <col id="wasm-col-b" />
+    </colgroup>
+    <tbody>
+      <tr>
+        <td id="wasm-a1" colspan="2"></td>
+        <td id="wasm-b1"></td>
+      </tr>
+      <tr>
+        <td id="wasm-a2"></td>
+        <td id="wasm-b2"></td>
+      </tr>
+    </tbody>
+  </table>
+</main>
+<script src="/nwsapi.js"></script>
+<script src="/legacy.js"></script>
+<script src="/jquery.js"></script>
+<script src="/traversal.js"></script>
+<script type="module">
+  import init, * as wasm from "/nwsapi_wasm.js";
+  const report = (data) => {
+    document.documentElement.dataset.done = JSON.stringify(data);
+  };
+  const compatibility = __SELECTOR_COMPATIBILITY__;
+  const compatibilitySelectors = compatibility.selectors;
+  let stage = "init";
+  try {
+    await init();
+    const operatorSource = Uint16Array.from("p[data-score@='2']", (ch) => ch.charCodeAt(0));
+    const admitted = wasm.compile_host_selector(operatorSource, false, true, false, "@==", "@=|=");
+    const excluded = wasm.compile_host_selector(operatorSource, false, true, false, "@==", "=");
+    if (!admitted || excluded) throw new Error("WASM ignored the edited operator grammar");
+    admitted.free();
+    const identitySource = Uint16Array.of(112, 33, 112); // p!p
+    const identityPlan = wasm.compile_host_selector(identitySource, false, true, false, "!CI");
+    if (!identityPlan) throw new Error("WASM rejected the identity combinator");
+    const identitySnapshot = new wasm.BrowserSnapshot(false);
+    try {
+      identitySnapshot.push_node(undefined, undefined, undefined, false, true, false);
+      identitySnapshot.push_node(0, "p", undefined, false, false, false);
+      identitySnapshot.push_node(0, "i", undefined, false, false, false);
+      const matches = identitySnapshot.query("select", identityPlan, 0);
+      if (matches?.length !== 1 || matches[0] !== 1)
+        throw new Error("Incorrect identity combinator match");
+    } finally {
+      identitySnapshot.free();
+      identityPlan.free();
+    }
+    const engine = window.NW.Dom;
+    const wasmVersion = wasm.version() === engine.Version;
+    let wasmQueries = 0;
+    let wasmFallbacks = 0;
+    const wasmRoutePlannerSettings = [];
+    const wasmRoutePlannerHosts = [];
+    const originalSetRoutePlanner = wasm.BrowserSnapshot.prototype.set_route_planner;
+    wasm.BrowserSnapshot.prototype.set_route_planner = function (enabled) {
+      wasmRoutePlannerSettings.push(enabled);
+      return originalSetRoutePlanner.call(this, enabled);
+    };
+    const originalSetRoutePlannerHost = wasm.BrowserSnapshot.prototype.set_route_planner_host;
+    wasm.BrowserSnapshot.prototype.set_route_planner_host = function (host) {
+      wasmRoutePlannerHosts.push(host);
+      return originalSetRoutePlannerHost.call(this, host);
+    };
+    const originalWasmQuery = wasm.BrowserSnapshot.prototype.query;
+    wasm.BrowserSnapshot.prototype.query = function (...args) {
+      wasmQueries++;
+      const result = originalWasmQuery.call(this, ...args);
+      if (result === undefined) wasmFallbacks++;
+      return result;
+    };
+    customElements.define("x-card", class extends HTMLElement {});
+    customElements.define("x-defined-button", class extends HTMLButtonElement {}, {
+      extends: "button",
+    });
+    customElements.define(
+      "x-slotted",
+      class extends HTMLElement {
+        constructor() {
+          super();
+          this.attachShadow({ mode: "open" }).innerHTML =
+            '<b class="shadow-internal"></b><slot></slot>';
+        }
+      },
+    );
+    customElements.define(
+      "x-state",
+      class extends HTMLElement {
+        constructor() {
+          super();
+          this.attachInternals().states.add("active");
+        }
+      },
+    );
+    let queries = 0;
+    const livePlans = new Set();
+    let compilationCalls = 0;
+    const backend = engine.createWasmInstalledQuery({
+      ...wasm,
+      compile_host_selector(selector, jqueryEnabled, forgiving, notEqualOperator, customOperator) {
+        compilationCalls++;
+        const plan = wasm.compile_host_selector(
+          selector,
+          jqueryEnabled,
+          forgiving,
+          notEqualOperator,
+          customOperator,
+        );
+        if (plan) {
+          queries++;
+          livePlans.add(plan);
+          const free = plan.free.bind(plan);
+          plan.free = () => {
+            if (!livePlans.delete(plan)) throw new Error("WASM plan released twice");
+            free();
+          };
+        }
+        return plan;
+      },
+    });
+    const originalMethods = [Element, HTMLElement, Document, DocumentFragment].flatMap((type) => {
+      const names = ["querySelector", "querySelectorAll"];
+      if (type === Element || type === HTMLElement) names.push("closest", "matches");
+      return names.map((name) => {
+        const prototype = type.prototype;
+        const original = Object.getOwnPropertyDescriptor(prototype, name);
+        return () => {
+          const current = Object.getOwnPropertyDescriptor(prototype, name);
+          return original === undefined
+            ? current === undefined
+            : current?.value === original.value &&
+                current.writable === original.writable &&
+                current.enumerable === original.enumerable &&
+                current.configurable === original.configurable;
+        };
+      });
+    });
+    const paragraphs = document.getElementsByTagName("p");
+    const main = document.getElementsByTagName("main")[0];
+    const a = paragraphs[0];
+    const b = paragraphs[1];
+    const nativeDefault = Array.from(
+      document.querySelectorAll("#defaultOrder :default"),
+      (element) => element.id,
+    );
+    const emptyTextElement = document.getElementById("emptyText");
+    emptyTextElement.appendChild(document.createTextNode(""));
+    const nativeEmptyText = document.querySelector("#emptyText:empty") === emptyTextElement;
+    const nativeConstraintStates = [
+      document.querySelector("#novalidateForm:invalid") ===
+        document.getElementById("novalidateForm"),
+      document.querySelector("#invalidNoValidate:invalid") ===
+        document.getElementById("invalidNoValidate"),
+      document.querySelector("#submitNoValidate:valid") ===
+        document.getElementById("submitNoValidate"),
+      document.querySelector("#disabledInvalid:valid, #disabledInvalid:invalid") === null,
+    ];
+    document.getElementById("live").checked = false;
+    document.getElementById("live").indeterminate = true;
+    document.getElementById("choice").selected = false;
+    document.getElementById("visited").visited = true;
+    const validationProbe = document.createElement("section");
+    validationProbe.innerHTML =
+      "<input id=hiddenRequired type=hidden required><input id=rangeRequired type=range required><input id=colorRequired type=color required><input id=submitRequired type=submit required><button id=buttonRequired required></button><svg><input id=svgRequired required></input></svg><input id=textRequired required>";
+    document.body.append(validationProbe);
+    const nativeOptional = Array.from(
+      validationProbe.querySelectorAll(":optional"),
+      (element) => element.id,
+    );
+    const nativeRequired = Array.from(
+      validationProbe.querySelectorAll(":required"),
+      (element) => element.id,
+    );
+    const jsCompatibilityResults = compatibilitySelectors.map((selector) => {
+      try {
+        return { nodes: Array.from(engine.select(selector, document)) };
+      } catch (error) {
+        return { error: error.name };
+      }
+    });
+    engine.install(false, backend);
+    const originalOperators = engine.CFG.operators;
+    const warmPrefix = document.querySelector("[data-kind^=prim]");
+    engine.CFG.operators = "=";
+    engine.configure({}, true);
+    const beforeGrammarQuery = wasmQueries;
+    if (
+      document.querySelector("[data-kind=primary]") !== warmPrefix ||
+      wasmQueries !== beforeGrammarQuery + 1
+    )
+      throw new Error("Configured equality did not use WASM");
+    let rejectedPrefix = false;
+    try {
+      document.querySelector("[data-kind^=prim]");
+    } catch {
+      rejectedPrefix = true;
+    }
+    if (!rejectedPrefix) throw new Error("Cached prefix escaped the edited grammar");
+    for (const name of ["is", "where"]) {
+      const selector = `:${name}([data-kind^=prim], #a)`;
+      const outcome = (query) => {
+        try {
+          return Array.from(query(), (element) => element.id);
+        } catch (error) {
+          return error.name;
+        }
+      };
+      const expected = outcome(() => engine.select(selector, document));
+      const actual = outcome(() => document.querySelectorAll(selector));
+      if (JSON.stringify(actual) !== JSON.stringify(expected))
+        throw new Error(
+          `Grammar mismatch for ${selector}: ${JSON.stringify({ expected, actual })}`,
+        );
+    }
+    engine.CFG.operators = "[~^]=|=";
+    engine.configure({}, true);
+    const beforeSubset = wasmQueries;
+    if (
+      document.querySelector("[data-kind^=prim]") !== warmPrefix ||
+      document.querySelector("[data-kind~=primary]") !== warmPrefix ||
+      wasmQueries !== beforeSubset + 2
+    )
+      throw new Error("Configured operator subset missed WASM");
+    let rejectedSuffix = false;
+    try {
+      document.querySelector("[data-kind$=mary]");
+    } catch {
+      rejectedSuffix = true;
+    }
+    if (!rejectedSuffix) throw new Error("Configured operator subset admitted a suffix");
+    engine.CFG.operators = "[~]=";
+    engine.configure({}, true);
+    const beforeWordOnly = wasmQueries;
+    if (
+      document.querySelector("[data-kind~=primary]") !== warmPrefix ||
+      wasmQueries !== beforeWordOnly + 1
+    )
+      throw new Error("Word-only grammar missed WASM");
+    let rejectedEquality = false;
+    try {
+      document.querySelector("[data-kind=primary]");
+    } catch {
+      rejectedEquality = true;
+    }
+    if (!rejectedEquality) throw new Error("Word-only grammar admitted equality");
+    engine.CFG.operators = originalOperators;
+    engine.configure({}, true);
+    if (document.querySelector("[data-kind^=prim]") !== warmPrefix)
+      throw new Error("Restored prefix failed");
+    stage = "route planner disabled";
+    engine.configure({ ROUTE_PLANNER: false }, true);
+    document.querySelectorAll("p.pick");
+    const routePlannerDisabled = wasmRoutePlannerSettings.at(-1) === false;
+    stage = "route planner enabled";
+    engine.configure({ ROUTE_PLANNER: true }, true);
+    document.querySelectorAll("p.pick");
+    const routePlannerEnabled = wasmRoutePlannerSettings.at(-1) === true;
+    const routePlannerBridge = routePlannerDisabled && routePlannerEnabled;
+    engine.useRoutePlanner("jsdom");
+    document.querySelectorAll("p.pick");
+    const routePlannerHostBridge =
+      wasmRoutePlannerHosts.includes("chromium") && wasmRoutePlannerHosts.at(-1) === "jsdom";
+    stage = "compiled plan cache configuration";
+    engine.configure({ CACHE_LIMIT: 0, CACHE_BYTES: 0 }, true);
+    const beforeDisabledCache = compilationCalls;
+    document.querySelectorAll("p.pick");
+    document.querySelectorAll("p.pick");
+    const disabledCacheCompiles = compilationCalls - beforeDisabledCache;
+    engine.configure({ CACHE_LIMIT: 4096, CACHE_BYTES: 4 * 1024 * 1024 }, true);
+    const beforeEnabledCache = compilationCalls;
+    document.querySelectorAll("p.pick");
+    document.querySelectorAll("p.pick");
+    const enabledCacheCompiles = compilationCalls - beforeEnabledCache;
+    const cacheConfigBridge = disabledCacheCompiles === 2 && enabledCacheCompiles === 1;
+    const beforeInstalledMethodQueries = wasmQueries;
+    const beforeInstalledMethodFallbacks = wasmFallbacks;
+    const installedMatch = a.matches("p.pick");
+    const installedClosest = a.closest("main") === main;
+    const installedListExpected = Array.from(
+      engine.select("p.pick", main),
+      (element) => element.id,
+    );
+    engine.configure({ NODE_LIST: true });
+    const installedList = main.querySelectorAll("p.pick");
+    const installedListIsNodeList = installedList instanceof NodeList;
+    const installedListIds = Array.from(installedList, (element) => element.id);
+    const installedListLength = installedList.length;
+    const temporary = document.createElement("p");
+    main.appendChild(temporary);
+    const installedListIsStatic = installedList.length === installedListLength;
+    temporary.remove();
+    engine.configure({ NODE_LIST: false });
+    const installedMethodDetails = {
+      match: installedMatch,
+      closest: installedClosest,
+      expectedIds: installedListExpected,
+      actualIds: installedListIds,
+      listLength: installedListLength,
+      listIsNodeList: installedListIsNodeList,
+      listIsStatic: installedListIsStatic,
+      queryDelta: wasmQueries - beforeInstalledMethodQueries,
+      fallbackDelta: wasmFallbacks - beforeInstalledMethodFallbacks,
+    };
+    const installedMethodsRust =
+      installedMatch &&
+      installedClosest &&
+      installedListIds.length === installedListExpected.length &&
+      installedListIds.every((id, index) => id === installedListExpected[index]) &&
+      installedListIsNodeList &&
+      installedListIsStatic &&
+      wasmQueries === beforeInstalledMethodQueries + 3 &&
+      wasmFallbacks === beforeInstalledMethodFallbacks;
+    const slottedShadow = document.getElementById("slotted").shadowRoot;
+    const beforeShadowIsolationQueries = wasmQueries;
+    const beforeShadowIsolationFallbacks = wasmFallbacks;
+    const shadowIsolationRust =
+      document.querySelector(".shadow-internal") === null &&
+      slottedShadow.querySelector(".shadow-internal") === slottedShadow.firstElementChild &&
+      wasmQueries === beforeShadowIsolationQueries + 2 &&
+      wasmFallbacks === beforeShadowIsolationFallbacks;
+    const duplicateRoot = document.querySelector("main");
+    const beforeDuplicateQueries = wasmQueries;
+    const beforeDuplicateFallbacks = wasmFallbacks;
+    engine.configure({ IDS_DUPES: false }, true);
+    const duplicateIdRust =
+      Array.from(document.querySelectorAll("#duplicate"), (element) => element.localName).join(
+        ",",
+      ) === "i" &&
+      Array.from(duplicateRoot.querySelectorAll("#duplicate"), (element) => element.localName).join(
+        ",",
+      ) === "i,b" &&
+      wasmQueries === beforeDuplicateQueries + 2 &&
+      wasmFallbacks === beforeDuplicateFallbacks;
+    engine.configure({ IDS_DUPES: true }, true);
+    const attributeFixture = document.createDocumentFragment();
+    const attributeSection = document.createElement("section");
+    attributeSection.innerHTML =
+      "<p id=attributeMissing></p><p id=attributeNull type=null></p><p id=attributeCase></p>";
+    attributeFixture.append(attributeSection);
+    attributeFixture
+      .querySelector("#attributeCase")
+      .setAttributeNS("urn:test", "x:data-case", "MiXeD");
+    const attributeSelectors = [
+      '[type^="N"]',
+      '[type$="L"]',
+      '[type*="UL"]',
+      '[type|="NULL"]',
+      '[*|data-case="mixed"]',
+      '[*|data-case="MiXeD"]',
+    ];
+    const attributeExpected = attributeSelectors.map((selector) =>
+      JSON.stringify(
+        Array.from(
+          engine.select(selector, attributeFixture),
+          (element) => element.id || element.localName,
+        ),
+      ),
+    );
+    const beforeAttributeQueries = wasmQueries;
+    const beforeAttributeFallbacks = wasmFallbacks;
+    const attributeActual = attributeSelectors.map((selector) =>
+      JSON.stringify(
+        Array.from(
+          attributeFixture.querySelectorAll(selector),
+          (element) => element.id || element.localName,
+        ),
+      ),
+    );
+    const missingAttributeCaseRust =
+      attributeActual.every((result, index) => result === attributeExpected[index]) &&
+      wasmQueries === beforeAttributeQueries + attributeSelectors.length &&
+      wasmFallbacks === beforeAttributeFallbacks;
+    const wasmCompatibilityFailures = [];
+    const wasmCompatibilityNativeFallbacks = [];
+    const wasmCompatibilityByContext = {
+      document: { accepted: 0, rust: 0 },
+      main: { accepted: 0, rust: 0 },
+      shadow: { accepted: 0, rust: 0 },
+    };
+    let wasmCompatibilityAcceptedCases = 0;
+    let wasmCompatibilityRustCases = 0;
+    const wasmCompatibilityCases = [];
+    compatibilitySelectors.forEach((selector, index) => {
+      wasmCompatibilityCases.push({
+        selector,
+        context: document,
+        expected: jsCompatibilityResults[index],
+        label: `document ${selector}`,
+      });
+      const scopedExpected = (() => {
+        try {
+          return { nodes: Array.from(engine.select(selector, main)) };
+        } catch (error) {
+          return { error: error.name };
+        }
+      })();
+      wasmCompatibilityCases.push({
+        selector,
+        context: main,
+        expected: scopedExpected,
+        label: `main ${selector}`,
+      });
+    });
+    const compatibilityShadow = document.getElementById("slotted").shadowRoot;
+    compatibility.shadowSelectors.forEach((selector) => {
+      let expected;
+      try {
+        expected = { nodes: Array.from(engine.select(selector, compatibilityShadow)) };
+      } catch (error) {
+        expected = { error: error.name };
+      }
+      wasmCompatibilityCases.push({
+        selector,
+        context: compatibilityShadow,
+        expected,
+        label: `shadow ${selector}`,
+      });
+    });
+    const wasmXmlCompilationCases = [];
+    compatibility.xml.forEach((fixture) => {
+      fixture.selectors.forEach((selector) => {
+        const plan = wasm.compile_host_selector(
+          Uint16Array.from(selector, (character) => character.charCodeAt(0)),
+          false,
+          true,
+          false,
+        );
+        wasmXmlCompilationCases.push({ selector, compiled: plan !== undefined });
+        plan?.free();
+      });
+    });
+    const wasmCompatibilityParity = wasmCompatibilityCases.every(
+      ({ selector, context, expected, label }) => {
+        const contextName = label.startsWith("document ")
+          ? "document"
+          : label.startsWith("main ")
+            ? "main"
+            : "shadow";
+        let matches = false;
+        const beforeQuery = wasmQueries;
+        const beforeFallback = wasmFallbacks;
+        try {
+          const actual = Array.from(context.querySelectorAll(selector));
+          const accepted = !!expected && "nodes" in expected;
+          if (accepted) {
+            wasmCompatibilityAcceptedCases++;
+            wasmCompatibilityByContext[contextName].accepted++;
+            if (wasmQueries === beforeQuery + 1 && wasmFallbacks === beforeFallback) {
+              wasmCompatibilityRustCases++;
+              wasmCompatibilityByContext[contextName].rust++;
+            } else {
+              const wasmPlan = wasm.compile_host_selector(
+                Uint16Array.from(selector, (character) => character.charCodeAt(0)),
+                false,
+                true,
+                false,
+              );
+              wasmCompatibilityNativeFallbacks.push({
+                selector,
+                context: label,
+                wasmPlan: wasmPlan !== undefined,
+              });
+              wasmPlan?.free();
+            }
+          }
+          matches =
+            accepted &&
+            expected.nodes.length === actual.length &&
+            expected.nodes.every((node, at) => node === actual[at]);
+        } catch (error) {
+          matches = !!expected && "error" in expected && expected.error === error.name;
+        }
+        if (!matches) {
+          const labels = (nodes) => nodes.map((node) => node.id || node.localName);
+          wasmCompatibilityFailures.push({
+            selector,
+            context: label,
+            expected: expected && "nodes" in expected ? labels(expected.nodes) : expected,
+            actual: Array.from(
+              document.querySelectorAll(selector),
+              (node) => node.id || node.localName,
+            ),
+          });
+        }
+        return matches;
+      },
+    );
+    const plannerFixture = document.createElement("section");
+    plannerFixture.innerHTML = Array.from(
+      { length: 40 },
+      (_, anchor) =>
+        `<article class="anchor" data-ok="1" id="planner-anchor-${anchor}">${Array.from({ length: 3 }, (_, witness) => `<i class="witness" data-ok="1" id="planner-witness-${anchor}-${witness}"></i>`).join("")}</article>`,
+    ).join("");
+    document.body.append(plannerFixture);
+    const wasmPlannerCalls = [];
+    engine.registerBulkHasPlanner((anchors, witnesses, attributes, dense, ratio) => {
+      wasmPlannerCalls.push([anchors, witnesses, attributes, dense, ratio]);
+      return true;
+    });
+    const wasmBulkHasPlannerBridge =
+      Array.from(document.querySelectorAll('.anchor[data-ok="1"]:has(.witness[data-ok="1"])'))
+        .length === 40 && JSON.stringify(wasmPlannerCalls) === JSON.stringify([[40, 120, 3, 0, 3]]);
+    engine.registerBulkHasPlanner(null);
+    const beforeColumnQuery = wasmQueries;
+    const beforeColumnFallback = wasmFallbacks;
+    const columnIds = Array.from(
+      document.querySelectorAll("#wasm-col-a || td"),
+      (element) => element.id,
+    );
+    const columnCombinatorRust =
+      columnIds.length === 0 &&
+      document.querySelector("#wasm-col-a || td, #one-unmatched, #a") === a &&
+      document.querySelectorAll("td:not(col || td)").length === 4 &&
+      document.querySelector("td:is(col || td, #wasm-b1)")?.id === "wasm-b1" &&
+      wasmQueries > beforeColumnQuery &&
+      wasmFallbacks === beforeColumnFallback;
+    const beforeEmptyListsQuery = wasmQueries;
+    const beforeEmptyListsFallback = wasmFallbacks;
+    const emptyForgivingListsRust =
+      document.querySelectorAll(":is(), :where(), p:nth-child(1 of ::before)").length === 0 &&
+      wasmQueries > beforeEmptyListsQuery &&
+      wasmFallbacks === beforeEmptyListsFallback;
+    const wasmEmptyText = document.querySelector("#emptyText:empty") === emptyTextElement;
+    const wasmConstraintStates = [
+      document.querySelector("#novalidateForm:invalid") ===
+        document.getElementById("novalidateForm"),
+      document.querySelector("#invalidNoValidate:invalid") ===
+        document.getElementById("invalidNoValidate"),
+      document.querySelector("#submitNoValidate:valid") ===
+        document.getElementById("submitNoValidate"),
+      document.querySelector("#disabledInvalid:valid, #disabledInvalid:invalid") === null,
+    ];
+    const wasmOptional = Array.from(
+      validationProbe.querySelectorAll(":optional"),
+      (element) => element.id,
+    );
+    const wasmRequired = Array.from(
+      validationProbe.querySelectorAll(":required"),
+      (element) => element.id,
+    );
+    const wasmDefault = Array.from(
+      document.querySelectorAll("#defaultOrder :default"),
+      (element) => element.id,
+    );
+    const defaultSubmitter =
+      nativeDefault.length === 1 &&
+      nativeDefault[0] === "defaultButton" &&
+      wasmDefault.join(",") === nativeDefault.join(",");
+    const first = document.querySelector(":scope > body .pick") === a;
+    b.className = "pick";
+    main.insertBefore(b, a);
+    const second = main.querySelectorAll(":scope > p.pick").item(0) === b;
+    const beforeNthCommentQuery = wasmQueries;
+    const beforeNthCommentFallback = wasmFallbacks;
+    const nthCommentIds = Array.from(
+      document.querySelectorAll("p:nth-child(odd/**/of .pick)"),
+      (element) => element.id,
+    );
+    const nthCommentOfRust =
+      nthCommentIds.join(",") === "b" &&
+      wasmQueries > beforeNthCommentQuery &&
+      wasmFallbacks === beforeNthCommentFallback;
+    const root = document.querySelector(":root") === document.documentElement;
+    const foreign = document.querySelector("svg > lineargradient")?.id === "gradient";
+    const attr = document.querySelector('use[*|href="#gradient"]')?.localName === "use";
+    const state = Array.from(document.querySelectorAll(":checked")).map((element) => element.id);
+    location.hash = "#a";
+    const target = document.querySelector(":target") === a;
+    const beforeScopedTargetQuery = wasmQueries;
+    const beforeScopedTargetFallback = wasmFallbacks;
+    const scopedTarget = main.querySelector(":target") === a;
+    const scopedTargetRust =
+      wasmQueries === beforeScopedTargetQuery + 1 && wasmFallbacks === beforeScopedTargetFallback;
+    const beforeDefinedQueries = wasmQueries;
+    const beforeDefinedFallbacks = wasmFallbacks;
+    const definedElements = Array.from(document.querySelectorAll(":defined"));
+    const defined =
+      definedElements.some((element) => element.id === "defined") &&
+      !definedElements.some((element) => element.id === "undefined") &&
+      definedElements.some((element) => element.id === "definedBuiltIn") &&
+      !definedElements.some((element) => element.id === "undefinedBuiltIn") &&
+      wasmQueries === beforeDefinedQueries + 1 &&
+      wasmFallbacks === beforeDefinedFallbacks;
+    const direction = document.querySelector(":dir(rtl)") === b;
+    const pluginChainedDirect = {
+      evenOdd: engine.select("p:even:odd", document).map((element) => element.id),
+      second: engine.select("p:eq(1):lt(3)", document).map((element) => element.id),
+      positionalBeforeClass: engine.select("p:eq(1).pick", document).map((element) => element.id),
+      classBeforePositional: engine.select("p.pick:eq(1)", document).map((element) => element.id),
+    };
+    const plugin = document.querySelectorAll("p:even").item(0) === b;
+    const beforePluginChainQueries = wasmQueries;
+    const beforePluginChainFallbacks = wasmFallbacks;
+    const pluginChained = {
+      installed: Array.from(document.querySelectorAll("p:even:odd"), (element) => element.id),
+      installedSecond: document.querySelector("p:eq(1):lt(3)")?.id ?? null,
+      installedPositionalBeforeClass: Array.from(
+        document.querySelectorAll("p:eq(1).pick"),
+        (element) => element.id,
+      ),
+      installedClassBeforePositional: Array.from(
+        document.querySelectorAll("p.pick:eq(1)"),
+        (element) => element.id,
+      ),
+      direct: pluginChainedDirect.evenOdd,
+      directSecond: pluginChainedDirect.second[0] ?? null,
+      directPositionalBeforeClass: pluginChainedDirect.positionalBeforeClass,
+      directClassBeforePositional: pluginChainedDirect.classBeforePositional,
+      nativeQueries: wasmQueries - beforePluginChainQueries,
+      fallbacks: wasmFallbacks - beforePluginChainFallbacks,
+    };
+    const beforePluginVisibilityQueries = wasmQueries;
+    const beforePluginVisibilityFallbacks = wasmFallbacks;
+    const pluginHidden = Array.from(document.querySelectorAll("p:hidden")).map(
+      (element) => element.id,
+    );
+    const pluginVisible = Array.from(document.querySelectorAll("p:visible")).map(
+      (element) => element.id,
+    );
+    const pluginVisibilityUsesRust =
+      wasmQueries === beforePluginVisibilityQueries + 2 &&
+      wasmFallbacks === beforePluginVisibilityFallbacks;
+    const pluginParent = document.querySelector("main:parent") === main;
+    const pluginParentChildren = Array.from(
+      document.querySelectorAll("div:parent"),
+      (element) => element.id,
+    );
+    const pluginInput =
+      document.querySelectorAll(":input").length === engine.select(":input", document).length;
+    const focusable = document.getElementById("focusable");
+    focusable.focus();
+    const focus = document.querySelector(":focus") === focusable;
+    const focusVisible = document.querySelector(":focus-visible") === focusable;
+    const focusWithin = document.querySelector("main:focus-within") === main;
+    const active = document.querySelector(":active") === focusable;
+    const modalElement = document.getElementById("modal");
+    modalElement.showModal();
+    const modal = document.querySelector(":modal") === modalElement;
+    const popoverElement = document.getElementById("popover");
+    popoverElement.showPopover();
+    const popover = document.querySelector(":popover-open") === popoverElement;
+    const details = document.getElementById("details");
+    const detailsOpen = document.querySelector("#details:open") === details;
+    popoverElement.hidePopover();
+    details.removeAttribute("open");
+    const detailsClosed = document.querySelector("#details:closed") === details;
+    const video = document.getElementById("video");
+    video.muted = true;
+    const paused = document.querySelector(":paused") === video;
+    const muted = document.querySelector(":muted") === video;
+    const indeterminate =
+      document.querySelector("#live:indeterminate") === document.getElementById("live");
+    const placeholder =
+      document.querySelector("#placeholder:placeholder-shown") ===
+      document.getElementById("placeholder");
+    const visitedElement = document.getElementById("visited");
+    const beforeVisited = wasmQueries;
+    const visited =
+      document.querySelector("#visited:visited") === visitedElement &&
+      engine.match("#visited:visited", visitedElement);
+    const visitedRust = wasmQueries > beforeVisited;
+    const stateOnlySelectors = [
+      ":past",
+      ":active-view-transition",
+      ":interest-source",
+      ":interest-target",
+      ":target-after",
+      ":target-before",
+      ":target-current",
+      ":xr-overlay",
+    ];
+    const beforeStateOnlySelectors = wasmQueries;
+    const beforeStateOnlyFallbacks = wasmFallbacks;
+    for (const selector of stateOnlySelectors) {
+      document.querySelectorAll(selector);
+    }
+    const stateOnlySelectorsRust =
+      wasmQueries - beforeStateOnlySelectors === stateOnlySelectors.length &&
+      wasmFallbacks === beforeStateOnlyFallbacks;
+    const customStateElement = document.getElementById("customState");
+    const beforeCustomState = wasmQueries;
+    const customState =
+      document.querySelector("#customState:state(active)") === customStateElement &&
+      engine.match("#customState:state(active)", customStateElement);
+    const customStateRust = wasmQueries > beforeCustomState;
+    const beforeEscapedCustomState = wasmQueries;
+    const escapedCustomState =
+      document.querySelector("#customState:st\\61 te(active)") === customStateElement &&
+      engine.match("#customState:st\\61 te(active)", customStateElement);
+    const escapedCustomStateRust = wasmQueries > beforeEscapedCustomState;
+    const slot = document.getElementById("slotted").shadowRoot.querySelector("slot");
+    const beforeShadowLanguage = wasmQueries;
+    const beforeShadowLanguageFallback = wasmFallbacks;
+    const shadowLanguage =
+      document.getElementById("slotted").shadowRoot.querySelector("slot:lang(en)") === slot;
+    const shadowLanguageRust =
+      wasmQueries > beforeShadowLanguage && wasmFallbacks === beforeShadowLanguageFallback;
+    const beforeSlotted = wasmQueries;
+    const hasSlotted =
+      document.getElementById("slotted").shadowRoot.querySelector(":has-slotted") === slot;
+    const hasSlottedRust = wasmQueries > beforeSlotted;
+    const beforeSlottedArgument = wasmQueries;
+    const hasSlottedArgument =
+      document.getElementById("slotted").shadowRoot.querySelector(":has-slotted(.assigned)") ===
+      slot;
+    const hasSlottedArgumentRust = wasmQueries > beforeSlottedArgument;
+    const assignedNode = document.getElementById("slotted").querySelector(".assigned");
+    const beforeSlottedMutation = wasmQueries;
+    assignedNode.classList.remove("assigned");
+    const slottedMutationClearsState =
+      document.getElementById("slotted").shadowRoot.querySelector(":has-slotted(.assigned)") ===
+      null;
+    const slottedMutationRust = wasmQueries > beforeSlottedMutation;
+    assignedNode.classList.add("assigned");
+    const slottedMutationRestoresState =
+      document.getElementById("slotted").shadowRoot.querySelector(":has-slotted(.assigned)") ===
+      slot;
+    const beforeUnmatchedSlottedArgument = wasmQueries;
+    const unmatchedSlottedArgument =
+      document.getElementById("slotted").shadowRoot.querySelector(":has-slotted(.missing)") ===
+      null;
+    const unmatchedSlottedArgumentRust = wasmQueries > beforeUnmatchedSlottedArgument;
+    const beforeMultipleSlottedArguments = wasmQueries;
+    const multipleSlottedArguments =
+      document
+        .getElementById("slotted")
+        .shadowRoot.querySelector(":has-slotted(.assigned):has-slotted(.missing)") === null;
+    const multipleSlottedArgumentsRust = wasmQueries > beforeMultipleSlottedArguments;
+    const beforeNestedSlottedArgument = wasmQueries;
+    const nestedSlottedArgument =
+      document
+        .getElementById("slotted")
+        .shadowRoot.querySelector(":has-slotted(:is(.assigned))") === slot;
+    const nestedSlottedArgumentRust = wasmQueries > beforeNestedSlottedArgument;
+    const beforeSlottedPseudoElement = wasmQueries;
+    const slottedPseudoElement =
+      document.getElementById("slotted").shadowRoot.querySelector("::slotted(*)") === null;
+    const slottedPseudoElementRust = wasmQueries > beforeSlottedPseudoElement;
+    document.getElementById("slotted").classList.add("slotted");
+    const shadowHostCases = [
+      [":host", null],
+      [":host > slot", slot],
+      [":host(.slotted) > slot", slot],
+      [":host-context(body) > slot", slot],
+    ];
+    const beforeShadowHost = wasmQueries;
+    const beforeShadowHostFallbacks = wasmFallbacks;
+    const shadowHostParity = shadowHostCases.every(([selector, expected]) => {
+      const installed = slottedShadow.querySelector(selector);
+      const javascript = engine.select(selector, slottedShadow)[0] ?? null;
+      return installed === expected && installed === javascript;
+    });
+    const shadowHostRust =
+      wasmQueries === beforeShadowHost + shadowHostCases.length &&
+      wasmFallbacks === beforeShadowHostFallbacks;
+    const beforeUserState = wasmQueries;
+    const userState =
+      document.querySelectorAll(
+        "#valid:user-valid, #invalid:user-invalid, body:active-view-transition",
+      ).length === 0 &&
+      !engine.match("#valid:user-valid", document.getElementById("valid")) &&
+      !engine.match("#invalid:user-invalid", document.getElementById("invalid")) &&
+      !engine.match("body:active-view-transition", document.body);
+    const userStateRust = wasmQueries > beforeUserState;
+    const validElement = document.getElementById("valid");
+    stage = "valid";
+    const valid =
+      document.querySelector("#valid:valid") === validElement &&
+      engine.match("#valid:valid", validElement);
+    const invalidElement = document.getElementById("invalid");
+    stage = "invalid";
+    const invalid =
+      document.querySelector("#invalid:invalid") === invalidElement &&
+      engine.match("#invalid:invalid", invalidElement);
+    const form = document.getElementById("form");
+    stage = "form invalid";
+    const invalidForm =
+      document.querySelector("#form:invalid") === form && engine.match("#form:invalid", form);
+    const fieldset = document.getElementById("fieldset");
+    stage = "fieldset invalid";
+    const invalidFieldset =
+      document.querySelector("#fieldset:invalid") === fieldset &&
+      engine.match("#fieldset:invalid", fieldset);
+    const range = document.getElementById("range");
+    stage = "out of range";
+    const outOfRange =
+      document.querySelector("#range:out-of-range") === range &&
+      engine.match("#range:out-of-range", range);
+    const rangeOk = document.getElementById("rangeOk");
+    stage = "in range";
+    const inRange =
+      document.querySelector("#rangeOk:in-range") === rangeOk &&
+      engine.match("#rangeOk:in-range", rangeOk);
+    const defaultElement = document.getElementById("default");
+    stage = "default";
+    const defaultValue =
+      document.querySelector("#default:default") === defaultElement &&
+      engine.match("#default:default", defaultElement);
+    const up = engine.up(b, "main") === main;
+    const next = engine.next(b, "p") === a;
+    const previous = engine.previous(a, 0) === b;
+    const downFirst = engine.down(main) === b;
+    const downZero = engine.down(main, 0) === main;
+    const downIndex = engine.down(main, 1) === b;
+    const downSelector = engine.down(main, "button") === focusable;
+    engine.configure({ FORGIVING: false });
+    const beforeStrictForgiving = wasmQueries;
+    let strictForgiving = false;
+    try {
+      document.querySelectorAll("p:is(.pick, :unsupported)");
+    } catch {
+      strictForgiving = true;
+    }
+    const strictFallback = wasmQueries === beforeStrictForgiving;
+    engine.configure({ FORGIVING: true });
+    const beforeLateExtension = wasmQueries;
+    engine.registerSelector("svg:gradient", /^:paint(.*)/, (match, source) => ({
+      match,
+      status: true,
+      source: `if(e.localName==="linearGradient"){${source}}`,
+    }));
+    const beforePaint = wasmQueries;
+    const paint = document.querySelector(":paint");
+    if (
+      paint?.localName !== "linearGradient" ||
+      paint !== engine.first(":paint", document) ||
+      wasmQueries !== beforePaint + 1
+    )
+      throw new Error(
+        "WASM localName predicate mismatch " +
+          JSON.stringify([
+            paint?.localName,
+            engine.first(":paint", document)?.localName,
+            wasmQueries - beforePaint,
+          ]),
+      );
+    engine.Selectors["svg:gradient"].Callback = (match, source) => {
+      return {
+        match,
+        status: true,
+        source: `if(e.localName==="linearGradient"){${source}}`,
+      };
+    };
+    engine.configure({}, true);
+    let beforeLocalNameCallback = wasmQueries;
+    const blockLocalNameArrow =
+      document.querySelector(":paint") === paint && wasmQueries === beforeLocalNameCallback + 1;
+    engine.Selectors["svg:gradient"].Callback = function (match, source) {
+      return {
+        match,
+        status: true,
+        source: `if(e.localName==="linearGradient"){${source}}`,
+      };
+    };
+    engine.configure({}, true);
+    beforeLocalNameCallback = wasmQueries;
+    const blockLocalNameFunction =
+      document.querySelector(":paint") === paint && wasmQueries === beforeLocalNameCallback + 1;
+    const blockLocalNameCallbacksRust = blockLocalNameArrow && blockLocalNameFunction;
+    engine.registerSelector("svg:gradientElement", /^::gradientFilter(.*)/, (match, source) => ({
+      match,
+      status: true,
+      source: `if(e.localName==="linearGradient"){${source}}`,
+    }));
+    const beforeGradient = wasmQueries;
+    if (document.querySelector("::gradientFilter") !== paint || wasmQueries !== beforeGradient + 1)
+      throw new Error("WASM double-colon predicate mismatch");
+    engine.registerSelector("plugin:key", /^:chosen(.*)/, (match, source) => ({
+      match,
+      status: true,
+      source,
+    }));
+    const beforeChosen = wasmQueries;
+    if (
+      document.querySelector("p:chosen") !== engine.first("p:chosen", document) ||
+      wasmQueries !== beforeChosen + 1
+    )
+      throw new Error("Registered pass-through pseudo missed WASM");
+    engine.registerSelector("plugin:blockPass", /^:blockPass(.*)/, (match, source) => {
+      return { match, status: true, source };
+    });
+    let beforeBlockPass = wasmQueries;
+    const blockArrowPass =
+      document.querySelector("p:blockPass") === engine.first("p:blockPass", document);
+    const blockArrowPassDelta = wasmQueries - beforeBlockPass;
+    engine.Selectors["plugin:blockPass"].Callback = function (match, source) {
+      return { match, status: true, source };
+    };
+    engine.configure({}, true);
+    beforeBlockPass = wasmQueries;
+    const functionPass =
+      document.querySelector("p:blockPass") === engine.first("p:blockPass", document);
+    const functionPassDelta = wasmQueries - beforeBlockPass;
+    const blockPassThroughRust =
+      blockArrowPass && functionPass && blockArrowPassDelta === 1 && functionPassDelta === 1;
+    engine.configure({}, true);
+    const svg = document.querySelector("svg");
+    const unicodeElement = document.createElementNS(svg.namespaceURI, "élément");
+    svg.appendChild(unicodeElement);
+    engine.registerSelector("svg:unicodePaint", /^:unicodePaint(.*)/, (match, source) => ({
+      match,
+      status: true,
+      source: `if(e.localName==="élément"){${source}}`,
+    }));
+    const beforeUnicodeLocalName = wasmQueries;
+    const unicodeLocalNameRust =
+      document.querySelector(":unicodePaint") === unicodeElement &&
+      wasmQueries === beforeUnicodeLocalName + 1;
+    engine.configure({}, true);
+    engine.registerSelector("plugin:second", /^:second(.*)/, (match, source) => ({
+      match,
+      status: true,
+      source,
+    }));
+    const beforeMultiplePluginPseudos = wasmQueries;
+    const multiplePluginPseudos =
+      document.querySelector("p:chosen:second") === engine.first("p:chosen:second", document) &&
+      wasmQueries === beforeMultiplePluginPseudos + 1;
+    engine.registerSelector("lateCustom", /^::lateCustom(.*)/, function (match, source) {
+      return { match, status: true, source };
+    });
+    const lateQueryCount = document.querySelectorAll("p").length;
+    const lateWasmDelta = wasmQueries - beforeLateExtension;
+    const beforeCustomSelector = wasmQueries;
+    const lateCustomCount = document.querySelectorAll("p::lateCustom").length;
+    const lateNestedCustomCount = document.querySelectorAll("p:not(::lateCustom)").length;
+    const lateCustomFallback =
+      lateQueryCount === 3 &&
+      lateWasmDelta === 1 &&
+      lateCustomCount === 3 &&
+      lateNestedCustomCount === 0 &&
+      wasmQueries === beforeCustomSelector;
+    const expectedPluginAfterCustom = engine
+      .select("p:even", document)
+      .map((element) => element.id);
+    const beforePluginAfterCustom = wasmQueries;
+    const pluginRemainsRustAfterCustom =
+      JSON.stringify(Array.from(document.querySelectorAll("p:even"), (element) => element.id)) ===
+        JSON.stringify(expectedPluginAfterCustom) && wasmQueries === beforePluginAfterCustom + 1;
+    engine.registerOperator("!=", { p1: "^", p2: "$", p3: "false" });
+    const customSelector = 'p[data-score!="2"]';
+    const expectedCustom = Array.from(
+      engine.select(customSelector, document),
+      (element) => element.id,
+    );
+    const beforeCustomOperator = wasmQueries;
+    const customOperatorRust =
+      Array.from(document.querySelectorAll(customSelector), (element) => element.id).join(",") ===
+        expectedCustom.join(",") && wasmQueries === beforeCustomOperator + 1;
+    engine.Operators["!="] = { p1: "^", p2: "", p3: "true" };
+    const beforePrefixAlias = wasmQueries;
+    const prefixAliasRust =
+      document.querySelector('p[data-score!="2"]') === a && wasmQueries === beforePrefixAlias + 1;
+    engine.Operators["!="] = { p1: "^", p2: "$", p3: "false" };
+    engine.registerOperator("@=", { p1: "^", p2: "$", p3: "true" });
+    const beforeCustomEqualityOperator = wasmQueries;
+    const beforeCustomEqualityFallbacks = wasmFallbacks;
+    const customEqualityOperatorRust =
+      document.querySelector('p[data-score@="2"]') === a &&
+      wasmQueries === beforeCustomEqualityOperator + 1 &&
+      wasmFallbacks === beforeCustomEqualityFallbacks;
+    const registeredGrammar = engine.CFG.operators;
+    const customScore = 'p[data-score@="2"]';
+    for (const grammar of ["[@]=", "@=|\\^=|=", "=", registeredGrammar]) {
+      engine.CFG.operators = grammar;
+      engine.configure({}, true);
+      const read = (query) => {
+        try {
+          return query();
+        } catch (error) {
+          return error.name;
+        }
+      };
+      const reference = read(() => engine.first(customScore, document));
+      const beforeQuery = wasmQueries;
+      const installed = read(() => document.querySelector(customScore));
+      if (installed !== reference || (grammar !== "=" && installed !== a))
+        throw new Error("Custom operator query diverged after grammar change");
+      if (wasmQueries !== beforeQuery + (grammar === "=" ? 0 : 1))
+        throw new Error("Unexpected WASM route for edited custom operator grammar");
+    }
+    const beforeMixedCustomOperatorAndResolver = wasmQueries;
+    const mixedCustomOperatorAndResolverRust =
+      document.querySelector('p[data-score@="2"]::lateCustom') === a &&
+      wasmQueries === beforeMixedCustomOperatorAndResolver + 1;
+    engine.registerOperator("%=", { p1: "^", p2: "", p3: "false" });
+    const beforeMultipleCustomOperators = wasmQueries;
+    const multipleCustomOperatorsRust =
+      document.querySelector('p[data-score@="2"][data-kind%="secondary"]') === a &&
+      wasmQueries === beforeMultipleCustomOperators + 1;
+    engine.registerOperator("/=", { p1: "", p2: "$", p3: "false" });
+    engine.registerOperator("<=", { p1: "", p2: "", p3: "false" });
+    engine.registerOperator(">=", { p1: "^", p2: "(-|$)", p3: "false" });
+    engine.registerOperator("?=", {
+      p1: "(^|[\\t\\n\\f\\r ])",
+      p2: "([\\t\\n\\f\\r ]|$)",
+      p3: "false",
+    });
+    const beforeNegativeOperatorFallbacks = wasmFallbacks;
+    const negativeOperatorResults = [];
+    const negativeOperatorQueryDeltas = [];
+    for (const selector of [
+      'p[data-score/="2"]',
+      'p[data-score<="2"]',
+      'p[data-kind>="secondary"]',
+      'p[data-score?="2"]',
+    ]) {
+      const before = wasmQueries;
+      negativeOperatorResults.push(
+        Array.from(document.querySelectorAll(selector), (element) => element.id).join(","),
+      );
+      negativeOperatorQueryDeltas.push(wasmQueries - before);
+    }
+    const negativeOperatorAliasesRust =
+      negativeOperatorResults.join("|") ===
+        "b,unicode,hidden|b,unicode,hidden|a,unicode|b,unicode,hidden" &&
+      negativeOperatorQueryDeltas.every((delta) => delta > 0) &&
+      wasmFallbacks === beforeNegativeOperatorFallbacks;
+    engine.registerOperator("&=", {
+      p1: "(^|[\\t\\n\\f\\r ])",
+      p2: "([\\t\\n\\f\\r ]|$)",
+      p3: "true",
+    });
+    const beforeCustomWordOperator = wasmQueries;
+    const customWordOperatorRust =
+      document.querySelector('[data-tags&=""]') === a &&
+      wasmQueries === beforeCustomWordOperator + 1;
+    engine.Operators["/="] = { p1: "^item\\d+", p2: "$", p3: "true" };
+    const mixedRoot = document.createElement("section");
+    const mixedChild = document.createElement("i");
+    mixedChild.setAttribute("data-code", "item12x");
+    mixedRoot.append(mixedChild);
+    const beforeMixedPattern = wasmQueries;
+    const mixedPatternRust =
+      mixedRoot.querySelector('[data-code/="x"]') === mixedChild &&
+      wasmQueries === beforeMixedPattern + 1;
+    engine.registerOperator("#=", { p1: "^item\\d*", p2: "$", p3: "true" });
+    const beforeZeroOrMorePattern = wasmQueries;
+    const matchesRepeatedRun =
+      mixedRoot.querySelector('[data-code#="x"]') === mixedChild &&
+      wasmQueries === beforeZeroOrMorePattern + 1;
+    mixedChild.setAttribute("data-code", "itemx");
+    const beforeEmptyRun = wasmQueries;
+    const matchesEmptyRun =
+      mixedRoot.querySelector('[data-code#="x"]') === mixedChild &&
+      wasmQueries === beforeEmptyRun + 1;
+    const zeroOrMorePatternRust = matchesRepeatedRun && matchesEmptyRun;
+    engine.Operators["#="] = { p1: "^café💡", p2: "$", p3: "true" };
+    mixedChild.setAttribute("data-code", "café💡x");
+    const beforeUnicodeRegex = wasmQueries;
+    const unicodePrefixMatch = mixedRoot.querySelector('[data-code#="x"]');
+    const unicodePrefixRust =
+      unicodePrefixMatch === mixedChild && wasmQueries === beforeUnicodeRegex + 1;
+    engine.Operators["#="] = { p1: "^", p2: "💡$", p3: "true" };
+    mixedChild.setAttribute("data-suffix", "x💡");
+    const beforeUnicodeSuffix = wasmQueries;
+    const unicodeSuffixRust =
+      mixedRoot.querySelector('[data-suffix#="x"]') === mixedChild &&
+      wasmQueries === beforeUnicodeSuffix + 1;
+    const unicodeRegexRust = unicodePrefixRust && unicodeSuffixRust;
+    engine.Operators["#="] = { p1: "^code\\d?", p2: "$", p3: "true" };
+    const optionalClassSelector = '[data-optional#="x"]';
+    const optionalClassResults = [];
+    const optionalClassQueryDeltas = [];
+    for (const value of ["codex", "code7x", "code77x"]) {
+      mixedChild.setAttribute("data-optional", value);
+      const before = wasmQueries;
+      optionalClassResults.push(mixedRoot.querySelector(optionalClassSelector) === mixedChild);
+      optionalClassQueryDeltas.push(wasmQueries - before);
+    }
+    const optionalClassRust =
+      JSON.stringify(optionalClassResults) === JSON.stringify([true, true, false]) &&
+      optionalClassQueryDeltas.every((delta) => delta === 1);
+    engine.Operators["#="] = { p1: "^code.+", p2: "$", p3: "true" };
+    const dotPatternSelector = '[data-dot-pattern#="x"]';
+    const dotPatternResults = [];
+    const dotPatternQueryDeltas = [];
+    for (const value of ["code7x", "code💡x", "codex", "code\nx"]) {
+      mixedChild.setAttribute("data-dot-pattern", value);
+      const before = wasmQueries;
+      dotPatternResults.push(mixedRoot.querySelector(dotPatternSelector) === mixedChild);
+      dotPatternQueryDeltas.push(wasmQueries - before);
+    }
+    const dotPatternRust =
+      JSON.stringify(dotPatternResults) === JSON.stringify([true, true, false, false]) &&
+      dotPatternQueryDeltas.every((delta) => delta === 1);
+    engine.Operators["#="] = { p1: "^batch.{2,3}", p2: "$", p3: "true" };
+    const dotBoundedSelector = '[data-dot-bounded#="x"]';
+    const dotBoundedResults = [];
+    const dotBoundedQueryDeltas = [];
+    for (const value of ["batch1x", "batch12x", "batch123x", "batch1234x"]) {
+      mixedChild.setAttribute("data-dot-bounded", value);
+      const before = wasmQueries;
+      dotBoundedResults.push(mixedRoot.querySelector(dotBoundedSelector) === mixedChild);
+      dotBoundedQueryDeltas.push(wasmQueries - before);
+    }
+    const dotBoundedRust =
+      JSON.stringify(dotBoundedResults) === JSON.stringify([false, true, true, false]) &&
+      dotBoundedQueryDeltas.every((delta) => delta === 1);
+    engine.Operators["#="] = { p1: "^batch[a-z]+", p2: "$", p3: "true" };
+    const asciiClassSelector = '[data-ascii-class#="x"]';
+    const asciiClassResults = [];
+    const asciiClassQueryDeltas = [];
+    for (const value of ["batchabcx", "batchxyzx", "batchAax", "batcha1x"]) {
+      mixedChild.setAttribute("data-ascii-class", value);
+      const before = wasmQueries;
+      asciiClassResults.push(mixedRoot.querySelector(asciiClassSelector) === mixedChild);
+      asciiClassQueryDeltas.push(wasmQueries - before);
+    }
+    engine.Operators["#="] = { p1: "^batch[\\w-]+", p2: "$", p3: "true" };
+    const wordShorthandSelector = '[data-word-shorthand#="x"]';
+    const wordShorthandResults = [];
+    const wordShorthandQueryDeltas = [];
+    for (const value of ["batcha_z-9x", "batchéx"]) {
+      mixedChild.setAttribute("data-word-shorthand", value);
+      const before = wasmQueries;
+      wordShorthandResults.push(mixedRoot.querySelector(wordShorthandSelector) === mixedChild);
+      wordShorthandQueryDeltas.push(wasmQueries - before);
+    }
+    const wordShorthandRust =
+      JSON.stringify(wordShorthandResults) === JSON.stringify([true, false]) &&
+      wordShorthandQueryDeltas.every((delta) => delta === 1);
+    const classShorthandCases = [
+      ["non-digit", "^item[\\D]+", "item-x", "item7x"],
+      ["non-word", "^item[\\W]+", "item-x", "itemAx"],
+      ["double-negated-digit", "^item[^\\D]+", "item7x", "item-x"],
+      ["space", "^item[\\s]+", "item\u00a0x", "itemx"],
+      ["non-space", "^item[\\S]+", "item-x", "item x"],
+      ["double-negated-space", "^item[^\\S]+", "item\u00a0x", "item-x"],
+      ["escaped-controls", "^item[\\t\\n]+", "item\tx", "item x"],
+    ];
+    const classShorthandResults = [];
+    const classShorthandQueryDeltas = [];
+    for (const [name, pattern, matches, rejects] of classShorthandCases) {
+      engine.Operators["#="] = { p1: pattern, p2: "$", p3: "true" };
+      const selector = `[data-class-${name}#="x"]`;
+      mixedChild.setAttribute(`data-class-${name}`, matches);
+      let before = wasmQueries;
+      const positive = mixedRoot.querySelector(selector) === mixedChild;
+      classShorthandQueryDeltas.push(wasmQueries - before);
+      mixedChild.setAttribute(`data-class-${name}`, rejects);
+      before = wasmQueries;
+      const negative = mixedRoot.querySelector(selector) === null;
+      classShorthandQueryDeltas.push(wasmQueries - before);
+      classShorthandResults.push(positive && negative);
+    }
+    const classShorthandRust =
+      JSON.stringify(classShorthandResults) ===
+        JSON.stringify([true, true, true, true, true, true, true]) &&
+      classShorthandQueryDeltas.every((delta) => delta === 1);
+    engine.Operators["#="] = { p1: "^batch[a-z]+", p2: "$", p3: "true" };
+    mixedChild.setAttribute("data-ascii-class-insensitive", "batchAax");
+    const insensitiveClassSelector = '[data-ascii-class-insensitive#="x" i]';
+    const beforeInsensitiveClass = wasmQueries;
+    const insensitiveClassRust =
+      mixedRoot.querySelector(insensitiveClassSelector) === mixedChild &&
+      wasmQueries === beforeInsensitiveClass + 1;
+    engine.Operators["#="] = { p1: "^batch[^0-9]+", p2: "$", p3: "true" };
+    const negatedAsciiClassSelector = '[data-negated-ascii-class#="x"]';
+    const negatedAsciiClassResults = [];
+    const negatedAsciiClassQueryDeltas = [];
+    for (const value of ["batch-x", "batch💡x", "batch7x"]) {
+      mixedChild.setAttribute("data-negated-ascii-class", value);
+      const before = wasmQueries;
+      negatedAsciiClassResults.push(
+        mixedRoot.querySelector(negatedAsciiClassSelector) === mixedChild,
+      );
+      negatedAsciiClassQueryDeltas.push(wasmQueries - before);
+    }
+    const asciiCharacterClassesRust =
+      JSON.stringify(asciiClassResults) === JSON.stringify([true, true, false, false]) &&
+      wordShorthandRust &&
+      classShorthandRust &&
+      JSON.stringify(negatedAsciiClassResults) === JSON.stringify([true, true, false]) &&
+      insensitiveClassRust &&
+      [...asciiClassQueryDeltas, ...negatedAsciiClassQueryDeltas].every((delta) => delta === 1);
+    const wordBoundaryCases = [
+      ["boundary", "^item\\b-", "item-x", "itemx"],
+      ["non-boundary", "^item\\B", "itemx", "item-x"],
+    ];
+    const wordBoundaryResults = [];
+    const wordBoundaryQueryDeltas = [];
+    for (const [name, pattern, matches, rejects] of wordBoundaryCases) {
+      engine.Operators["#="] = { p1: pattern, p2: "$", p3: "true" };
+      const selector = `[data-word-${name}#="x"]`;
+      mixedChild.setAttribute(`data-word-${name}`, matches);
+      let before = wasmQueries;
+      const positive = mixedRoot.querySelector(selector) === mixedChild;
+      wordBoundaryQueryDeltas.push(wasmQueries - before);
+      mixedChild.setAttribute(`data-word-${name}`, rejects);
+      before = wasmQueries;
+      const negative = mixedRoot.querySelector(selector) === null;
+      wordBoundaryQueryDeltas.push(wasmQueries - before);
+      wordBoundaryResults.push(positive && negative);
+    }
+    const regexWordBoundariesRust =
+      JSON.stringify(wordBoundaryResults) === JSON.stringify([true, true]) &&
+      wordBoundaryQueryDeltas.every((delta) => delta === 1);
+    engine.Operators["#="] = { p1: "^batch\\d{2,3}", p2: "$", p3: "true" };
+    const boundedClassSelector = '[data-bounded#="x"]';
+    const boundedClassResults = [];
+    const boundedClassQueryDeltas = [];
+    for (const value of ["batch1x", "batch12x", "batch123x", "batch1234x"]) {
+      mixedChild.setAttribute("data-bounded", value);
+      const before = wasmQueries;
+      boundedClassResults.push(mixedRoot.querySelector(boundedClassSelector) === mixedChild);
+      boundedClassQueryDeltas.push(wasmQueries - before);
+    }
+    const boundedClassRust =
+      JSON.stringify(boundedClassResults) === JSON.stringify([false, true, true, false]) &&
+      boundedClassQueryDeltas.every((delta) => delta === 1);
+    engine.Operators["#="] = { p1: "^item\\s+", p2: "$", p3: "true" };
+    const whitespaceClassSelector = '[data-whitespace#="x"]';
+    const whitespaceClassResults = [];
+    const whitespaceClassQueryDeltas = [];
+    for (const value of ["item\u00a0x", "item\u200bx"]) {
+      mixedChild.setAttribute("data-whitespace", value);
+      const before = wasmQueries;
+      whitespaceClassResults.push(mixedRoot.querySelector(whitespaceClassSelector) === mixedChild);
+      whitespaceClassQueryDeltas.push(wasmQueries - before);
+    }
+    const regexWhitespaceRust =
+      JSON.stringify(whitespaceClassResults) === JSON.stringify([true, false]) &&
+      whitespaceClassQueryDeltas.every((delta) => delta === 1);
+    const negatedClassCases = [
+      ["negative-digits", "^item\\D+", "item-x", "item7x"],
+      ["negative-word", "^item\\W+", "item-x", "itemAx"],
+      ["negative-space", "^item\\S+", "item\u200bx", "item\u00a0x"],
+    ];
+    const negatedClassResults = [];
+    const negatedClassQueryDeltas = [];
+    for (const [attribute, pattern, matches, rejects] of negatedClassCases) {
+      engine.Operators["#="] = { p1: pattern, p2: "$", p3: "true" };
+      const selector = `[data-${attribute}#="x"]`;
+      mixedChild.setAttribute(`data-${attribute}`, matches);
+      let before = wasmQueries;
+      const matchesNegatedClass = mixedRoot.querySelector(selector) === mixedChild;
+      negatedClassQueryDeltas.push(wasmQueries - before);
+      mixedChild.setAttribute(`data-${attribute}`, rejects);
+      before = wasmQueries;
+      const rejectsNegatedClass = mixedRoot.querySelector(selector) === null;
+      negatedClassQueryDeltas.push(wasmQueries - before);
+      negatedClassResults.push(matchesNegatedClass && rejectsNegatedClass);
+    }
+    const negatedClassesRust =
+      JSON.stringify(negatedClassResults) === JSON.stringify([true, true, true]) &&
+      negatedClassQueryDeltas.every((delta) => delta === 1);
+    engine.Operators["/="] = { p1: "^\\w+\\d+", p2: "\\s+\\w+$", p3: "true" };
+    mixedChild.setAttribute("data-code", "item12x abc");
+    const overlappingRuns = ["x", "2x", "missing"].map((value) => {
+      const selector = `[data-code/="${value}"]`;
+      const expected = engine.first(selector, mixedRoot);
+      const before = wasmQueries;
+      const actual = mixedRoot.querySelector(selector);
+      return [actual === expected, actual === mixedChild, wasmQueries - before];
+    });
+    engine.registerCombinator("!", () => "");
+    const beforeCustomCombinator = wasmQueries;
+    const customCombinatorRust =
+      document.querySelectorAll("p!p").length === engine.select("p!p", document).length &&
+      wasmQueries === beforeCustomCombinator + 1;
+    const beforeInstalledPlanCacheClear = compilationCalls;
+    backend.clearCache?.();
+    document.querySelector("#a");
+    const wasmPlanCacheClear = compilationCalls === beforeInstalledPlanCacheClear + 1;
+    const beforeZeroWidthResolver = wasmQueries;
+    engine.registerSelector("zeroWidth", /(?=p)/, (match, source) => ({
+      match,
+      status: true,
+      source,
+    }));
+    const zeroWidthCount = document.querySelectorAll("p").length;
+    const zeroWidthResolverFallback =
+      zeroWidthCount === 3 && wasmQueries === beforeZeroWidthResolver;
+    stage = "legacy configure";
+    engine.configure({ LEGACY: true });
+    stage = "legacy query";
+    const beforeLegacyQueries = wasmQueries;
+    const beforeLegacyFallbacks = wasmFallbacks;
+    const legacyInstalledQuery = document.querySelector("#a") === a;
+    const legacyTraversalQuery = engine.down(main, "#a") === a;
+    const legacyForeignAttribute = document.querySelector("use[*|href]")?.localName === "use";
+    const legacyQueriesRust =
+      legacyInstalledQuery &&
+      legacyTraversalQuery &&
+      legacyForeignAttribute &&
+      wasmQueries === beforeLegacyQueries + 3 &&
+      wasmFallbacks === beforeLegacyFallbacks;
+    engine.configure({ LEGACY: false });
+    document.querySelector("#a");
+    const hadPlans = livePlans.size > 0;
+    const beforeReinstallCompilations = compilationCalls;
+    engine.uninstall();
+    stage = "uninstall and reinstall";
+    const beforeReinstall = wasmQueries;
+    engine.uninstall();
+    const firstRestore =
+      hadPlans &&
+      livePlans.size === 0 &&
+      originalMethods.every((check) => check()) &&
+      document.querySelector("#a") === a &&
+      wasmQueries === beforeReinstall;
+    engine.install(false, backend);
+    const reinstalled =
+      document.querySelector("#a") === a &&
+      wasmQueries === beforeReinstall + 1 &&
+      compilationCalls === beforeReinstallCompilations + 1;
+    engine.uninstall();
+    const restored =
+      firstRestore &&
+      reinstalled &&
+      livePlans.size === 0 &&
+      originalMethods.every((check) => check());
+    report({
+      overlappingRuns,
+      prefixAliasRust,
+      mixedPatternRust,
+      zeroOrMorePatternRust,
+      unicodeRegexRust,
+      optionalClassRust,
+      dotPatternRust,
+      dotBoundedRust,
+      asciiCharacterClassesRust,
+      regexWordBoundariesRust,
+      boundedClassRust,
+      regexWhitespaceRust,
+      negatedClassesRust,
+      first,
+      second,
+      root,
+      foreign,
+      attr,
+      state,
+      target,
+      scopedTarget,
+      scopedTargetRust,
+      defined,
+      direction,
+      plugin,
+      pluginChained,
+      duplicateIdRust,
+      missingAttributeCaseRust,
+      routePlannerBridge,
+      wasmBulkHasPlannerBridge,
+      routePlannerHostBridge,
+      cacheConfigBridge,
+      wasmPlanCacheClear,
+      installedMethodsRust,
+      installedMethodDetails,
+      shadowIsolationRust,
+      pluginHidden,
+      pluginVisible,
+      pluginVisibilityUsesRust,
+      pluginParent,
+      pluginParentChildren,
+      pluginInput,
+      multiplePluginPseudos,
+      unicodeLocalNameRust,
+      nativeEmptyText,
+      wasmEmptyText,
+      nativeConstraintStates,
+      wasmConstraintStates,
+      nativeOptional,
+      wasmOptional,
+      nativeRequired,
+      wasmRequired,
+      wasmCompatibilityParity,
+      wasmCompatibilityAcceptedCases,
+      wasmCompatibilityRustCases,
+      wasmCompatibilityByContext,
+      wasmCompatibilityCaseCount: wasmCompatibilityCases.length,
+      wasmCompatibilityNativeFallbacks,
+      wasmCompatibilityFailures,
+      wasmCompatibilitySelectorCount: compatibilitySelectors.length,
+      wasmXmlCompilationCases,
+      wasmPlansCompiled: queries > 0,
+      wasmVersion,
+      focus,
+      focusVisible,
+      focusWithin,
+      active,
+      modal,
+      popover,
+      detailsOpen,
+      detailsClosed,
+      paused,
+      muted,
+      indeterminate,
+      placeholder,
+      visited,
+      visitedRust,
+      stateOnlySelectorsRust,
+      customState,
+      customStateRust,
+      escapedCustomState,
+      escapedCustomStateRust,
+      hasSlotted,
+      hasSlottedRust,
+      hasSlottedArgument,
+      hasSlottedArgumentRust,
+      slottedMutationClearsState,
+      slottedMutationRust,
+      slottedMutationRestoresState,
+      unmatchedSlottedArgument,
+      unmatchedSlottedArgumentRust,
+      multipleSlottedArguments,
+      multipleSlottedArgumentsRust,
+      nestedSlottedArgument,
+      nestedSlottedArgumentRust,
+      slottedPseudoElement,
+      slottedPseudoElementRust,
+      shadowHostParity,
+      shadowHostRust,
+      shadowLanguage,
+      shadowLanguageRust,
+      userState,
+      userStateRust,
+      valid,
+      invalid,
+      invalidForm,
+      invalidFieldset,
+      outOfRange,
+      inRange,
+      defaultValue,
+      defaultSubmitter,
+      columnCombinatorRust,
+      emptyForgivingListsRust,
+      nthCommentOfRust,
+      lateCustomFallback,
+      blockPassThroughRust,
+      blockLocalNameCallbacksRust,
+      pluginRemainsRustAfterCustom,
+      customOperatorRust,
+      customEqualityOperatorRust,
+      mixedCustomOperatorAndResolverRust,
+      multipleCustomOperatorsRust,
+      negativeOperatorAliasesRust,
+      negativeOperatorResults,
+      negativeOperatorQueryDeltas,
+      negativeOperatorFallbackDelta: wasmFallbacks - beforeNegativeOperatorFallbacks,
+      customWordOperatorRust,
+      customCombinatorRust,
+      zeroWidthResolverFallback,
+      legacyQueriesRust,
+      up,
+      next,
+      previous,
+      downFirst,
+      downZero,
+      downIndex,
+      downSelector,
+      strictForgiving,
+      strictFallback,
+      restored,
+    });
+  } catch (error) {
+    report({
+      error: String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      stage,
+    });
+  }
+</script>

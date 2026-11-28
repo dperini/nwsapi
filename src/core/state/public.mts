@@ -1,3 +1,5 @@
+import type { WasmQueryModule } from '../../adapter/wasm-query.mts'
+import type { InstalledQuery } from '../dom/install.mts'
 import type {
   EngineConfiguration,
   Configure,
@@ -128,6 +130,11 @@ export interface PublicState {
     attributeValueNS: (e: Element, name: string) => string | null
   }
   Dom: {
+    readonly routePlannerHost: RoutePlannerHost | undefined
+    readonly customBulkHasPlanner: boolean
+    readonly hasPluginPlans: boolean
+    readonly customSyntax: boolean
+    readonly customResolvers: boolean
     matchLambdas: PlanCache<CompiledResolver | null>
     selectLambdas: PlanCache<CompiledResolver | null>
     matchResolvers: PlanCache<CompiledResolver[]>
@@ -287,9 +294,17 @@ export interface PublicState {
       attributeValueNS: (e: Element, name: string) => string | null
     }
     Version: string
-    install: (all?: boolean) => void
+    createWasmInstalledQuery(wasm: WasmQueryModule): InstalledQuery
+    nativeTraversal?: (
+      direction: 'up' | 'down' | 'next' | 'previous',
+      expression: string | number | null | undefined,
+      node: Node,
+    ) => Element | null | undefined
+    directionality(element: Element): 'ltr' | 'rtl'
+    install: (all?: boolean, backend?: InstalledQuery) => void
     uninstall: () => void
     Operators: Record<string, AttributeOperator>
+    Combinators: Record<string, (match: RegExpMatchArray) => string>
     Selectors: Record<string, SelectorExtension>
     useRoutePlanner: (host: RoutePlannerHost | null) => void
     registerBulkHasPlanner: (planner: BulkHasPlanner | null) => void

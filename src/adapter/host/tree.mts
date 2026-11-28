@@ -70,14 +70,14 @@ function probeTreeCapabilities(
     next: probeTreeSibling(
       probe.left,
       probe.right,
-      probe.leftImpl,
+      probe.leftImpl as Node,
       tree.nextSibling,
       utils,
     ),
     prev: probeTreeSibling(
       probe.right,
       probe.left,
-      probe.rightImpl,
+      probe.rightImpl as Node,
       tree.previousSibling,
       utils,
     ),
@@ -92,7 +92,7 @@ function probeTreeParent(
 ) {
   try {
     return (
-      tree.parent(probe.leftImpl) === implementation &&
+      tree.parent(probe.leftImpl as Node) === implementation &&
       utils.wrapperForImpl(implementation) === probe.parent &&
       utils.wrapperForImpl(probe.leftImpl) === probe.left
     )

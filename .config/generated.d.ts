@@ -21,8 +21,10 @@ declare module '*/dist/nwsapi.js' {
 declare module '*/dist/adapter/dom-selector.js' {
   // oxlint-disable-next-line typescript/consistent-type-imports -- Keep this wildcard declaration ambient.
   type SelectorList = import('css-tree').SelectorList
+  // oxlint-disable-next-line typescript/consistent-type-imports -- Keep this wildcard declaration ambient.
+  type HostOptions = import('../src/adapter/jsdom.mts').HostOptions
   export default class DOMSelector {
-    constructor(window: unknown, document?: unknown, options?: unknown)
+    constructor(window: unknown, document?: unknown, options?: HostOptions)
     static configure(
       window: unknown,
       options: Record<string, boolean | number>,
@@ -52,6 +54,8 @@ declare module '*/dist/adapter/dom-selector.js' {
       node: unknown,
       options?: { noexcept?: boolean },
     ): Element[]
+    install(all?: boolean): void
+    uninstall(): void
     clear(clearAll?: boolean): void
     supports(selector: unknown): boolean
     extractSubjects(selector?: string): Array<{

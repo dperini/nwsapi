@@ -61,9 +61,10 @@ function closestPlan(
   var key = 'closest:' + (callback ? 'true:' : 'false:') + selectors,
     plan = engine.matchResolvers.get(key)
   if (!plan) {
+    const reads = engine.pluginPlanReads
     var parsed = engine.parse(selectors, true)
     plan = parsed ? engine.match_collect(parsed, callback) : []
-    engine.matchResolvers.set(key, plan)
+    engine.matchResolvers.set(key, plan, reads !== engine.pluginPlanReads)
   }
   return plan
 }

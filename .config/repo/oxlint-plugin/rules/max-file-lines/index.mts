@@ -42,8 +42,7 @@ const rule = {
             .getAllComments()
             .filter(c => c.loc.start.line <= MAX_FILE_HEADER_COMMENT_LINES)
           for (let i = 0, { length } = leadingComments; i < length; i += 1) {
-            const c = leadingComments[i]!
-            if (BYPASS_RE.test(c.value)) {
+            if (BYPASS_RE.test(leadingComments[i]!.value)) {
               return
             }
           }

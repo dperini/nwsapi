@@ -1,3 +1,5 @@
+import type { WasmQueryModule } from '../src/adapter/wasm-query.mts'
+import type { InstalledQuery } from '../src/core/dom/install.mts'
 import type {
   EngineConfiguration,
   Configure,
@@ -10,7 +12,23 @@ export type NwsapiContext = Document | DocumentFragment | Element
 
 export interface NwsapiEngine {
   Config: EngineConfiguration
+  Selectors: Record<
+    string,
+    {
+      Expression: RegExp
+      Callback: Parameters<NwsapiEngine['registerSelector']>[2]
+    }
+  >
+  Combinators: Record<string, (match: RegExpMatchArray) => string>
+  Operators: Record<string, unknown>
+  directionality(element: Element): 'ltr' | 'rtl'
+  nativeTraversal?(
+    direction: 'up' | 'down' | 'next' | 'previous',
+    expression: string | number | null | undefined,
+    node: Node,
+  ): Element | null | undefined
   useRoutePlanner(host: RoutePlannerHost | null): void
+  readonly routePlannerHost: RoutePlannerHost | undefined
   registerBulkHasPlanner(planner: BulkHasPlanner | null): void
   Version: string
   Snapshot: {
@@ -26,6 +44,13 @@ export interface NwsapiEngine {
       selector: string,
       fallback?: boolean,
     ): boolean | undefined
+    isFocusable(element: Element): Element | false
+    isModal(element: Element): boolean | undefined
+    isFullscreen(element: Element): boolean
+    isPictureInPicture(element: Element): boolean | undefined
+    isPopoverOpen(element: Element): boolean | undefined
+    isMediaState(media: HTMLMediaElement, state: string): boolean
+    isRadioGroupChecked(element: Element): boolean
     mayMatch(
       this: void,
       node: Element,
@@ -56,8 +81,10 @@ export interface NwsapiEngine {
     bytes?(): number
   }
   S_BODY: string
+  N_BODY: string
   M_BODY: string
   S_TEST: string
+  N_TEST: string
   M_TEST: string
   select(
     this: void,
@@ -90,7 +117,8 @@ export interface NwsapiEngine {
       ) => Element[] | boolean)
     | null
   configure: Configure
-  install(all?: boolean): void
+  createWasmInstalledQuery(wasm: WasmQueryModule): InstalledQuery
+  install(all?: boolean, backend?: InstalledQuery): void
   uninstall(): void
   registerLegacyHooks(factory: LegacyHookFactory): boolean
   registerOperator(
@@ -108,7 +136,10 @@ export interface NwsapiEngine {
     ) => unknown,
   ): void
   up?(element: Element, expression?: string | number): Element | null
-  down?(element: Element, expression?: string | number | null): Element | null
+  down?(
+    element: Node | null,
+    expression?: string | number | null,
+  ): Element | null
   next?(element: Element, expression?: string | number): Element | null
   previous?(element: Element, expression?: string | number): Element | null
 }

@@ -54,6 +54,7 @@ export function initializeRuntime(engine: EngineState) {
     operators: '[~*^$|]=|=',
     combinators: '[\\x20\\t>+~](?=[^>+~])',
   }
+  engine.registeredSyntax = { ...engine.CFG }
   engine.REX = {
     HasEscapes: /\\/,
     HexNumbers: /^[0-9a-fA-F]/,
@@ -80,13 +81,13 @@ export function initializeRuntime(engine: EngineState) {
     useraction:
       /^:(?:(hover|active|focus\-within|focus\-visible|focus)\b)(.*)/i,
     inputstate:
-      /^:(?:(enabled|disabled|read\-only|read\-write|placeholder\-shown|default|autofill|-webkit\-autofill)\b)(.*)/i,
+      /^:(?:(enabled|disabled|-moz\-read\-only|-moz\-read\-write|read\-only|read\-write|placeholder\-shown|default|autofill|-webkit\-autofill)\b)(.*)/i,
     inputvalue:
       /^:(?:(checked|indeterminate|required|optional|valid|invalid|in\-range|out\-of\-range)\b)(.*)/i,
     rsrc_state:
       /^:(?:(playing|paused|seeking|buffering|stalled|muted|volume\-locked)\b)(.*)/i,
     disp_state:
-      /^:(?:(open|closed|modal|fullscreen|picture\-in\-picture|popover\-open|popover)\b)(.*)/i,
+      /^:(?:(-webkit\-full\-screen\-ancestor|-webkit\-full\-screen|open|closed|modal|fullscreen|picture\-in\-picture|popover\-open|popover)\b)(.*)/i,
     time_state: /^:(?:(current|past|future)\b)(.*)/i,
     locationpc: /^:(?:(any\-link|link|visited|target|defined)\b)(.*)/i,
     logicalsel:
@@ -117,6 +118,9 @@ export function initializeRuntime(engine: EngineState) {
     VERBOSITY: true,
   }
   engine.bulkHasPlanner = routePlannerPolicy('chromium')
+  engine.routePlannerHost = 'chromium'
+  engine.customBulkHasPlanner = false
+  engine.customResolvers = false
   engine.createWeakMap = createWeakMap.bind(
     null,
     engine,

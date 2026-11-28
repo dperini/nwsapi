@@ -71,6 +71,7 @@ export function firstCompiled(
   }
   plan = engine.firstResolvers.get(selectors)
   if (!plan) {
+    const reads = engine.pluginPlanReads
     const collected = engine.collect(
       engine.parse(selectors, true) as string[],
       context,
@@ -79,7 +80,7 @@ export function firstCompiled(
       true,
     )
     plan = { factory: collected.factory, nodeset: collected.nodeset }
-    engine.firstResolvers.set(selectors, plan)
+    engine.firstResolvers.set(selectors, plan, reads !== engine.pluginPlanReads)
   }
   for (var nodesetLength = plan.nodeset.length, i = 0; i < nodesetLength; ++i) {
     resolver = plan.factory[i]!

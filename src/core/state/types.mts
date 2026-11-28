@@ -161,11 +161,12 @@ export interface SelectorExtension {
 }
 
 export interface PlanCache<Value> {
+  hasExternalEntries?(): boolean
   has?(key: string): boolean
   bytes?(): number
   clear(): void
   get(key: string): Value | undefined
-  set(key: string, value: Value): Value
+  set(key: string, value: Value, external?: boolean): Value
   size(): number
 }
 

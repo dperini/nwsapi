@@ -1,0 +1,57 @@
+[workspace]
+members = ["dom", "node", "wasm"]
+default-members = [".", "dom"]
+resolver = "2"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+# We bridge f64 layout math and integer indices/lengths with bounded, intentional casts.
+cast_possible_truncation = "allow"
+cast_precision_loss = "allow"
+cast_sign_loss = "allow"
+cast_possible_wrap = "allow"
+# Exact float comparisons here test canonical/sentinel values (e.g. `0.0`), not approximations.
+float_cmp = "allow"
+# Single-char names are idiomatic for the tokenizer / loop indices (`i`, `j`, `n`, `c`).
+many_single_char_names = "allow"
+# Test-time DOM oracle: it deliberately doesn't document every panic/error path.
+missing_panics_doc = "allow"
+missing_errors_doc = "allow"
+# A few config-ish structs legitimately carry several independent bool flags.
+struct_excessive_bools = "allow"
+# One large dispatch fn reads better intact than artificially split.
+too_many_lines = "allow"
+# We intentionally pin the concrete FxHashMap hasher rather than generalize over hashers.
+implicit_hasher = "allow"
+# `f32::midpoint` rounds through f64, so `(a + b) / 2.0` -> `a.midpoint(b)` can move the
+# last bit of layout / paint geometry; outputs are pinned byte for byte, keep the f32 math.
+manual_midpoint = "allow"
+
+[package]
+name = "nwsapi-has"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.100.1"
+license = "MIT"
+publish = false
+description = "Experimental Rust port of NWSAPI v3 selector matching"
+
+[lib]
+path = "src/lib.rs"
+
+[features]
+default = ["jit"]
+jit = ["dep:cranelift-codegen", "dep:cranelift-frontend", "dep:cranelift-jit", "dep:cranelift-module"]
+
+[target.'cfg(any(target_arch = "aarch64", target_arch = "x86_64"))'.dependencies]
+cranelift-codegen = { version = "=0.123.20", optional = true }
+cranelift-frontend = { version = "=0.123.20", optional = true }
+cranelift-jit = { version = "=0.123.20", optional = true }
+cranelift-module = { version = "=0.123.20", optional = true }
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+strip = "debuginfo"
+
+[lints]

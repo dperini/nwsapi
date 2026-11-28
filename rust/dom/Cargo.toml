@@ -1,0 +1,66 @@
+[package]
+name = "nwsapi"
+version = "0.1.0"
+publish = false
+edition = "2021"
+# Consolidation Rust version for turbo-dom, -layout and -raster.
+rust-version = "1.100.1"
+description = "Standalone Rust DOM and NWSAPI v3 selector engine"
+license = "MIT"
+repository = "https://github.com/dperini/nwsapi"
+readme = "README.md"
+keywords = ["dom", "html", "parser", "html5ever", "scraping"]
+categories = ["parser-implementations", "web-programming"]
+
+[package.metadata.upstream]
+repository = "https://github.com/miaskiewicz/turbo-dom"
+revision = "76e67f5554e28497a03b43b2ab6add73e67f1c0f"
+integration-revision = "4f75138b020d06a659fc0a790d43270bb4c545da"
+
+[lib]
+crate-type = ["rlib"]
+
+[features]
+default = ["jit"]
+jit = ["nwsapi-has/jit"]
+
+[dependencies]
+indexmap = "2"
+regress = "0.11.1"
+nwsapi-has = { path = "..", version = "0.1.0", default-features = false }
+# Spec-compliant WHATWG parser (same core as turbo-dom). The runtime builds its
+# COW tree directly over the SoA this produces.
+html5ever = "0.39"
+markup5ever_rcdom = "0.39"
+# Fast non-crypto hashing for SoA string interning (parse hot path).
+rustc-hash = "2"
+# Immutable small-string-optimized string (inline for short strings, no heap).
+# Backs the mutation-owned overlay fields (created element/text/comment data, attr
+# name/value pairs, text overrides), which are only ever assigned/replaced, never
+# mutated in place. Lighter than compact_str (no numeric-formatting deps).
+smol_str = "0.3"
+# Small-vector optimization for the per-node overlay child/attr lists. Inlines
+# small lists (≤8 child handles / ≤2 attr pairs) so mutation churn doesn't heap-
+# alloc a Vec per mutated node; the rare wide node spills to the heap. API-compatible
+# with Vec (push/remove/iter/Deref to slice). Already in the tree transitively (via
+# parking_lot), so it adds no new crate.
+smallvec = "1"
+# The license-preserved UTF-16 tokenizer adapter uses the upstream diagnostics.
+log = "0.4"
+# CSS Syntax tokenizer for the Chrome-compatible value grammars in rtdom::css_values
+# (`zoom`), shared by turbo-dom-browser-env and native layout consumers.
+cssparser = "0.37"
+# Bidi character classes for `:dir()` auto directionality (the first strong character of
+# an element's text, HTML "auto directionality"). The hardcoded Unicode tables only.
+unicode-bidi = { version = "0.3.18", default-features = false, features = ["hardcoded-data"] }
+lru = { version = "0.16", default-features = false }
+
+# clippy's opt-in `pedantic` group as a warn-level gate (CI's `-D warnings` escalates
+# it to an error), with the documented allow-list in the workspace root's
+# `[workspace.lints.clippy]` — shared with turbo-dom-layout and turbo-dom-raster.
+[lints]
+workspace = true
+
+[dev-dependencies]
+sha2 = "0.10"
+serde_json = "1"

@@ -56,6 +56,7 @@ export function compile(
 
   collectSharedAttributes(selector, compiler)
 
+  const reads = engine.pluginPlanReads
   source = engine.compileSelector(
     relative && !/^[>+~]/.test(selector) ? ' ' + selector : selector,
     relative ? 'if(e===s.anchor){' + macro + '}' : macro,
@@ -66,7 +67,7 @@ export function compile(
   )
 
   if ((mode || mode === null) && !callback && source === macro) {
-    engine.selectLambdas.set(cacheKey, null)
+    engine.selectLambdas.set(cacheKey, null, reads !== engine.pluginPlanReads)
     return null
   }
 
@@ -112,9 +113,13 @@ export function compile(
   annotateResolver(factory, filtered, ancestry.position)
 
   if (mode || mode === null) {
-    engine.selectLambdas.set(cacheKey, factory)
+    engine.selectLambdas.set(
+      cacheKey,
+      factory,
+      reads !== engine.pluginPlanReads,
+    )
   } else {
-    engine.matchLambdas.set(cacheKey, factory)
+    engine.matchLambdas.set(cacheKey, factory, reads !== engine.pluginPlanReads)
   }
 
   return factory

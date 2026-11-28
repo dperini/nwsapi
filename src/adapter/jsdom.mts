@@ -1,3 +1,4 @@
+import type { NativeQueryBinding } from './native-query.mts'
 import { installTreeReaders } from './host/tree.mts'
 
 export interface HostReaders {
@@ -10,10 +11,11 @@ export interface HostReaders {
 
 export type IdlUtils = {
   wrapperForImpl(node: unknown): Node
-  implForWrapper?(node: Node): Node | undefined
+  implForWrapper?(node: Node): object | undefined
 }
 
 export type HostOptions = {
+  nativeQuery?: NativeQueryBinding | undefined
   idlUtils?: IdlUtils
   domSymbolTree?: {
     parent(node: Node): Node | null
@@ -53,12 +55,19 @@ export function createHostReaders(
 
   const tree = options.domSymbolTree
   if (tree && implementation) {
-    installTreeReaders(readers, document, tree, implementation, unwrap, utils)
+    installTreeReaders(
+      readers,
+      document,
+      tree,
+      implementation as Node,
+      node => unwrap(node) as Node | undefined,
+      utils,
+    )
   }
   return readers
 }
 
-function unwrapSafely(node: Node, unwrap: (node: Node) => Node | undefined) {
+function unwrapSafely(node: Node, unwrap: (node: Node) => object | undefined) {
   try {
     return unwrap(node)
   } catch {
@@ -69,9 +78,9 @@ function unwrapSafely(node: Node, unwrap: (node: Node) => Node | undefined) {
 function installAttributeReaders(
   readers: HostReaders,
   probe: Element,
-  implementation: Node | undefined,
+  implementation: object | undefined,
   utils: IdlUtils,
-  unwrap: (node: Node) => Node | undefined,
+  unwrap: (node: Node) => object | undefined,
 ) {
   if (!implementation) {
     return
@@ -114,7 +123,7 @@ function probeAttributeReader(
 function readAttribute(
   node: Element,
   name: string,
-  unwrap: (node: Node) => Node | undefined,
+  unwrap: (node: Node) => object | undefined,
 ) {
   try {
     const implementation = unwrap(node) as Element | undefined
@@ -130,7 +139,7 @@ function readAttribute(
 function readHasAttribute(
   node: Element,
   name: string,
-  unwrap: (node: Node) => Node | undefined,
+  unwrap: (node: Node) => object | undefined,
 ) {
   try {
     const implementation = unwrap(node) as Element | undefined
@@ -152,7 +161,7 @@ interface TraversalCapabilities {
 function probeDirectTraversal(
   document: Document,
   probe: Element,
-  probeImpl: Node | undefined,
+  probeImpl: object | undefined,
   utils: IdlUtils,
 ) {
   if (!probeImpl || !utils.implForWrapper) {
@@ -214,11 +223,11 @@ function makeProbeChildren(
 
 function probeDirectCapabilities(
   probe: Element,
-  probeImpl: Node,
+  probeImpl: object,
   child: Element,
   tail: Element,
-  childImpl: Node,
-  tailImpl: Node,
+  childImpl: object,
+  tailImpl: object,
   utils: IdlUtils,
 ): TraversalCapabilities {
   return {
@@ -230,12 +239,13 @@ function probeDirectCapabilities(
 
 function probeDirectParent(
   probe: Element,
-  probeImpl: Node,
-  childImpl: Node,
+  probeImpl: object,
+  childImpl: object,
   utils: IdlUtils,
 ) {
   try {
-    const parent = (childImpl as Node & { parentNode?: Node | null }).parentNode
+    const parent = (childImpl as object & { parentNode?: object | null })
+      .parentNode
     return parent === probeImpl && utils.wrapperForImpl(parent) === probe
   } catch {
     return false
@@ -245,7 +255,7 @@ function probeDirectParent(
 function probeDirectSibling(
   start: Element,
   expected: Element,
-  implementation: Node,
+  implementation: object,
   direction: 'nextSibling' | 'previousSibling',
   utils: IdlUtils,
 ) {
@@ -253,9 +263,9 @@ function probeDirectSibling(
     if (utils.wrapperForImpl(implementation) !== start) {
       return false
     }
-    const sibling = (implementation as Node & { [key: string]: Node | null })[
-      direction
-    ]
+    const sibling = (
+      implementation as object & { [key: string]: object | null }
+    )[direction]
     return (
       sibling !== undefined &&
       findElementSibling(sibling, direction, utils) === expected
@@ -273,7 +283,7 @@ function createDirectParentReader(utils: IdlUtils) {
     }
     try {
       const implementation = utils.implForWrapper!(node) as
-        | (Node & { parentNode?: Node | null })
+        | (object & { parentNode?: object | null })
         | undefined
       if (!implementation) {
         enabled = false
@@ -307,7 +317,7 @@ function createDirectSiblingReader(
     }
     try {
       const implementation = utils.implForWrapper!(node) as
-        | (Node & { [key: string]: Node | null | undefined })
+        | (object & { [key: string]: object | null | undefined })
         | undefined
       if (!implementation || implementation[direction] === undefined) {
         enabled = false
@@ -331,7 +341,7 @@ function publicSibling(
 }
 
 function findElementSibling(
-  node: Node | null | undefined,
+  node: object | null | undefined,
   direction: 'nextSibling' | 'previousSibling',
   utils: IdlUtils,
 ) {
@@ -341,9 +351,9 @@ function findElementSibling(
     if (wrapper.nodeType === 1) {
       return wrapper as Element
     }
-    current = (current as Node & { [key: string]: Node | null | undefined })[
-      direction
-    ]
+    current = (
+      current as object & { [key: string]: object | null | undefined }
+    )[direction]
   }
   return null
 }

@@ -47,9 +47,12 @@ test('opt-out and re-enable invalidate prepared routes while keeping exact resul
 
 test('policy selection, removal, and invalid hosts preserve consistent configuration', () => {
   const { engine } = fixture()
+  expect(engine.routePlannerHost).toBe('chromium')
   engine.useRoutePlanner(null)
+  expect(engine.routePlannerHost).toBeUndefined()
   expect(engine.Config.ROUTE_PLANNER).toBe(false)
   engine.useRoutePlanner('jsdom')
+  expect(engine.routePlannerHost).toBe('jsdom')
   expect(engine.Config.ROUTE_PLANNER).toBe(true)
   expect(() => engine.useRoutePlanner('invalid' as 'jsdom')).toThrow(TypeError)
   expect(engine.Config.ROUTE_PLANNER).toBe(true)

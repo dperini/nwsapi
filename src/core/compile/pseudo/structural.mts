@@ -21,10 +21,10 @@ export function compilePseudoStructural(
         '}'
       break
     case 'empty':
-      // Content is an element, text or CDATA child; numeric compares
-      // stay correct where a string regex would misread the digits.
+      // Content is an element or non-empty text/CDATA child. Empty text nodes
+      // are ignored by browsers; comments and processing instructions never count.
       state.source =
-        'n=e.firstChild;while(n&&n.nodeType!=1&&n.nodeType!=3&&n.nodeType!=4){n=n.nextSibling}if(!n){' +
+        'n=e.firstChild;while(n&&n.nodeType!=1&&((n.nodeType!=3&&n.nodeType!=4)||!n.nodeValue)){n=n.nextSibling}if(!n){' +
         state.source +
         '}'
       break

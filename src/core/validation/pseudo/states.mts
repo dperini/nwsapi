@@ -344,7 +344,21 @@ export function isHost(
     if (engine.match(argument, current)) {
       return true
     }
-    current = contextual ? engine.upOf(current) : null
+    current = contextual ? shadowIncludingParent(engine, current) : null
   } while (current)
   return false
+}
+
+function shadowIncludingParent(
+  engine: EngineState,
+  element: Element,
+): Element | null {
+  const parent = engine.upOf(element)
+  if (parent) {
+    return parent
+  }
+  const root = element.parentNode
+  return root?.nodeType === 11 && 'host' in root
+    ? (root as ShadowRoot).host
+    : null
 }

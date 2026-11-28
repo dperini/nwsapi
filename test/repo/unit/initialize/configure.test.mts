@@ -12,6 +12,13 @@ function setup() {
   }
 }
 
+test('public compiler template aliases expose the matching template values', () => {
+  const { engine } = setup()
+  expect(engine.M_BODY).toBe('')
+  expect(engine.N_BODY).toBe('r[++j]=c.item(k);')
+  expect(engine.N_BODY).not.toBe(engine.M_BODY)
+})
+
 test('numeric cache settings resize existing caches and preserve boolean options', () => {
   const { engine, element } = setup()
   engine.match('.hit', element)

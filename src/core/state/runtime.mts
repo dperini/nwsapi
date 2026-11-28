@@ -24,6 +24,8 @@ export interface RuntimeState {
   root: HTMLElement
   ELEMENT_PROTO: Element
   sliceCall: (nodes: ArrayLike<Element>) => Element[]
+  registeredSyntax: { operators: string; combinators: string }
+  customSyntax: boolean
   CFG: { operators: string; combinators: string }
   REX: {
     HasEscapes: RegExp

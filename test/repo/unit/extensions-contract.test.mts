@@ -108,6 +108,7 @@ test('custom combinators and operators reject duplicate registrations without ch
   const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
   // A custom identity combinator retains the selected candidates.
   engine.registerCombinator('!', () => '')
+  expect(engine.Combinators['!']).toBeDefined()
   expect(engine.select('p!p', doc)).toEqual(
     Array.from(doc.querySelectorAll('p')),
   )
@@ -117,6 +118,21 @@ test('custom combinators and operators reject duplicate registrations without ch
   engine.registerOperator('!=', { p1: 'n!="', p2: '"', p3: 'true' })
   Reflect.apply(Reflect.get(engine, 'registerOperator'), engine, ['!=', {}])
   expect(warning).toHaveBeenCalledTimes(2)
+})
+
+test('identity combinators receive the compiled prefix and match both sides on one node', t => {
+  const { engine, doc } = fixture(t)
+  const captures: string[][] = []
+  engine.registerCombinator('!', match => {
+    captures.push(Array.from(match))
+    return ''
+  })
+  const paragraphs = Array.from(doc.getElementsByTagName('p'))
+  expect(engine.select('p!p', doc)).toEqual(paragraphs)
+  expect(captures).toEqual([['p!', '*']])
+  expect(engine.select('main!p', doc)).toEqual([])
+  expect(engine.select('p!p!p', doc)).toEqual(paragraphs)
+  expect(captures).toContainEqual(['p!p!', '*'])
 })
 
 test('configuration getters and quiet validation preserve public return contracts', t => {

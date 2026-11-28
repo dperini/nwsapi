@@ -17,7 +17,32 @@
 
 // These are extension examples, not a complete implementation of jQuery.
 // :has() is provided by the core Selectors Level 4 compiler.
-NW.Dom.registerSelector(
+const nativeJqueryResolver = '__nwsapi$nativeJqueryResolver$__'
+
+function registerNativeSelector(
+  name: string,
+  expression: RegExp,
+  callback: Parameters<typeof NW.Dom.registerSelector>[2],
+): void {
+  const previous = NW.Dom.Selectors[name]
+  NW.Dom.registerSelector(name, expression, callback)
+  const registered = NW.Dom.Selectors[name] as
+    | { Callback?: unknown; Expression?: unknown }
+    | undefined
+  if (
+    registered &&
+    registered !== previous &&
+    registered.Callback === callback
+  ) {
+    Object.defineProperty(registered, nativeJqueryResolver, {
+      get: () =>
+        registered.Callback === callback &&
+        registered.Expression === expression,
+    })
+  }
+}
+
+registerNativeSelector(
   'jquery:child',
   /^\:((?:(nth|eq|lt|gt)\(([^()]*)\))|(?:even|odd|first|last))(.*)/i,
   function (match, source, mode) {
@@ -86,7 +111,7 @@ NW.Dom.registerSelector(
   },
 )
 
-NW.Dom.registerSelector(
+registerNativeSelector(
   'jquery:pseudo',
   /^\:(checkbox|file|image|password|radio|reset|submit|text|button|input|header|hidden|visible|parent)(.*)/i,
   function (match, source) {

@@ -15,7 +15,14 @@ export function compilePseudoDisplay(
       state.source = 'if(s.isModal(e)){' + state.source + '}'
       break
     case 'fullscreen':
+    case '-webkit-full-screen':
       state.source = 'if(s.isFullscreen(e)){' + state.source + '}'
+      break
+    case '-webkit-full-screen-ancestor':
+      state.source =
+        'if(s.matchesNative(e,":-webkit-full-screen-ancestor")){' +
+        state.source +
+        '}'
       break
     case 'picture-in-picture':
       state.source = 'if(s.isPictureInPicture(e)){' + state.source + '}'

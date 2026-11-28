@@ -1,3 +1,4 @@
+import type { InstalledQuery } from '../dom/install.mts'
 import type { Configure } from '../initialize/configuration.mts'
 import type { CodeFactoryCache } from '../compile/factory.mts'
 import type {
@@ -17,6 +18,7 @@ import type {
   CompilerAncestry,
   CompilerContext,
 } from './types.mts'
+import type { RoutePlannerHost } from '../select/has/policy.mts'
 
 export interface ChildPlanPart {
   tag: string | undefined
@@ -32,6 +34,10 @@ export interface ChildPlan {
 
 export interface QueryState {
   bulkHasPlanner?: BulkHasPlanner | undefined
+  routePlannerHost?: RoutePlannerHost | undefined
+  customBulkHasPlanner: boolean
+  pluginPlanReads: number
+  customResolvers: boolean
   codeFactories: CodeFactoryCache | null | undefined
   nthElement: (element: Element | null, dir: number) => number
   nthFiltered: (
@@ -298,7 +304,7 @@ export interface QueryState {
   _querySelectorDoc: Document['querySelector']
   _querySelectorAllDoc: Document['querySelectorAll']
   argsWith: <Value>(args: ArrayLike<Value>, tail: Value) => Value[]
-  install: (all?: boolean) => void
+  install: (all?: boolean, backend?: InstalledQuery) => void
   uninstall: () => void
   none: never[]
   lastContext: EngineContext | undefined

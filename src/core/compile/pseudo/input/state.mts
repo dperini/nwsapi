@@ -25,9 +25,7 @@ export function compilePseudoInput(
     // Missing HTML input type is text. Avoid the host's type
     // normalization getter on this common path.
     case 'read-only':
-    case '-moz-read-only':
     case 'read-write':
-    case '-moz-read-write':
       compileReadonlyInput(state)
       break
     case 'autofill':
@@ -60,19 +58,26 @@ export function compilePseudoInput(
       if (state.engine.S_VARS.indexOf('_d') < 0) {
         state.engine.S_VARS.push('_d=0')
       }
+      if (state.engine.S_VARS.indexOf('_v') < 0) {
+        state.engine.S_VARS.push('_v')
+      }
       state.source =
         '_u=e.localName;_t=e.type;' +
         'if(("form" in e&&(o=e.form))){' +
-        '_d=0;n=null;' +
-        'if(_t=="image")n=o.getElementsByTagName("input");' +
-        '_t=="submit"&&(n=o.elements);' +
-        'while(n&&n[_d]&&e!==n[_d]){' +
-        'if(n[_d].type=="image")break;' +
-        'if(n[_d].type=="submit")break;' +
+        '_v=null;n=o.elements;_d=0;' +
+        'while(n&&n[_d]){if(n[_d].type=="submit"){_v=n[_d];break;}_d++;}' +
+        'n=o.getElementsByTagName("input");_d=0;' +
+        'while(n&&n[_d]){' +
+        'if(n[_d].form===o&&n[_d].type=="image"&&(!_v||(_v.compareDocumentPosition(n[_d])&2))){_v=n[_d];}' +
+        '_d++;' +
+        '}' +
+        'n=o.ownerDocument.getElementsByTagName("input");_d=0;' +
+        'while(n&&n[_d]){' +
+        'if(n[_d].form===o&&n[_d].type=="image"&&(!_v||(_v.compareDocumentPosition(n[_d])&2))){_v=n[_d];}' +
         '_d++;' +
         '}' +
         '}' +
-        'if((o=e.form)&&((n&&e===n[_d])&&s.includes("|image|submit|","|"+_t+"|"))||' +
+        'if((o=e.form)&&(e===_v)&&s.includes("|image|submit|","|"+_t+"|")||' +
         '(("option"==_u||/^option$/i.test(_u))&&e.defaultSelected)||' +
         '((s.includes("|radio|checkbox|","|"+_t+"|"))&&e.defaultChecked)' +
         '){' +

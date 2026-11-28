@@ -50,11 +50,129 @@ export function argsWith<Value>(
   }
 }
 
-export function install(engine: EngineState, all?: boolean) {
+export type InstalledQueryMethod =
+  | 'closest'
+  | 'match'
+  | 'first'
+  | 'select'
+  | `traverse:${'up' | 'down' | 'next' | 'previous'}:${string}`
+/**
+ * Return undefined to delegate unsupported queries to v3.
+ */
+export type InstalledQuery = ((
+  method: InstalledQueryMethod,
+  selector: string,
+  context: EngineContext,
+) => Element[] | undefined) & { clearCache?(): void }
+
+type Installation = {
+  engine: EngineState
+  backend: InstalledQuery | undefined
+  restore(): void
+}
+type InstallationEntry = { key: object; installation: Installation }
+let installations: WeakMap<object, Installation> | undefined
+const installationEntries: InstallationEntry[] = []
+
+function getInstallation(key: object): Installation | undefined {
+  if (installations) {
+    return installations.get(key)
+  }
+  return installationEntries.find(entry => entry.key === key)?.installation
+}
+
+function setInstallation(key: object, installation: Installation) {
+  if (installations) {
+    installations.set(key, installation)
+    return
+  }
+  const entry = installationEntries.find(entry => entry.key === key)
+  if (entry) {
+    entry.installation = installation
+  } else {
+    installationEntries.push({ key, installation })
+  }
+}
+
+function deleteInstallation(key: object) {
+  if (installations) {
+    installations.delete(key)
+    return
+  }
+  const index = installationEntries.findIndex(entry => entry.key === key)
+  if (index !== -1) {
+    installationEntries.splice(index, 1)
+  }
+}
+
+function saveMethods(prototype: object, methodNames: readonly string[]) {
+  const target = prototype as Record<string, unknown>
+  const descriptors = methodNames.map(name =>
+    Object.getOwnPropertyDescriptor(target, name),
+  )
+  return () => {
+    for (let index = 0, length = methodNames.length; index < length; index++) {
+      const name = methodNames[index]!
+      const descriptor = descriptors[index]
+      if (descriptor) {
+        Object.defineProperty(target, name, descriptor)
+      } else {
+        delete target[name]
+      }
+    }
+  }
+}
+
+export function install(
+  engine: EngineState,
+  all?: boolean,
+  backend?: InstalledQuery,
+) {
+  if (!installations && engine.primordials.WeakMapCtor) {
+    installations = new engine.primordials.WeakMapCtor<object, Installation>()
+  }
   var Element = engine.global.Element,
     HTMLElement = engine.global.HTMLElement,
     Document = engine.global.Document,
     DocumentFragment = engine.global.DocumentFragment
+
+  const key = Element.prototype
+  const existing = getInstallation(key)
+  if (existing) {
+    uninstall(existing.engine)
+  }
+  const elementMethods = [
+    'closest',
+    'matches',
+    'querySelector',
+    'querySelectorAll',
+  ]
+  const rootMethods = ['querySelector', 'querySelectorAll']
+  const restoreElement = saveMethods(Element.prototype, elementMethods)
+  const restoreHtml = saveMethods(HTMLElement.prototype, elementMethods)
+  const restoreDocument = saveMethods(Document.prototype, rootMethods)
+  const restoreFragment = saveMethods(DocumentFragment.prototype, rootMethods)
+  setInstallation(key, {
+    engine,
+    backend,
+    restore() {
+      restoreFragment()
+      restoreDocument()
+      restoreHtml()
+      restoreElement()
+    },
+  })
+
+  function queryBackend(
+    method: InstalledQueryMethod,
+    context: EngineContext,
+    args: IArguments,
+  ): Element[] | undefined {
+    if (backend && args.length === 1 && typeof args[0] === 'string') {
+      return backend(method, args[0], context)
+    }
+    return undefined
+  }
 
   // Saved DOM methods are invoked with their receiver or restored below.
   /* oxlint-disable typescript/unbound-method */
@@ -86,61 +204,88 @@ export function install(engine: EngineState, all?: boolean) {
           ])
   }
 
-  Element.prototype.closest = HTMLElement.prototype.closest = function closest(
-    this: Element,
-  ) {
-    return (parseQSArgs<Element | null>).apply(
-      this,
-      engine.argsWith(arguments, engine.ancestor),
-    )
+  try {
+    Element.prototype.closest = HTMLElement.prototype.closest =
+      function closest(this: Element) {
+        const native = queryBackend('closest', this, arguments)
+        if (native) {
+          return native[0] ?? null
+        }
+        return (parseQSArgs<Element | null>).apply(
+          this,
+          engine.argsWith(arguments, engine.ancestor),
+        )
+      }
+
+    Element.prototype.matches = HTMLElement.prototype.matches =
+      function matches(this: Element): this is Element {
+        const native = queryBackend('match', this, arguments)
+        if (native) {
+          return native.length > 0
+        }
+        return (parseQSArgs<boolean>).apply(
+          this,
+          engine.argsWith(arguments, engine.match),
+        )
+      } as Element['matches']
+
+    Element.prototype.querySelector = HTMLElement.prototype.querySelector =
+      function querySelector(this: EngineContext) {
+        const native = queryBackend('first', this, arguments)
+        if (native) {
+          return native[0] ?? null
+        }
+        return (parseQSArgs<Element | null>).apply(
+          this,
+          engine.argsWith(arguments, engine.first),
+        )
+      }
+
+    Element.prototype.querySelectorAll =
+      HTMLElement.prototype.querySelectorAll = function querySelectorAll(
+        this: EngineContext,
+      ) {
+        const native = queryBackend('select', this, arguments)
+        return engine.toNodeList(
+          native ??
+            (parseQSArgs<Element[]>).apply(
+              this,
+              engine.argsWith(arguments, engine.select),
+            ),
+        ) as NodeListOf<Element>
+      }
+
+    Document.prototype.querySelector =
+      DocumentFragment.prototype.querySelector = function querySelector(
+        this: EngineContext,
+      ) {
+        const native = queryBackend('first', this, arguments)
+        if (native) {
+          return native[0] ?? null
+        }
+        return (parseQSArgs<Element | null>).apply(
+          this,
+          engine.argsWith(arguments, engine.first),
+        )
+      }
+
+    Document.prototype.querySelectorAll =
+      DocumentFragment.prototype.querySelectorAll = function querySelectorAll(
+        this: EngineContext,
+      ) {
+        const native = queryBackend('select', this, arguments)
+        return engine.toNodeList(
+          native ??
+            (parseQSArgs<Element[]>).apply(
+              this,
+              engine.argsWith(arguments, engine.select),
+            ),
+        ) as NodeListOf<Element>
+      }
+  } catch (error) {
+    uninstall(engine)
+    throw error
   }
-
-  Element.prototype.matches = HTMLElement.prototype.matches = function matches(
-    this: Element,
-  ): this is Element {
-    return (parseQSArgs<boolean>).apply(
-      this,
-      engine.argsWith(arguments, engine.match),
-    )
-  } as Element['matches']
-
-  Element.prototype.querySelector = HTMLElement.prototype.querySelector =
-    function querySelector(this: EngineContext) {
-      return (parseQSArgs<Element | null>).apply(
-        this,
-        engine.argsWith(arguments, engine.first),
-      )
-    }
-
-  Element.prototype.querySelectorAll = HTMLElement.prototype.querySelectorAll =
-    function querySelectorAll(this: EngineContext) {
-      return engine.toNodeList(
-        (parseQSArgs<Element[]>).apply(
-          this,
-          engine.argsWith(arguments, engine.select),
-        ),
-      ) as NodeListOf<Element>
-    }
-
-  Document.prototype.querySelector = DocumentFragment.prototype.querySelector =
-    function querySelector(this: EngineContext) {
-      return (parseQSArgs<Element | null>).apply(
-        this,
-        engine.argsWith(arguments, engine.first),
-      )
-    }
-
-  Document.prototype.querySelectorAll =
-    DocumentFragment.prototype.querySelectorAll = function querySelectorAll(
-      this: EngineContext,
-    ) {
-      return engine.toNodeList(
-        (parseQSArgs<Element[]>).apply(
-          this,
-          engine.argsWith(arguments, engine.select),
-        ),
-      ) as NodeListOf<Element>
-    }
 
   if (all && engine.legacyHooks) {
     engine.legacyHooks.installFrames(
@@ -151,30 +296,11 @@ export function install(engine: EngineState, all?: boolean) {
 }
 
 export function uninstall(engine: EngineState) {
-  var Element = engine.global.Element,
-    HTMLElement = engine.global.HTMLElement,
-    Document = engine.global.Document,
-    DocumentFragment = engine.global.DocumentFragment
-
-  // restore references
-  if (engine._closest) {
-    Element.prototype.closest = engine._closest
-    HTMLElement.prototype.closest = engine._closest
-  }
-  if (engine._matches) {
-    Element.prototype.matches = engine._matches
-    HTMLElement.prototype.matches = engine._matches
-  }
-  if (engine._querySelector) {
-    Element.prototype.querySelector = HTMLElement.prototype.querySelector =
-      engine._querySelector
-    Element.prototype.querySelectorAll =
-      HTMLElement.prototype.querySelectorAll = engine._querySelectorAll
-  }
-  if (engine._querySelectorAllDoc) {
-    Document.prototype.querySelector =
-      DocumentFragment.prototype.querySelector = engine._querySelectorDoc
-    Document.prototype.querySelectorAll =
-      DocumentFragment.prototype.querySelectorAll = engine._querySelectorAllDoc
+  const key = engine.global.Element.prototype
+  const installation = getInstallation(key)
+  if (installation && installation.engine === engine) {
+    installation.restore()
+    deleteInstallation(key)
+    installation.backend?.clearCache?.()
   }
 }
